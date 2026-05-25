@@ -1376,10 +1376,10 @@
             </button>
             <div id="countryPanel" class="country-panel"></div>
           </div>
-          <div id="authStatus" class="auth-status">Signed out</div>
+          <div id="authStatus" class="auth-status" style="display: none;"></div>
           <button id="recordsShortcutBtn" class="auth-toggle records-shortcut" type="button">Records</button>
           <button id="topGoogleSignInBtn" class="auth-toggle" type="button">Google sign in</button>
-          <button id="signOutBtn" class="auth-toggle" type="button">Sign out</button>
+          <button id="signOutBtn" class="auth-toggle" type="button" style="display: none;">Sign out</button>
         </div>
       </nav>
 
@@ -2412,6 +2412,7 @@
     function updateAuthUI() {
       if (currentUser) {
         authStatus.textContent = "Signed in as " + currentUserLabel;
+        authStatus.style.display = "inline-block";
         recordsShortcutBtn.style.display = "inline-block";
         signOutBtn.style.display = "inline-block";
         topGoogleSignInBtn.style.display = "none";
@@ -2423,7 +2424,8 @@
         return;
       }
 
-      authStatus.textContent = "Signed out";
+      authStatus.textContent = "";
+      authStatus.style.display = "none";
       recordsShortcutBtn.style.display = "inline-block";
       recordsShortcutBtn.textContent = "Records";
       signOutBtn.style.display = "none";
