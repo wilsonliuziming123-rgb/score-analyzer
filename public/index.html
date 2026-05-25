@@ -1092,6 +1092,7 @@
         </div>
         <div class="auth-controls">
           <div id="authStatus" class="auth-status">Signed out</div>
+          <button id="topGoogleSignInBtn" class="auth-toggle" type="button">Google sign in</button>
           <button id="signOutBtn" class="auth-toggle" type="button">Sign out</button>
         </div>
       </nav>
@@ -1367,6 +1368,7 @@
     const authPanelTitle = document.getElementById("authPanelTitle");
     const authPanelText = document.getElementById("authPanelText");
     const googleSignInBtn = document.getElementById("googleSignInBtn");
+    const topGoogleSignInBtn = document.getElementById("topGoogleSignInBtn");
     const authCookieName = "scoreAnalyzerUser";
     const baseRecordsKey = "studentScoreAnalyzerRecords";
     let currentUser = "";
@@ -1379,6 +1381,7 @@
     signInForm.addEventListener("submit", signIn);
     signOutBtn.addEventListener("click", signOut);
     googleSignInBtn.addEventListener("click", startGoogleSignIn);
+    topGoogleSignInBtn.addEventListener("click", startGoogleSignIn);
     clearRecordsBtn.addEventListener("click", clearRecords);
     recordList.addEventListener("click", handleRecordAction);
     window.addEventListener("load", initializePage);
@@ -1769,6 +1772,7 @@
       if (currentUser) {
         authStatus.textContent = "Signed in as " + currentUserLabel;
         signOutBtn.style.display = "inline-block";
+        topGoogleSignInBtn.style.display = "none";
         authPanel.classList.add("signed-in");
         authPanelTitle.textContent = "Welcome back, " + currentUserLabel;
         authPanelText.textContent = "Your analyses will be saved automatically to your personal records on this browser.";
@@ -1779,6 +1783,9 @@
 
       authStatus.textContent = "Signed out";
       signOutBtn.style.display = "none";
+      topGoogleSignInBtn.style.display = "inline-block";
+      topGoogleSignInBtn.disabled = !googleConfigured;
+      topGoogleSignInBtn.textContent = googleConfigured ? "Google sign in" : "Google setup required";
       authPanel.classList.remove("signed-in");
       authPanelTitle.textContent = "Sign in to save your records";
       authPanelText.textContent = "Use a name for this browser. Your saved analyses will be separated by user.";
