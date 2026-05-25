@@ -1,0 +1,15 @@
+{
+  "name": "score-analyzer",
+  "version": "1.0.0",
+  "description": "A web app that analyzes student scores.",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

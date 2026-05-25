@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Score Analyzer</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+      color: #222;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .score-poster {
+      margin: 0 0 28px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 3px solid #111;
+      background: #111;
+      box-shadow: 0 10px 0 #d7a514;
+    }
+
+    .score-poster svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .poster-bars rect {
+      transform-box: fill-box;
+      transform-origin: bottom;
+      animation: barPulse 1.8s ease-in-out infinite;
+    }
+
+    .poster-bars rect:nth-child(2) {
+      animation-delay: 0.12s;
+    }
+
+    .poster-bars rect:nth-child(3) {
+      animation-delay: 0.24s;
+    }
+
+    .poster-bars rect:nth-child(4) {
+      animation-delay: 0.36s;
+    }
+
+    .poster-bars rect:nth-child(5) {
+      animation-delay: 0.48s;
+    }
+
+    .poster-plus {
+      animation: flashBadge 1.3s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .poster-cape {
+      animation: capeFloat 2.4s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: center bottom;
+    }
+
+    .poster-player {
+      animation: playerBounce 2.8s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: center bottom;
+    }
+
+    .poster-ball {
+      animation: ballSpin 2.2s linear infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .poster-badge {
+      animation: badgePop 2s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    @keyframes barPulse {
+      0%, 100% {
+        transform: scaleY(0.88);
+      }
+
+      50% {
+        transform: scaleY(1.08);
+      }
+    }
+
+    @keyframes flashBadge {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.82;
+      }
+
+      50% {
+        transform: scale(1.12);
+        opacity: 1;
+      }
+    }
+
+    @keyframes capeFloat {
+      0%, 100% {
+        transform: skewX(0deg) translateY(0);
+      }
+
+      50% {
+        transform: skewX(-3deg) translateY(-4px);
+      }
+    }
+
+    @keyframes playerBounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    @keyframes ballSpin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes badgePop {
+      0%, 100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.04);
+      }
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 140px;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+
+    .hint {
+      font-size: 14px;
+      color: #666;
+      margin-top: 8px;
+    }
+
+    .button-group {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+    }
+
+    button {
+      padding: 12px 18px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    #analyzeBtn {
+      background: #2563eb;
+      color: white;
+    }
+
+    #analyzeBtn:hover {
+      background: #1d4ed8;
+    }
+
+    #clearBtn {
+      background: #e5e7eb;
+      color: #222;
+    }
+
+    #clearBtn:hover {
+      background: #d1d5db;
+    }
+
+    .error {
+      margin-top: 20px;
+      padding: 12px;
+      background: #fee2e2;
+      color: #991b1b;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .results {
+      margin-top: 30px;
+      display: none;
+    }
+
+    .results h2 {
+      margin-bottom: 16px;
+    }
+
+    .chart-section {
+      margin-bottom: 24px;
+      padding: 18px;
+      border: 2px solid #111827;
+      border-radius: 12px;
+      background: #181716;
+      box-shadow: 0 8px 0 #d7a514;
+      color: white;
+    }
+
+    .chart-section h3 {
+      margin: 0 0 6px;
+      color: #facc15;
+    }
+
+    .chart-note {
+      margin: 0 0 16px;
+      color: #fef3c7;
+      font-size: 14px;
+    }
+
+    .chart-wrap {
+      overflow-x: auto;
+    }
+
+    .warnings-section {
+      margin-bottom: 24px;
+      padding: 18px;
+      border: 2px solid #111827;
+      border-radius: 12px;
+      background: #fffdf5;
+      box-shadow: 0 6px 0 #111827;
+    }
+
+    .warnings-section h3 {
+      margin: 0 0 14px;
+      color: #111827;
+    }
+
+    .warning-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .warning-item {
+      position: relative;
+      padding: 14px 14px 14px 58px;
+      border-radius: 10px;
+      border: 2px solid;
+      line-height: 1.45;
+      font-size: 15px;
+      font-weight: 600;
+      overflow: hidden;
+      animation: warningSlideIn 0.35s ease both;
+    }
+
+    .warning-item::before {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      width: 30px;
+      height: 30px;
+      transform: translateY(-50%);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .warning-danger::before {
+      content: "!";
+      background: #b91c1c;
+      animation: warningPulse 1.4s ease-in-out infinite;
+    }
+
+    .warning-caution::before {
+      content: "?";
+      background: #d97706;
+    }
+
+    .warning-good::before {
+      content: "OK";
+      background: #16a34a;
+      font-size: 11px;
+    }
+
+    .warning-danger {
+      background: #fee2e2;
+      border-color: #b91c1c;
+      color: #991b1b;
+    }
+
+    .warning-caution {
+      background: #fef3c7;
+      border-color: #d97706;
+      color: #92400e;
+    }
+
+    .warning-good {
+      background: #dcfce7;
+      border-color: #16a34a;
+      color: #166534;
+    }
+
+    .chart-bar {
+      transform-box: fill-box;
+      transform-origin: bottom;
+      animation: chartRise 0.7s ease-out both, chartGlow 2.2s ease-in-out infinite;
+    }
+
+    .chart-value {
+      animation: valuePop 0.45s ease-out both;
+    }
+
+    .mean-line {
+      stroke-dasharray: 8 7;
+      animation: dashMove 1.1s linear infinite;
+    }
+
+    @keyframes warningSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes warningPulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(185, 28, 28, 0.35);
+      }
+
+      50% {
+        box-shadow: 0 0 0 7px rgba(185, 28, 28, 0);
+      }
+    }
+
+    @keyframes chartRise {
+      from {
+        transform: scaleY(0.05);
+      }
+
+      to {
+        transform: scaleY(1);
+      }
+    }
+
+    @keyframes chartGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 0 rgba(250, 204, 21, 0));
+      }
+
+      50% {
+        filter: drop-shadow(0 0 5px rgba(250, 204, 21, 0.55));
+      }
+    }
+
+    @keyframes valuePop {
+      from {
+        opacity: 0;
+        transform: translateY(7px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes dashMove {
+      from {
+        stroke-dashoffset: 0;
+      }
+
+      to {
+        stroke-dashoffset: -15;
+      }
+    }
+
+    #statisticsChart {
+      display: block;
+      width: 100%;
+      min-width: 620px;
+      height: auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .key-grid {
+      margin-bottom: 22px;
+    }
+
+    .card {
+      background: #f9fafb;
+      padding: 18px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .card-title {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #111827;
+    }
+
+    .advanced-details {
+      margin-top: 6px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      background: #f9fafb;
+      overflow: hidden;
+    }
+
+    .advanced-details summary {
+      padding: 16px 18px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #111827;
+      list-style-position: inside;
+    }
+
+    .advanced-content {
+      padding: 0 18px 18px;
+    }
+
+    .sorted-section {
+      margin-top: 25px;
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .sorted-section p {
+      line-height: 1.6;
+      word-break: break-word;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 18px;
+        padding: 20px;
+      }
+
+      .score-poster {
+        border-width: 2px;
+        box-shadow: 0 7px 0 #d7a514;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Student Score Analyzer</h1>
+    <p class="subtitle">
+      Enter student scores and calculate maximum, minimum, mean, median, quartiles, IQR, and range.
+    </p>
+
+    <div class="score-poster" aria-label="Dark comic and number seven football inspired score analysis illustration">
+      <svg viewBox="0 0 900 260" role="img" xmlns="http://www.w3.org/2000/svg">
+        <rect width="900" height="260" fill="#181716" />
+        <polygon points="0,0 520,0 425,260 0,260" fill="#f0be22" />
+        <polygon points="526,0 900,0 900,260 432,260" fill="#064e3b" />
+        <polygon points="704,0 900,0 900,260 780,260" fill="#26211f" opacity="0.76" />
+        <polygon points="0,198 900,122 900,260 0,260" fill="#b61f26" opacity="0.9" />
+
+        <g opacity="0.16" stroke="#111" stroke-width="3">
+          <path d="M38 22 L212 248" />
+          <path d="M130 0 L352 260" />
+          <path d="M304 0 L492 260" />
+          <path d="M642 0 L860 260" />
+          <path d="M0 84 H900" />
+          <path d="M0 164 H900" />
+        </g>
+
+        <g class="poster-bars" transform="translate(72 56)">
+          <rect x="0" y="116" width="54" height="68" fill="#111" />
+          <rect x="76" y="76" width="54" height="108" fill="#111" />
+          <rect x="152" y="38" width="54" height="146" fill="#111" />
+          <rect x="228" y="92" width="54" height="92" fill="#111" />
+          <rect x="304" y="22" width="54" height="162" fill="#111" />
+          <path d="M0 184 H388" stroke="#111" stroke-width="10" />
+          <g class="poster-plus">
+            <circle cx="331" cy="18" r="20" fill="#b61f26" />
+            <path d="M316 18 H346 M331 3 V33" stroke="#f0be22" stroke-width="5" />
+          </g>
+        </g>
+
+        <g transform="translate(555 33)">
+          <path class="poster-cape" d="M92 66 C44 88 20 146 14 205 L244 205 C238 145 215 90 168 66 C156 94 105 94 92 66Z" fill="#111" />
+          <path d="M96 66 C104 90 156 90 164 66 C156 48 143 38 130 38 C117 38 104 48 96 66Z" fill="#f0be22" />
+          <path d="M85 205 L130 86 L175 205Z" fill="#b61f26" />
+          <circle cx="130" cy="38" r="30" fill="#111" />
+          <path d="M105 39 H155" stroke="#f0be22" stroke-width="8" />
+          <path d="M80 205 H188" stroke="#f0be22" stroke-width="8" />
+        </g>
+
+        <g class="poster-player" transform="translate(650 28)">
+          <path d="M42 188 C48 129 67 94 96 94 C125 94 145 129 151 188 Z" fill="#dc2626" />
+          <path d="M68 101 L37 135 L54 154 L81 124 Z" fill="#dc2626" />
+          <path d="M124 101 L155 135 L138 154 L111 124 Z" fill="#dc2626" />
+          <path d="M72 97 L96 132 L120 97 Z" fill="#064e3b" />
+          <circle cx="96" cy="68" r="29" fill="#f5d0a9" />
+          <path d="M66 62 C71 35 104 23 131 43 C119 45 103 45 84 53 C77 56 72 60 66 62 Z" fill="#111827" />
+          <path d="M81 70 H111" stroke="#111827" stroke-width="5" stroke-linecap="round" />
+          <path d="M85 82 C92 89 101 89 108 82" stroke="#7f1d1d" stroke-width="4" fill="none" stroke-linecap="round" />
+          <text x="96" y="171" text-anchor="middle" font-size="70" font-weight="900" fill="white">7</text>
+          <g class="poster-ball">
+            <circle cx="172" cy="177" r="24" fill="white" />
+            <path d="M172 163 L185 172 L180 187 H164 L159 172 Z" fill="#111827" />
+            <path d="M172 153 L172 163 M185 172 L196 168 M180 187 L187 199 M164 187 L157 199 M159 172 L148 168" stroke="#111827" stroke-width="3" stroke-linecap="round" />
+            <path d="M154 160 L148 168 L151 181 M190 160 L196 168 L193 181 M157 199 L172 204 L187 199" stroke="#111827" stroke-width="3" fill="none" stroke-linecap="round" />
+          </g>
+        </g>
+
+        <g class="poster-badge" transform="translate(462 26)">
+          <rect x="0" y="0" width="132" height="32" rx="6" fill="#f0be22" />
+          <text x="66" y="22" text-anchor="middle" font-size="15" font-weight="900" fill="#111827">SIUUU MODE</text>
+        </g>
+
+        <text x="478" y="218" font-size="34" font-weight="900" fill="#f0be22">NUMBER 7 ENERGY</text>
+        <text x="481" y="242" font-size="15" font-weight="700" fill="#fff7ed">stats, scores, and victory poses in one chart-ready banner</text>
+
+        <g fill="#f0be22" opacity="0.9">
+          <circle cx="806" cy="44" r="7" />
+          <circle cx="838" cy="62" r="4" />
+          <circle cx="782" cy="86" r="5" />
+          <circle cx="852" cy="146" r="9" />
+          <circle cx="513" cy="42" r="5" />
+        </g>
+
+        <g fill="#111">
+          <path d="M454 48 L485 64 L452 76 Z" />
+          <path d="M498 154 L535 168 L500 185 Z" />
+          <path d="M34 218 L72 202 L74 237 Z" />
+        </g>
+      </svg>
+    </div>
+
+    <label for="scoreInput">Enter scores:</label>
+    <textarea 
+      id="scoreInput" 
+      placeholder="Example: 87, 92, 76, 100, 65, 88, 91"
+    ></textarea>
+
+    <p class="hint">
+      You can separate scores with commas, spaces, or new lines. Scores must be between 0 and 100.
+    </p>
+
+    <div class="button-group">
+      <button id="analyzeBtn">Analyze Scores</button>
+      <button id="clearBtn">Clear</button>
+    </div>
+
+    <div id="errorBox" class="error"></div>
+
+    <div id="results" class="results">
+      <h2>Results</h2>
+
+      <div class="warnings-section">
+        <h3>Warnings</h3>
+        <div id="warningsList" class="warning-list"></div>
+      </div>
+
+      <div class="chart-section">
+        <h3>Statistics Chart</h3>
+        <p class="chart-note">Visual comparison of all score statistics.</p>
+        <div class="chart-wrap">
+          <svg id="statisticsChart" viewBox="0 0 760 320" role="img" aria-label="Score statistics bar chart"></svg>
+        </div>
+      </div>
+
+      <div class="grid key-grid">
+        <div class="card">
+          <div class="card-title">Number of Students</div>
+          <div class="card-value" id="countResult"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Average Score</div>
+          <div class="card-value" id="meanResult"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Passing Count</div>
+          <div class="card-value" id="passingResult"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Failing Count</div>
+          <div class="card-value" id="failingResult"></div>
+        </div>
+      </div>
+
+      <details class="advanced-details">
+        <summary>Show detailed statistics</summary>
+
+        <div class="advanced-content">
+          <div class="grid">
+            <div class="card">
+              <div class="card-title">Highest Score</div>
+              <div class="card-value" id="maxResult"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Lowest Score</div>
+              <div class="card-value" id="minResult"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Standard Deviation</div>
+              <div class="card-value" id="standardDeviationResult"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Median</div>
+              <div class="card-value" id="medianResult"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Q1</div>
+              <div class="card-value" id="q1Result"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Q3</div>
+              <div class="card-value" id="q3Result"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">IQR</div>
+              <div class="card-value" id="iqrResult"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Range</div>
+              <div class="card-value" id="rangeResult"></div>
+            </div>
+          </div>
+
+          <div class="sorted-section">
+            <h3>Sorted Scores</h3>
+            <p id="sortedResult"></p>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <script>
+    const scoreInput = document.getElementById("scoreInput");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const errorBox = document.getElementById("errorBox");
+    const results = document.getElementById("results");
+    const statisticsChart = document.getElementById("statisticsChart");
+    const warningsList = document.getElementById("warningsList");
+    const savedInputKey = "studentScoreAnalyzerInput";
+    const savedResultsKey = "studentScoreAnalyzerResults";
+
+    analyzeBtn.addEventListener("click", analyzeScores);
+    clearBtn.addEventListener("click", clearAll);
+    scoreInput.addEventListener("input", saveCurrentInput);
+    window.addEventListener("load", loadSavedData);
+
+    async function analyzeScores() {
+      hideError();
+
+      const input = scoreInput.value.trim();
+
+      try {
+        // Send the raw textarea text to the backend for validation and statistics.
+        const response = await fetch("/api/analyze-scores", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            scoresInput: input
+          })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+          showError(result.error);
+          localStorage.removeItem(savedResultsKey);
+          return;
+        }
+
+        localStorage.setItem(savedInputKey, input);
+        localStorage.setItem(savedResultsKey, JSON.stringify(result.data));
+        displayResults(result.data);
+      } catch (error) {
+        showError("Unable to analyze scores. Please make sure the server is running.");
+      }
+    }
+
+    function displayResults(statistics) {
+      statistics = addMissingStandardDeviation(statistics);
+
+      // Put each returned statistic into its matching result card.
+      document.getElementById("countResult").textContent = statistics.count;
+      document.getElementById("maxResult").textContent = formatNumber(statistics.max);
+      document.getElementById("minResult").textContent = formatNumber(statistics.min);
+      document.getElementById("meanResult").textContent = formatNumber(statistics.mean);
+      document.getElementById("standardDeviationResult").textContent = formatNumber(statistics.standardDeviation);
+      document.getElementById("medianResult").textContent = formatNumber(statistics.median);
+      document.getElementById("q1Result").textContent = formatNumber(statistics.q1);
+      document.getElementById("q3Result").textContent = formatNumber(statistics.q3);
+      document.getElementById("iqrResult").textContent = formatNumber(statistics.iqr);
+      document.getElementById("rangeResult").textContent = formatNumber(statistics.range);
+      document.getElementById("passingResult").textContent = statistics.passingCount;
+      document.getElementById("failingResult").textContent = statistics.failingCount;
+      document.getElementById("sortedResult").textContent = statistics.sortedScores.join(", ");
+
+      drawStatisticsChart(statistics);
+      displayWarnings(statistics);
+      results.style.display = "block";
+    }
+
+    function displayWarnings(statistics) {
+      const warnings = buildWarnings(statistics);
+
+      warningsList.innerHTML = warnings.map(function (warning) {
+        return `<div class="warning-item warning-${warning.type}"><strong>${warning.label}</strong> ${warning.message}</div>`;
+      }).join("");
+    }
+
+    function buildWarnings(statistics) {
+      const warnings = [];
+      const failingRate = statistics.failingCount / statistics.count;
+
+      if (statistics.mean < 60) {
+        warnings.push({
+          type: "danger",
+          label: "Urgent:",
+          message: "Average score is below 60. The group may need urgent support."
+        });
+      } else if (statistics.mean < 70) {
+        warnings.push({
+          type: "caution",
+          label: "Watch:",
+          message: "Average score is close to the passing line. Review weak topics soon."
+        });
+      } else if (statistics.mean >= 90) {
+        warnings.push({
+          type: "good",
+          label: "Strong:",
+          message: "Average score is very high. Overall performance looks strong."
+        });
+      }
+
+      if (statistics.min < 40) {
+        warnings.push({
+          type: "danger",
+          label: "Low score:",
+          message: "Lowest score is under 40. At least one student may need individual help."
+        });
+      } else if (statistics.min < 60) {
+        warnings.push({
+          type: "caution",
+          label: "Below pass:",
+          message: "Lowest score is below passing. Check which student needs extra practice."
+        });
+      }
+
+      if (failingRate >= 0.3) {
+        warnings.push({
+          type: "danger",
+          label: "High risk:",
+          message: "30% or more of the students are failing. This is a high-risk result."
+        });
+      } else if (statistics.failingCount > 0) {
+        warnings.push({
+          type: "caution",
+          label: "Support:",
+          message: "Some students are failing. Passing support may be needed."
+        });
+      }
+
+      if (statistics.standardDeviation >= 20) {
+        warnings.push({
+          type: "caution",
+          label: "Spread:",
+          message: "Standard deviation is high. Scores are spread out, so the class is uneven."
+        });
+      }
+
+      if (statistics.range >= 50) {
+        warnings.push({
+          type: "caution",
+          label: "Gap:",
+          message: "Range is large. The gap between top and bottom scores is wide."
+        });
+      }
+
+      if (statistics.max >= 95) {
+        warnings.push({
+          type: "good",
+          label: "Peak:",
+          message: "Highest score is excellent. There is strong top-end performance."
+        });
+      }
+
+      if (warnings.length === 0) {
+        warnings.push({
+          type: "good",
+          label: "Steady:",
+          message: "No major warnings. The score distribution looks steady."
+        });
+      }
+
+      return warnings.slice(0, 3);
+    }
+
+    function drawStatisticsChart(statistics) {
+      const chartValues = [
+        { label: "Lowest", value: statistics.min, color: "#b61f26" },
+        { label: "Q1", value: statistics.q1, color: "#d7a514" },
+        { label: "Median", value: statistics.median, color: "#111827" },
+        { label: "Q3", value: statistics.q3, color: "#d7a514" },
+        { label: "Highest", value: statistics.max, color: "#2563eb" },
+        { label: "Average", value: statistics.mean, color: "#16a34a" },
+        { label: "Std Dev", value: statistics.standardDeviation, color: "#7c3aed" }
+      ];
+
+      const chartHeight = 210;
+      const chartBottom = 250;
+      const chartMax = Math.min(100, Math.max(10, Math.ceil(statistics.max / 10) * 10));
+      const halfChartMax = chartMax / 2;
+      const barWidth = 54;
+      const gap = 42;
+      const startX = 58;
+      const averageY = chartBottom - (statistics.mean / chartMax) * chartHeight;
+
+      let chartHtml = `
+        <rect x="0" y="0" width="760" height="320" fill="#181716"></rect>
+        <polygon points="0,0 260,0 198,320 0,320" fill="#f0be22" opacity="0.12"></polygon>
+        <polygon points="510,0 760,0 760,320 585,320" fill="#b61f26" opacity="0.18"></polygon>
+        <line x1="44" y1="40" x2="44" y2="250" stroke="#fef3c7" stroke-width="2"></line>
+        <line x1="44" y1="250" x2="720" y2="250" stroke="#fef3c7" stroke-width="2"></line>
+        <text x="16" y="47" font-size="12" fill="#fef3c7">${formatNumber(chartMax)}</text>
+        <text x="22" y="151" font-size="12" fill="#fef3c7">${formatNumber(halfChartMax)}</text>
+        <text x="28" y="254" font-size="12" fill="#fef3c7">0</text>
+        <line x1="44" y1="145" x2="720" y2="145" stroke="#374151" stroke-width="1"></line>
+        <line x1="44" y1="40" x2="720" y2="40" stroke="#374151" stroke-width="1"></line>
+        <line class="mean-line" x1="44" y1="${averageY}" x2="720" y2="${averageY}" stroke="#facc15" stroke-width="3"></line>
+        <text x="612" y="${averageY - 8}" font-size="12" font-weight="700" fill="#facc15">average line</text>
+      `;
+
+      chartValues.forEach(function (item, index) {
+        const x = startX + index * (barWidth + gap);
+        const barHeight = Math.max((item.value / chartMax) * chartHeight, 2);
+        const y = chartBottom - barHeight;
+        const delay = index * 0.08;
+
+        chartHtml += `
+          <rect class="chart-bar" x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="7" fill="${item.color}" style="animation-delay: ${delay}s, ${delay + 0.7}s"></rect>
+          <text class="chart-value" x="${x + barWidth / 2}" y="${y - 10}" text-anchor="middle" font-size="15" font-weight="700" fill="#fef3c7" style="animation-delay: ${delay + 0.12}s">${formatNumber(item.value)}</text>
+          <text x="${x + barWidth / 2}" y="282" text-anchor="middle" font-size="13" fill="#fef3c7">${item.label}</text>
+        `;
+      });
+
+      statisticsChart.innerHTML = chartHtml;
+    }
+
+    function addMissingStandardDeviation(statistics) {
+      if (typeof statistics.standardDeviation === "number") {
+        return statistics;
+      }
+
+      if (!Array.isArray(statistics.sortedScores) || statistics.sortedScores.length === 0) {
+        return statistics;
+      }
+
+      let squaredDifferenceSum = 0;
+
+      for (let i = 0; i < statistics.sortedScores.length; i++) {
+        squaredDifferenceSum += Math.pow(statistics.sortedScores[i] - statistics.mean, 2);
+      }
+
+      statistics.standardDeviation = Math.sqrt(squaredDifferenceSum / statistics.sortedScores.length);
+      return statistics;
+    }
+
+    function formatNumber(num) {
+      if (typeof num !== "number") {
+        return "";
+      }
+
+      if (Number.isInteger(num)) {
+        return num;
+      } else {
+        return num.toFixed(2);
+      }
+    }
+
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.style.display = "block";
+      results.style.display = "none";
+    }
+
+    function hideError() {
+      errorBox.textContent = "";
+      errorBox.style.display = "none";
+    }
+
+    function saveCurrentInput() {
+      localStorage.setItem(savedInputKey, scoreInput.value);
+    }
+
+    function loadSavedData() {
+      const savedInput = localStorage.getItem(savedInputKey);
+      const savedResults = localStorage.getItem(savedResultsKey);
+
+      if (savedInput) {
+        scoreInput.value = savedInput;
+      }
+
+      if (savedResults) {
+        try {
+          displayResults(JSON.parse(savedResults));
+        } catch (error) {
+          localStorage.removeItem(savedResultsKey);
+        }
+      }
+    }
+
+    function clearAll() {
+      scoreInput.value = "";
+      hideError();
+      results.style.display = "none";
+      statisticsChart.innerHTML = "";
+      warningsList.innerHTML = "";
+      localStorage.removeItem(savedInputKey);
+      localStorage.removeItem(savedResultsKey);
+    }
+  </script>
+</body>
+</html>
