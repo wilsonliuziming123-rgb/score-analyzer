@@ -1237,6 +1237,163 @@
       padding: 18px 20px;
     }
 
+    .analyzer-panel {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(240, 190, 34, 0.2), transparent 34%),
+        radial-gradient(circle at 92% 24%, rgba(182, 31, 38, 0.18), transparent 30%),
+        linear-gradient(145deg, rgba(13, 17, 23, 0.96), rgba(24, 23, 22, 0.94));
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.28);
+      color: white;
+    }
+
+    .analyzer-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.8), transparent 72%);
+    }
+
+    .analyzer-panel > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .panel-header h2,
+    .results h2,
+    .records-header h3,
+    .advanced-details summary,
+    label,
+    .setting-field label {
+      color: white;
+    }
+
+    .panel-header p,
+    .auth-panel p,
+    .auth-note,
+    .setting-copy,
+    .hint,
+    .records-header p,
+    .record-meta,
+    .card-title,
+    .distribution-note {
+      color: rgba(255, 255, 255, 0.68);
+    }
+
+    .panel-tag {
+      border: 1px solid rgba(240, 190, 34, 0.38);
+      background: rgba(240, 190, 34, 0.16);
+      color: #fef3c7;
+    }
+
+    .auth-panel,
+    .auth-panel.signed-in,
+    .score-settings,
+    .records-section,
+    .warnings-section,
+    .record-empty,
+    .record-item,
+    .advanced-details,
+    .sorted-section,
+    .distribution-section,
+    .card {
+      border-color: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.07);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 16px 40px rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(16px);
+    }
+
+    .warnings-section h3 {
+      color: #facc15;
+    }
+
+    .auth-panel.signed-in {
+      border-color: rgba(34, 197, 94, 0.35);
+      background: rgba(22, 101, 52, 0.2);
+    }
+
+    .auth-form input,
+    .setting-field input,
+    textarea {
+      border-color: rgba(255, 255, 255, 0.14);
+      background: rgba(3, 7, 18, 0.58);
+      color: white;
+      box-shadow: inset 0 1px 12px rgba(0, 0, 0, 0.22);
+    }
+
+    .auth-form input::placeholder,
+    textarea::placeholder {
+      color: rgba(255, 255, 255, 0.42);
+    }
+
+    .auth-form input:focus,
+    .setting-field input:focus,
+    textarea:focus {
+      border-color: rgba(240, 190, 34, 0.72);
+      box-shadow: 0 0 0 4px rgba(240, 190, 34, 0.14), inset 0 1px 12px rgba(0, 0, 0, 0.22);
+    }
+
+    .oauth-button {
+      border-color: rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+    }
+
+    #analyzeBtn {
+      background: linear-gradient(135deg, var(--gold), #f97316 48%, var(--red));
+      color: #111827;
+      box-shadow: 0 14px 30px rgba(240, 190, 34, 0.22);
+    }
+
+    #analyzeBtn:hover {
+      box-shadow: 0 18px 38px rgba(240, 190, 34, 0.32);
+    }
+
+    #clearBtn {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .text-button,
+    .record-delete {
+      border-color: rgba(248, 113, 113, 0.45);
+      background: rgba(127, 29, 29, 0.28);
+      color: #fecaca;
+    }
+
+    .record-open {
+      background: var(--gold);
+      color: #111827;
+    }
+
+    .record-title,
+    .card-value,
+    .sorted-section h3,
+    .distribution-section h3 {
+      color: white;
+    }
+
+    .distribution-wrap {
+      border-color: rgba(255, 255, 255, 0.12);
+      background: rgba(3, 7, 18, 0.42);
+    }
+
+    .advanced-details summary {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .sorted-section p {
+      color: rgba(255, 255, 255, 0.82);
+    }
+
     @media (max-width: 900px) {
       body {
         background:
@@ -2334,19 +2491,21 @@
 
       distributionNote.textContent = shape;
       distributionCurve.innerHTML = `
-        <rect x="0" y="0" width="760" height="280" fill="#f8fafc"></rect>
-        <line x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}" stroke="#111827" stroke-width="2"></line>
-        <line x1="${left}" y1="${top}" x2="${left}" y2="${bottom}" stroke="#111827" stroke-width="2"></line>
+        <rect x="0" y="0" width="760" height="280" fill="#070b14"></rect>
+        <polygon points="0,0 240,0 176,280 0,280" fill="#f0be22" opacity="0.08"></polygon>
+        <polygon points="540,0 760,0 760,280 620,280" fill="#b61f26" opacity="0.1"></polygon>
+        <line x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}" stroke="#fef3c7" stroke-width="2"></line>
+        <line x1="${left}" y1="${top}" x2="${left}" y2="${bottom}" stroke="#fef3c7" stroke-width="2"></line>
         <path d="${areaPath}" fill="#facc15" opacity="0.18"></path>
-        <path class="distribution-path" d="${path}" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path class="distribution-path" d="${path}" fill="none" stroke="#60a5fa" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
         <line x1="${scoreToCurveX(statistics.mean, maxScore, left, right)}" y1="${top}" x2="${scoreToCurveX(statistics.mean, maxScore, left, right)}" y2="${bottom}" stroke="#16a34a" stroke-width="3" stroke-dasharray="7 7"></line>
         <line x1="${scoreToCurveX(statistics.median, maxScore, left, right)}" y1="${top}" x2="${scoreToCurveX(statistics.median, maxScore, left, right)}" y2="${bottom}" stroke="#b61f26" stroke-width="3" stroke-dasharray="3 7"></line>
-        <text x="${left}" y="258" font-size="12" fill="#374151">0</text>
-        <text x="${right - 34}" y="258" font-size="12" fill="#374151">${formatNumber(maxScore)}</text>
+        <text x="${left}" y="258" font-size="12" fill="#fef3c7">0</text>
+        <text x="${right - 34}" y="258" font-size="12" fill="#fef3c7">${formatNumber(maxScore)}</text>
         <text x="${scoreToCurveX(statistics.mean, maxScore, left, right) + 7}" y="34" font-size="12" font-weight="800" fill="#16a34a">mean</text>
         <text x="${scoreToCurveX(statistics.median, maxScore, left, right) + 7}" y="52" font-size="12" font-weight="800" fill="#b61f26">median</text>
         ${points.map(function (point) {
-          return `<circle cx="${point.x}" cy="${point.y}" r="${point.count > 0 ? 5 : 3}" fill="${point.count > 0 ? "#2563eb" : "#cbd5e1"}"></circle>`;
+          return `<circle cx="${point.x}" cy="${point.y}" r="${point.count > 0 ? 5 : 3}" fill="${point.count > 0 ? "#60a5fa" : "#475569"}"></circle>`;
         }).join("")}
       `;
     }
