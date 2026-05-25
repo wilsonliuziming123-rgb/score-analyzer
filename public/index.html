@@ -31,6 +31,32 @@
       color: var(--ink);
     }
 
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at var(--glow-x, 70%) var(--glow-y, 18%), rgba(96, 165, 250, 0.2), transparent 24%),
+        linear-gradient(120deg, transparent 0 42%, rgba(240, 190, 34, 0.06) 48%, transparent 54% 100%);
+      animation: cinematicSweep 10s ease-in-out infinite;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.16;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(180deg, black, transparent 76%);
+    }
+
     .container {
       max-width: none;
       margin: 0;
@@ -599,6 +625,18 @@
 
       50% {
         transform: scale(1.04);
+      }
+    }
+
+    @keyframes cinematicSweep {
+      0%, 100% {
+        filter: hue-rotate(0deg) brightness(1);
+        transform: translateX(0);
+      }
+
+      50% {
+        filter: hue-rotate(12deg) brightness(1.12);
+        transform: translateX(1.5%);
       }
     }
 
@@ -1394,6 +1432,81 @@
       color: rgba(255, 255, 255, 0.82);
     }
 
+    .cookie-banner {
+      position: fixed;
+      z-index: 50;
+      left: 50%;
+      bottom: 22px;
+      width: min(720px, calc(100% - 28px));
+      display: none;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(240, 190, 34, 0.2), transparent 30%),
+        rgba(13, 17, 23, 0.94);
+      color: white;
+      box-shadow: 0 18px 70px rgba(0, 0, 0, 0.36);
+      backdrop-filter: blur(18px);
+      transform: translateX(-50%);
+      animation: cookieSlideUp 0.45s ease both;
+    }
+
+    .cookie-banner.is-visible {
+      display: grid;
+    }
+
+    .cookie-banner h3 {
+      margin: 0 0 4px;
+      font-size: 17px;
+    }
+
+    .cookie-banner p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.68);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .cookie-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .cookie-actions button {
+      padding: 10px 12px;
+      font-size: 13px;
+      box-shadow: none;
+    }
+
+    .cookie-accept {
+      background: var(--gold);
+      color: #111827;
+    }
+
+    .cookie-reject {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+    }
+
+    @keyframes cookieSlideUp {
+      from {
+        opacity: 0;
+        transform: translate(-50%, 18px) scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+      }
+    }
+
     @media (max-width: 900px) {
       body {
         background:
@@ -1495,6 +1608,14 @@
 
       button {
         width: 100%;
+      }
+
+      .cookie-banner {
+        grid-template-columns: 1fr;
+      }
+
+      .cookie-actions {
+        justify-content: stretch;
       }
 
       .records-header,
@@ -1811,6 +1932,17 @@
     </main>
   </div>
 
+  <section id="cookieBanner" class="cookie-banner" aria-live="polite">
+    <div>
+      <h3 id="cookieTitle">Your experience, your choice</h3>
+      <p id="cookieText">We use cookies for sign-in and saved preferences. Choose how much personalization you want.</p>
+    </div>
+    <div class="cookie-actions">
+      <button id="rejectCookiesBtn" class="cookie-reject" type="button">Reject cookies</button>
+      <button id="acceptCookiesBtn" class="cookie-accept" type="button">Accept all cookies</button>
+    </div>
+  </section>
+
   <script>
     const scoreInput = document.getElementById("scoreInput");
     const maxScoreInput = document.getElementById("maxScoreInput");
@@ -1840,9 +1972,15 @@
     const activeCountryFlag = document.getElementById("activeCountryFlag");
     const activeCountryCode = document.getElementById("activeCountryCode");
     const countryPanel = document.getElementById("countryPanel");
+    const cookieBanner = document.getElementById("cookieBanner");
+    const cookieTitle = document.getElementById("cookieTitle");
+    const cookieText = document.getElementById("cookieText");
+    const acceptCookiesBtn = document.getElementById("acceptCookiesBtn");
+    const rejectCookiesBtn = document.getElementById("rejectCookiesBtn");
     const authCookieName = "scoreAnalyzerUser";
     const baseRecordsKey = "studentScoreAnalyzerRecords";
     const countryStorageKey = "studentScoreAnalyzerCountry";
+    const cookieChoiceKey = "studentScoreAnalyzerCookieChoice";
     let currentUser = "";
     let currentUserLabel = "";
     let googleConfigured = false;
@@ -1861,6 +1999,9 @@
     signOutBtn.addEventListener("click", signOut);
     googleSignInBtn.addEventListener("click", startGoogleSignIn);
     topGoogleSignInBtn.addEventListener("click", startGoogleSignIn);
+    acceptCookiesBtn.addEventListener("click", acceptCookies);
+    rejectCookiesBtn.addEventListener("click", rejectCookies);
+    document.addEventListener("pointermove", updatePointerGlow);
     clearRecordsBtn.addEventListener("click", clearRecords);
     recordList.addEventListener("click", handleRecordAction);
     window.addEventListener("load", initializePage);
@@ -1955,6 +2096,7 @@
       setupScrollReveal();
       loadCountryPreference();
       updateScaleText();
+      showCookieBannerIfNeeded();
       await loadAuthSession();
       updateAuthUI();
       loadSavedRecords();
@@ -2031,6 +2173,10 @@
       document.getElementById("scoreInputLabel").textContent = text.scoreInputLabel;
       analyzeBtn.textContent = text.analyze;
       clearBtn.textContent = text.clear;
+      cookieTitle.textContent = text.cookieTitle;
+      cookieText.textContent = text.cookieText;
+      acceptCookiesBtn.textContent = text.acceptCookies;
+      rejectCookiesBtn.textContent = text.rejectCookies;
       updateScaleText();
       updateAuthUI();
       renderRecords();
@@ -2043,6 +2189,38 @@
 
       if (selectedCountry === "TW" || selectedCountry === "HK" || selectedCountry === "MO") {
         return "zh-TW";
+      }
+
+      const localeByCountry = {
+        AE: "ar", SA: "ar", EG: "ar", QA: "ar", KW: "ar", BH: "ar", OM: "ar", JO: "ar", LB: "ar", MA: "ar", DZ: "ar", TN: "ar",
+        AR: "es", BO: "es", CL: "es", CO: "es", CR: "es", CU: "es", DO: "es", EC: "es", ES: "es", GT: "es", HN: "es", MX: "es", NI: "es", PA: "es", PE: "es", PY: "es", SV: "es", UY: "es", VE: "es",
+        AT: "de", CH: "de", DE: "de", LI: "de", LU: "de",
+        BE: "fr", BF: "fr", BJ: "fr", BL: "fr", CA: "fr", CD: "fr", CF: "fr", CG: "fr", CI: "fr", CM: "fr", FR: "fr", GA: "fr", GF: "fr", GP: "fr", MC: "fr", MF: "fr", MG: "fr", ML: "fr", MQ: "fr", NE: "fr", RE: "fr", SN: "fr", TD: "fr",
+        BR: "pt", CV: "pt", GW: "pt", MO: "zh-TW", MZ: "pt", PT: "pt", ST: "pt",
+        IT: "it", SM: "it", VA: "it",
+        JP: "ja",
+        KR: "ko",
+        RU: "ru", BY: "ru",
+        NL: "nl", AW: "nl", CW: "nl", SX: "nl",
+        TR: "tr",
+        ID: "id",
+        TH: "th",
+        VN: "vi",
+        IN: "hi",
+        BD: "bn",
+        PK: "ur",
+        SE: "sv",
+        NO: "no",
+        DK: "da",
+        FI: "fi",
+        PL: "pl",
+        CZ: "cs",
+        GR: "el",
+        IL: "he"
+      };
+
+      if (localeByCountry[selectedCountry]) {
+        return localeByCountry[selectedCountry];
       }
 
       return "en";
@@ -2062,7 +2240,12 @@
           maxScoreHelp: "分析器会按照这个满分检查分数，并使用满分的 60% 作为及格线。",
           scoreInputLabel: "成绩输入",
           analyze: "分析成绩",
-          clear: "清空"
+          clear: "清空",
+          scoreHint: "可以用逗号、空格或换行分隔成绩。每个成绩必须在 0 到 {max} 之间。",
+          cookieTitle: "你的体验，由你决定",
+          cookieText: "我们使用 cookies 来支持登录和保存偏好设置。你可以选择是否启用个性化。",
+          acceptCookies: "接受全部 cookies",
+          rejectCookies: "拒绝 cookies"
         };
       }
 
@@ -2079,8 +2262,83 @@
           maxScoreHelp: "分析器會按照這個滿分檢查分數，並使用滿分的 60% 作為及格線。",
           scoreInputLabel: "成績輸入",
           analyze: "分析成績",
-          clear: "清除"
+          clear: "清除",
+          scoreHint: "可以用逗號、空格或換行分隔成績。每個成績必須在 0 到 {max} 之間。",
+          cookieTitle: "你的體驗，由你決定",
+          cookieText: "我們使用 cookies 來支援登入和儲存偏好設定。你可以選擇是否啟用個人化。",
+          acceptCookies: "接受全部 cookies",
+          rejectCookies: "拒絕 cookies"
         };
+      }
+
+      const localizedText = {
+        es: {
+          heroEyebrow: "Inteligencia del aula en vivo",
+          heroTitle: "Analizador de Calificaciones",
+          heroSubtitle: "Convierte calificaciones en un panel claro con estadisticas, alertas, graficas animadas y arquitectura full-stack lista para desplegar.",
+          metricStats: "Estadisticas", metricScale: "Flexible", metricValidation: "Escala", metricWebApp: "App web",
+          maxScoreLabel: "Puntaje maximo", maxScoreHelp: "El analizador valida con esta escala y usa el 60% como linea de aprobacion.", scoreInputLabel: "Entrada de calificaciones", analyze: "Analizar", clear: "Limpiar",
+          scoreHint: "Separa calificaciones con comas, espacios o saltos de linea. Cada valor debe estar entre 0 y {max}.",
+          cookieTitle: "Tu experiencia, tu decision", cookieText: "Usamos cookies para iniciar sesion y guardar preferencias.", acceptCookies: "Aceptar cookies", rejectCookies: "Rechazar"
+        },
+        fr: {
+          heroEyebrow: "Analyse de classe en direct",
+          heroTitle: "Analyseur de Notes",
+          heroSubtitle: "Transformez les notes en tableau de bord avec statistiques, alertes, graphiques animes et architecture full-stack deployable.",
+          metricStats: "Stats", metricScale: "Flexible", metricValidation: "Bareme", metricWebApp: "App web",
+          maxScoreLabel: "Note maximale", maxScoreHelp: "L'analyseur valide les notes avec ce bareme et utilise 60% comme seuil de reussite.", scoreInputLabel: "Saisie des notes", analyze: "Analyser", clear: "Effacer",
+          scoreHint: "Separez les notes avec des virgules, espaces ou retours a la ligne. Chaque note doit etre entre 0 et {max}.",
+          cookieTitle: "Votre experience, votre choix", cookieText: "Nous utilisons des cookies pour la connexion et les preferences.", acceptCookies: "Tout accepter", rejectCookies: "Refuser"
+        },
+        de: {
+          heroEyebrow: "Live-Klassenanalyse",
+          heroTitle: "Noten-Analyzer",
+          heroSubtitle: "Verwandle Rohdaten in ein klares Dashboard mit Statistiken, Warnungen, animierten Charts und deploybarer Full-Stack-Architektur.",
+          metricStats: "Statistiken", metricScale: "Flexibel", metricValidation: "Skala", metricWebApp: "Web-App",
+          maxScoreLabel: "Maximalpunktzahl", maxScoreHelp: "Der Analyzer prueft diese Skala und nutzt 60% als Bestehensgrenze.", scoreInputLabel: "Punkte eingeben", analyze: "Analysieren", clear: "Leeren",
+          scoreHint: "Trenne Punkte mit Kommas, Leerzeichen oder Zeilenumbruechen. Jeder Wert muss zwischen 0 und {max} liegen.",
+          cookieTitle: "Dein Erlebnis, deine Wahl", cookieText: "Wir nutzen Cookies fuer Anmeldung und gespeicherte Einstellungen.", acceptCookies: "Alle akzeptieren", rejectCookies: "Ablehnen"
+        },
+        pt: {
+          heroEyebrow: "Inteligencia da sala em tempo real",
+          heroTitle: "Analisador de Notas",
+          heroSubtitle: "Transforme notas em um painel com estatisticas, alertas, graficos animados e arquitetura full-stack pronta para deploy.",
+          metricStats: "Estatisticas", metricScale: "Flexivel", metricValidation: "Escala", metricWebApp: "App web",
+          maxScoreLabel: "Nota maxima", maxScoreHelp: "O analisador valida por esta escala e usa 60% como linha de aprovacao.", scoreInputLabel: "Entrada de notas", analyze: "Analisar", clear: "Limpar",
+          scoreHint: "Separe notas com virgulas, espacos ou quebras de linha. Cada nota deve estar entre 0 e {max}.",
+          cookieTitle: "Sua experiencia, sua escolha", cookieText: "Usamos cookies para login e preferencias salvas.", acceptCookies: "Aceitar tudo", rejectCookies: "Rejeitar"
+        },
+        ja: {
+          heroEyebrow: "リアルタイム授業インテリジェンス",
+          heroTitle: "成績分析ツール",
+          heroSubtitle: "学生の点数を統計、警告、アニメーションチャート、デプロイ可能なフルスタック構成のダッシュボードに変換します。",
+          metricStats: "統計", metricScale: "柔軟", metricValidation: "スケール", metricWebApp: "Webアプリ",
+          maxScoreLabel: "満点", maxScoreHelp: "この満点で点数を検証し、60%を合格ラインとして使います。", scoreInputLabel: "点数入力", analyze: "分析する", clear: "クリア",
+          scoreHint: "点数はカンマ、空白、改行で区切れます。各点数は0から{max}の間で入力してください。",
+          cookieTitle: "体験はあなたが選べます", cookieText: "ログインと設定保存のためにCookieを使用します。", acceptCookies: "すべて許可", rejectCookies: "拒否"
+        },
+        ko: {
+          heroEyebrow: "실시간 교실 인사이트",
+          heroTitle: "학생 점수 분석기",
+          heroSubtitle: "점수를 통계, 경고, 애니메이션 차트, 배포 가능한 풀스택 구조의 대시보드로 바꿉니다.",
+          metricStats: "통계", metricScale: "유연함", metricValidation: "점수 기준", metricWebApp: "웹 앱",
+          maxScoreLabel: "만점", maxScoreHelp: "이 만점 기준으로 점수를 확인하고 60%를 합격선으로 사용합니다.", scoreInputLabel: "점수 입력", analyze: "분석하기", clear: "지우기",
+          scoreHint: "쉼표, 공백 또는 줄바꿈으로 점수를 구분하세요. 각 점수는 0에서 {max} 사이여야 합니다.",
+          cookieTitle: "경험은 사용자가 선택합니다", cookieText: "로그인과 설정 저장을 위해 쿠키를 사용합니다.", acceptCookies: "모두 허용", rejectCookies: "거부"
+        },
+        ar: {
+          heroEyebrow: "تحليل الصف مباشرة",
+          heroTitle: "محلل درجات الطلاب",
+          heroSubtitle: "حوّل درجات الطلاب إلى لوحة واضحة تحتوي على إحصاءات وتنبيهات ورسوم متحركة وبنية كاملة جاهزة للنشر.",
+          metricStats: "إحصاءات", metricScale: "مرن", metricValidation: "المقياس", metricWebApp: "تطبيق ويب",
+          maxScoreLabel: "الدرجة النهائية", maxScoreHelp: "يتحقق المحلل من الدرجات وفق هذا المقياس ويستخدم 60% كحد للنجاح.", scoreInputLabel: "إدخال الدرجات", analyze: "تحليل", clear: "مسح",
+          scoreHint: "افصل الدرجات بفواصل أو مسافات أو أسطر جديدة. يجب أن تكون كل درجة بين 0 و {max}.",
+          cookieTitle: "تجربتك، اختيارك", cookieText: "نستخدم ملفات تعريف الارتباط لتسجيل الدخول وحفظ التفضيلات.", acceptCookies: "قبول الكل", rejectCookies: "رفض"
+        }
+      };
+
+      if (localizedText[locale]) {
+        return localizedText[locale];
       }
 
       return {
@@ -2095,7 +2353,12 @@
         maxScoreHelp: "The analyzer validates scores against this scale and uses 60% of it as the passing line.",
         scoreInputLabel: "Score input",
         analyze: "Analyze Scores",
-        clear: "Clear"
+        clear: "Clear",
+        scoreHint: "You can separate scores with commas, spaces, or new lines. Scores must be between 0 and {max}.",
+        cookieTitle: "Your experience, your choice",
+        cookieText: "We use cookies for sign-in and saved preferences. Choose how much personalization you want.",
+        acceptCookies: "Accept all cookies",
+        rejectCookies: "Reject cookies"
       };
     }
 
@@ -2185,18 +2448,37 @@
 
     function updateScaleText() {
       const maxScore = getSelectedMaxScore() || 100;
-      const locale = getActiveLocale();
-      let hint = "You can separate scores with commas, spaces, or new lines. Scores must be between 0 and " + formatNumber(maxScore) + ".";
-
-      if (locale === "zh-CN") {
-        hint = "可以用逗号、空格或换行分隔成绩。每个成绩必须在 0 到 " + formatNumber(maxScore) + " 之间。";
-      }
-
-      if (locale === "zh-TW") {
-        hint = "可以用逗號、空格或換行分隔成績。每個成績必須在 0 到 " + formatNumber(maxScore) + " 之間。";
-      }
+      const text = getLocaleText(getActiveLocale());
+      const hint = (text.scoreHint || "You can separate scores with commas, spaces, or new lines. Scores must be between 0 and {max}.")
+        .replace("{max}", formatNumber(maxScore));
 
       document.getElementById("scoreHint").textContent = hint;
+    }
+
+    function showCookieBannerIfNeeded() {
+      if (!localStorage.getItem(cookieChoiceKey)) {
+        cookieBanner.classList.add("is-visible");
+      }
+    }
+
+    function acceptCookies() {
+      localStorage.setItem(cookieChoiceKey, "accepted");
+      setCookie("scoreAnalyzerCookieChoice", "accepted", 365);
+      cookieBanner.classList.remove("is-visible");
+    }
+
+    function rejectCookies() {
+      localStorage.setItem(cookieChoiceKey, "rejected");
+      deleteCookie("scoreAnalyzerCookieChoice");
+      cookieBanner.classList.remove("is-visible");
+    }
+
+    function updatePointerGlow(event) {
+      const x = Math.round((event.clientX / window.innerWidth) * 100);
+      const y = Math.round((event.clientY / window.innerHeight) * 100);
+
+      document.body.style.setProperty("--glow-x", x + "%");
+      document.body.style.setProperty("--glow-y", y + "%");
     }
 
     function getSelectedMaxScore() {
