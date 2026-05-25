@@ -120,6 +120,26 @@
       transform: translateY(-1px);
     }
 
+    .country-select {
+      width: auto;
+      min-width: 138px;
+      padding: 9px 34px 9px 13px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      outline: none;
+      backdrop-filter: blur(14px);
+    }
+
+    .country-select option {
+      color: #111827;
+      background: white;
+    }
+
     .hero {
       min-height: calc(100vh - 96px);
       display: grid;
@@ -305,6 +325,51 @@
       margin-top: 10px;
       color: var(--muted);
       font-size: 13px;
+    }
+
+    .score-settings {
+      display: grid;
+      grid-template-columns: minmax(0, 180px) minmax(0, 1fr);
+      gap: 14px;
+      align-items: end;
+      margin: 18px 0;
+      padding: 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      background: #f8fafc;
+    }
+
+    .setting-field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .setting-field label {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 800;
+      color: #374151;
+    }
+
+    .setting-field input {
+      width: 100%;
+      padding: 12px 13px;
+      border: 1px solid #d8dce6;
+      border-radius: 12px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .setting-field input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .setting-copy {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 14px;
     }
 
     .score-poster {
@@ -1041,11 +1106,16 @@
 
       .auth-controls,
       .auth-form,
+      .score-settings,
       .oauth-row {
         width: 100%;
         grid-template-columns: 1fr;
         flex-direction: column;
         align-items: stretch;
+      }
+
+      .country-select {
+        width: 100%;
       }
 
       h1 {
@@ -1103,6 +1173,13 @@
           <span>Score Analyzer</span>
         </div>
         <div class="auth-controls">
+          <select id="countrySelect" class="country-select" aria-label="Country and language">
+            <option value="US">US English</option>
+            <option value="CN">China 中文</option>
+            <option value="UK">UK English</option>
+            <option value="CA">Canada English</option>
+            <option value="AU">Australia English</option>
+          </select>
           <div id="authStatus" class="auth-status">Signed out</div>
           <button id="recordsShortcutBtn" class="auth-toggle records-shortcut" type="button">Records</button>
           <button id="topGoogleSignInBtn" class="auth-toggle" type="button">Google sign in</button>
@@ -1112,9 +1189,9 @@
 
       <section class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">Live classroom intelligence</p>
-          <h1>Student Score Analyzer</h1>
-          <p class="subtitle">
+          <p id="heroEyebrow" class="eyebrow">Live classroom intelligence</p>
+          <h1 id="heroTitle">Student Score Analyzer</h1>
+          <p id="heroSubtitle" class="subtitle">
             Turn raw student scores into a focused performance dashboard with statistics,
             warnings, animated charts, and deploy-ready full-stack architecture.
           </p>
@@ -1122,15 +1199,15 @@
           <div class="hero-metrics">
             <div class="hero-metric">
               <strong>12+</strong>
-              Stats
+              <span id="metricStats">Stats</span>
             </div>
             <div class="hero-metric">
-              <strong>0-100</strong>
-              Validation
+              <strong id="metricScale">Custom</strong>
+              <span id="metricValidation">Scale</span>
             </div>
             <div class="hero-metric">
               <strong>Live</strong>
-              Web app
+              <span id="metricWebApp">Web app</span>
             </div>
           </div>
         </div>
@@ -1240,13 +1317,23 @@
       <div class="auth-note">Google sign-in uses a secure server cookie. Apple sign-in needs Apple Developer setup and is not enabled yet.</div>
     </section>
 
-    <label for="scoreInput">Score input</label>
+    <div class="score-settings">
+      <div class="setting-field">
+        <label id="maxScoreLabel" for="maxScoreInput">Maximum score</label>
+        <input id="maxScoreInput" type="number" min="1" step="0.01" value="100" />
+      </div>
+      <p id="maxScoreHelp" class="setting-copy">
+        The analyzer validates scores against this scale and uses 60% of it as the passing line.
+      </p>
+    </div>
+
+    <label id="scoreInputLabel" for="scoreInput">Score input</label>
     <textarea 
       id="scoreInput" 
       placeholder="Example: 87, 92, 76, 100, 65, 88, 91"
     ></textarea>
 
-    <p class="hint">
+    <p id="scoreHint" class="hint">
       You can separate scores with commas, spaces, or new lines. Scores must be between 0 and 100.
     </p>
 
@@ -1365,6 +1452,7 @@
 
   <script>
     const scoreInput = document.getElementById("scoreInput");
+    const maxScoreInput = document.getElementById("maxScoreInput");
     const analyzeBtn = document.getElementById("analyzeBtn");
     const clearBtn = document.getElementById("clearBtn");
     const errorBox = document.getElementById("errorBox");
@@ -1383,8 +1471,10 @@
     const authPanelText = document.getElementById("authPanelText");
     const googleSignInBtn = document.getElementById("googleSignInBtn");
     const topGoogleSignInBtn = document.getElementById("topGoogleSignInBtn");
+    const countrySelect = document.getElementById("countrySelect");
     const authCookieName = "scoreAnalyzerUser";
     const baseRecordsKey = "studentScoreAnalyzerRecords";
+    const countryStorageKey = "studentScoreAnalyzerCountry";
     let currentUser = "";
     let currentUserLabel = "";
     let googleConfigured = false;
@@ -1392,6 +1482,8 @@
 
     analyzeBtn.addEventListener("click", analyzeScores);
     clearBtn.addEventListener("click", clearAll);
+    maxScoreInput.addEventListener("input", updateScaleText);
+    countrySelect.addEventListener("change", applyCountryPreference);
     signInForm.addEventListener("submit", signIn);
     recordsShortcutBtn.addEventListener("click", scrollToRecords);
     signOutBtn.addEventListener("click", signOut);
@@ -1405,6 +1497,12 @@
       hideError();
 
       const input = scoreInput.value.trim();
+      const maxScore = getSelectedMaxScore();
+
+      if (!maxScore) {
+        showError("Maximum score must be a number greater than 0.");
+        return;
+      }
 
       try {
         // Send the raw textarea text to the backend for validation and statistics.
@@ -1414,7 +1512,8 @@
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            scoresInput: input
+            scoresInput: input,
+            maxScore: maxScore
           })
         });
 
@@ -1463,11 +1562,69 @@
 
     async function initializePage() {
       setupScrollReveal();
+      loadCountryPreference();
+      updateScaleText();
       await loadAuthSession();
       updateAuthUI();
       loadSavedRecords();
       scoreInput.value = "";
       document.body.classList.remove("loading-reveal");
+    }
+
+    function loadCountryPreference() {
+      const savedCountry = localStorage.getItem(countryStorageKey);
+
+      if (savedCountry) {
+        countrySelect.value = savedCountry;
+      }
+
+      applyCountryPreference();
+    }
+
+    function applyCountryPreference() {
+      localStorage.setItem(countryStorageKey, countrySelect.value);
+
+      const isChinese = countrySelect.value === "CN";
+      document.documentElement.lang = isChinese ? "zh-CN" : "en";
+
+      document.getElementById("heroEyebrow").textContent = isChinese ? "实时课堂数据分析" : "Live classroom intelligence";
+      document.getElementById("heroTitle").textContent = isChinese ? "学生成绩分析器" : "Student Score Analyzer";
+      document.getElementById("heroSubtitle").textContent = isChinese
+        ? "把原始成绩变成清晰的表现仪表盘，包含统计数据、预警、动态图表和可部署的全栈架构。"
+        : "Turn raw student scores into a focused performance dashboard with statistics, warnings, animated charts, and deploy-ready full-stack architecture.";
+      document.getElementById("metricStats").textContent = isChinese ? "统计项" : "Stats";
+      document.getElementById("metricValidation").textContent = isChinese ? "满分制" : "Scale";
+      document.getElementById("metricWebApp").textContent = isChinese ? "网页应用" : "Web app";
+      document.getElementById("maxScoreLabel").textContent = isChinese ? "满分" : "Maximum score";
+      document.getElementById("maxScoreHelp").textContent = isChinese
+        ? "分析器会按照这个满分检查分数，并使用满分的 60% 作为及格线。"
+        : "The analyzer validates scores against this scale and uses 60% of it as the passing line.";
+      document.getElementById("scoreInputLabel").textContent = isChinese ? "成绩输入" : "Score input";
+      analyzeBtn.textContent = isChinese ? "分析成绩" : "Analyze Scores";
+      clearBtn.textContent = isChinese ? "清空" : "Clear";
+      updateScaleText();
+      updateAuthUI();
+      renderRecords();
+    }
+
+    function updateScaleText() {
+      const maxScore = getSelectedMaxScore() || 100;
+      const isChinese = countrySelect.value === "CN";
+
+      document.getElementById("metricScale").textContent = "0-" + formatNumber(maxScore);
+      document.getElementById("scoreHint").textContent = isChinese
+        ? "可以用逗号、空格或换行分隔成绩。每个成绩必须在 0 到 " + formatNumber(maxScore) + " 之间。"
+        : "You can separate scores with commas, spaces, or new lines. Scores must be between 0 and " + formatNumber(maxScore) + ".";
+    }
+
+    function getSelectedMaxScore() {
+      const maxScore = Number(maxScoreInput.value);
+
+      if (!Number.isFinite(maxScore) || maxScore <= 0) {
+        return 0;
+      }
+
+      return maxScore;
     }
 
     function setupScrollReveal() {
@@ -1539,20 +1696,26 @@
     function buildWarnings(statistics) {
       const warnings = [];
       const failingRate = statistics.failingCount / statistics.count;
+      const maxScore = statistics.maxScore || getSelectedMaxScore() || 100;
+      const meanRate = statistics.mean / maxScore;
+      const minRate = statistics.min / maxScore;
+      const maxRate = statistics.max / maxScore;
+      const deviationRate = statistics.standardDeviation / maxScore;
+      const rangeRate = statistics.range / maxScore;
 
-      if (statistics.mean < 60) {
+      if (meanRate < 0.6) {
         warnings.push({
           type: "danger",
           label: "Urgent:",
-          message: "Average score is below 60. The group may need urgent support."
+          message: "Average score is below the 60% passing line. The group may need urgent support."
         });
-      } else if (statistics.mean < 70) {
+      } else if (meanRate < 0.7) {
         warnings.push({
           type: "caution",
           label: "Watch:",
           message: "Average score is close to the passing line. Review weak topics soon."
         });
-      } else if (statistics.mean >= 90) {
+      } else if (meanRate >= 0.9) {
         warnings.push({
           type: "good",
           label: "Strong:",
@@ -1560,13 +1723,13 @@
         });
       }
 
-      if (statistics.min < 40) {
+      if (minRate < 0.4) {
         warnings.push({
           type: "danger",
           label: "Low score:",
-          message: "Lowest score is under 40. At least one student may need individual help."
+          message: "Lowest score is under 40% of the full scale. At least one student may need individual help."
         });
-      } else if (statistics.min < 60) {
+      } else if (minRate < 0.6) {
         warnings.push({
           type: "caution",
           label: "Below pass:",
@@ -1588,7 +1751,7 @@
         });
       }
 
-      if (statistics.standardDeviation >= 20) {
+      if (deviationRate >= 0.2) {
         warnings.push({
           type: "caution",
           label: "Spread:",
@@ -1596,7 +1759,7 @@
         });
       }
 
-      if (statistics.range >= 50) {
+      if (rangeRate >= 0.5) {
         warnings.push({
           type: "caution",
           label: "Gap:",
@@ -1604,7 +1767,7 @@
         });
       }
 
-      if (statistics.max >= 95) {
+      if (maxRate >= 0.95) {
         warnings.push({
           type: "good",
           label: "Peak:",
@@ -1636,7 +1799,7 @@
 
       const chartHeight = 210;
       const chartBottom = 250;
-      const chartMax = Math.min(100, Math.max(10, Math.ceil(statistics.max / 10) * 10));
+      const chartMax = statistics.maxScore || getSelectedMaxScore() || Math.max(10, Math.ceil(statistics.max / 10) * 10);
       const halfChartMax = chartMax / 2;
       const barWidth = 54;
       const gap = 42;
@@ -1675,6 +1838,14 @@
     }
 
     function addMissingStandardDeviation(statistics) {
+      if (typeof statistics.maxScore !== "number") {
+        statistics.maxScore = getSelectedMaxScore() || 100;
+      }
+
+      if (typeof statistics.passingScore !== "number") {
+        statistics.passingScore = statistics.maxScore * 0.6;
+      }
+
       if (typeof statistics.standardDeviation === "number") {
         return statistics;
       }
@@ -1831,7 +2002,8 @@
       const records = getRecords();
       const normalizedInput = input.replace(/\s+/g, " ").trim();
       const existingIndex = records.findIndex(function (record) {
-        return record.scoresInput === normalizedInput;
+        const recordMaxScore = record.statistics && record.statistics.maxScore ? record.statistics.maxScore : 100;
+        return record.scoresInput === normalizedInput && recordMaxScore === statistics.maxScore;
       });
       const record = {
         id: Date.now().toString(),
@@ -1893,7 +2065,7 @@
           <article class="record-item">
             <div>
               <p class="record-title">Mean ${formatNumber(stats.mean)} · ${stats.count} students</p>
-              <p class="record-meta">${date}<br>${record.scoresInput}</p>
+              <p class="record-meta">${date}<br>Scale 0-${formatNumber(stats.maxScore || 100)} · ${record.scoresInput}</p>
             </div>
             <div class="record-actions">
               <button class="record-open" type="button" data-id="${record.id}">Open</button>
@@ -1930,6 +2102,8 @@
       }
 
       scoreInput.value = record.scoresInput;
+      maxScoreInput.value = record.statistics.maxScore || 100;
+      updateScaleText();
       hideError();
       displayResults(record.statistics);
       scoreInput.scrollIntoView({

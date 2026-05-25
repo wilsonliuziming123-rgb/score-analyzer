@@ -110,12 +110,20 @@ app.post("/auth/logout", function (req, res) {
 
 app.post("/api/analyze-scores", function (req, res) {
     const scoresInput = req.body.scoresInput;
+    const maxScore = Number(req.body.maxScore || 100);
 
     // Stop early if the user submitted an empty textarea.
     if (!scoresInput || scoresInput.trim() === "") {
         return res.status(400).json({
             success: false,
             error: "Please enter at least one score."
+        });
+    }
+
+    if (!Number.isFinite(maxScore) || maxScore <= 0) {
+        return res.status(400).json({
+            success: false,
+            error: "Maximum score must be a number greater than 0."
         });
     }
 
@@ -128,14 +136,14 @@ app.post("/api/analyze-scores", function (req, res) {
         });
     }
 
-    if (!validateScores(scores)) {
+    if (!validateScores(scores, maxScore)) {
         return res.status(400).json({
             success: false,
-            error: "All scores must be valid numbers between 0 and 100."
+            error: "All scores must be valid numbers between 0 and " + maxScore + "."
         });
     }
 
-    const statistics = calculateStatistics(scores);
+    const statistics = calculateStatistics(scores, maxScore);
 
     return res.json({
         success: true,
@@ -157,12 +165,12 @@ function parseScores(input) {
         });
 }
 
-function validateScores(scores) {
+function validateScores(scores, maxScore) {
     for (let i = 0; i < scores.length; i++) {
         if (
             Number.isNaN(scores[i]) ||
             scores[i] < 0 ||
-            scores[i] > 100
+            scores[i] > maxScore
         ) {
             return false;
         }
@@ -171,7 +179,7 @@ function validateScores(scores) {
     return true;
 }
 
-function calculateStatistics(scores) {
+function calculateStatistics(scores, maxScore) {
     // Sorting first makes min, max, median, and quartiles easier to calculate.
     const sortedScores = [...scores].sort(function (a, b) {
         return a - b;
@@ -180,6 +188,7 @@ function calculateStatistics(scores) {
     const count = sortedScores.length;
     const max = sortedScores[count - 1];
     const min = sortedScores[0];
+    const passingScore = maxScore * 0.6;
 
     let sum = 0;
     let passingCount = 0;
@@ -188,7 +197,7 @@ function calculateStatistics(scores) {
     for (let i = 0; i < sortedScores.length; i++) {
         sum = sum + sortedScores[i];
 
-        if (sortedScores[i] >= 60) {
+        if (sortedScores[i] >= passingScore) {
             passingCount++;
         } else {
             failingCount++;
@@ -209,6 +218,8 @@ function calculateStatistics(scores) {
 
     return {
         count: count,
+        maxScore: roundToTwo(maxScore),
+        passingScore: roundToTwo(passingScore),
         max: max,
         min: min,
         mean: roundToTwo(mean),
