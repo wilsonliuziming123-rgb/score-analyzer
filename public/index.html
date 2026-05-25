@@ -121,9 +121,9 @@
     }
 
     .country-picker {
+      position: relative;
       display: flex;
       align-items: center;
-      gap: 7px;
       padding: 5px;
       border: 1px solid rgba(255, 255, 255, 0.16);
       border-radius: 999px;
@@ -131,27 +131,87 @@
       backdrop-filter: blur(14px);
     }
 
-    .country-ball {
-      width: 34px;
-      height: 34px;
-      padding: 0;
+    .country-ball,
+    .country-option {
       border: 1px solid rgba(255, 255, 255, 0.22);
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
       background: rgba(255, 255, 255, 0.1);
       box-shadow: none;
-      font-size: 18px;
-      line-height: 1;
-      filter: saturate(0.78);
     }
 
-    .country-ball:hover,
-    .country-ball.is-active {
+    .country-ball {
+      width: auto;
+      min-width: 84px;
+      height: 34px;
+      padding: 0 11px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      color: white;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .country-flag {
+      font-size: 19px;
+    }
+
+    .country-ball:hover {
       border-color: var(--gold);
       background: rgba(240, 190, 34, 0.18);
       filter: saturate(1.2);
       transform: translateY(-1px) scale(1.05);
+    }
+
+    .country-panel {
+      position: absolute;
+      z-index: 20;
+      top: calc(100% + 10px);
+      right: 0;
+      width: min(360px, calc(100vw - 28px));
+      max-height: 330px;
+      overflow: auto;
+      display: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 18px;
+      background: rgba(17, 24, 39, 0.94);
+      box-shadow: 0 18px 55px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(18px);
+    }
+
+    .country-panel.is-open {
+      display: grid;
+    }
+
+    .country-option {
+      width: 100%;
+      min-height: 40px;
+      padding: 7px 9px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: left;
+    }
+
+    .country-option.is-active,
+    .country-option:hover {
+      border-color: var(--gold);
+      background: rgba(240, 190, 34, 0.2);
+    }
+
+    .country-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .hero {
@@ -644,24 +704,61 @@
     .chart-detail {
       display: none;
       margin-top: 14px;
-      padding: 14px 16px;
-      border: 2px solid #f0be22;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #fff7cc, #fff);
-      color: #111827;
-      box-shadow: 0 6px 0 #111827;
+      padding: 12px 14px;
+      border: 1px solid rgba(250, 204, 21, 0.55);
+      border-radius: 999px;
+      background: rgba(250, 204, 21, 0.1);
+      color: #fef3c7;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
       animation: detailPop 0.28s ease both;
     }
 
     .chart-detail strong {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 16px;
+      margin-right: 8px;
+      font-size: 14px;
     }
 
     .chart-detail span {
-      color: #374151;
+      color: rgba(254, 243, 199, 0.82);
       font-weight: 700;
+    }
+
+    .distribution-section {
+      margin-bottom: 24px;
+      padding: 18px;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      background: white;
+      box-shadow: 0 12px 28px rgba(16, 19, 28, 0.05);
+    }
+
+    .distribution-section h3 {
+      margin: 0 0 6px;
+      color: #111827;
+    }
+
+    .distribution-note {
+      margin: 0 0 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .distribution-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+    }
+
+    #distributionCurve {
+      display: block;
+      min-width: 640px;
+    }
+
+    .distribution-path {
+      stroke-dasharray: 920;
+      stroke-dashoffset: 920;
+      animation: drawCurve 1s ease-out forwards;
     }
 
     .warnings-section {
@@ -844,6 +941,12 @@
       to {
         opacity: 1;
         transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes drawCurve {
+      to {
+        stroke-dashoffset: 0;
       }
     }
 
@@ -1201,6 +1304,16 @@
         width: 100%;
       }
 
+      .country-ball {
+        width: 100%;
+      }
+
+      .country-panel {
+        left: 0;
+        right: auto;
+        grid-template-columns: 1fr;
+      }
+
       h1 {
         font-size: clamp(38px, 16vw, 58px);
       }
@@ -1257,11 +1370,11 @@
         </div>
         <div class="auth-controls">
           <div id="countryPicker" class="country-picker" aria-label="Country and language">
-            <button class="country-ball" type="button" data-country="US" aria-label="United States English">🇺🇸</button>
-            <button class="country-ball" type="button" data-country="CN" aria-label="China Chinese">🇨🇳</button>
-            <button class="country-ball" type="button" data-country="UK" aria-label="United Kingdom English">🇬🇧</button>
-            <button class="country-ball" type="button" data-country="CA" aria-label="Canada English">🇨🇦</button>
-            <button class="country-ball" type="button" data-country="AU" aria-label="Australia English">🇦🇺</button>
+            <button id="activeCountryButton" class="country-ball" type="button" aria-label="Choose country or region" aria-expanded="false">
+              <span id="activeCountryFlag" class="country-flag">🇺🇸</span>
+              <span id="activeCountryCode">US</span>
+            </button>
+            <div id="countryPanel" class="country-panel"></div>
           </div>
           <div id="authStatus" class="auth-status">Signed out</div>
           <button id="recordsShortcutBtn" class="auth-toggle records-shortcut" type="button">Records</button>
@@ -1454,6 +1567,14 @@
         <div id="chartDetail" class="chart-detail" aria-live="polite"></div>
       </div>
 
+      <div class="distribution-section">
+        <h3>Distribution Curve</h3>
+        <p id="distributionNote" class="distribution-note">Run an analysis to see the score distribution shape.</p>
+        <div class="distribution-wrap">
+          <svg id="distributionCurve" viewBox="0 0 760 280" role="img" aria-label="Score distribution curve"></svg>
+        </div>
+      </div>
+
       <div class="grid key-grid">
         <div class="card">
           <div class="card-title">Number of Students</div>
@@ -1542,6 +1663,8 @@
     const results = document.getElementById("results");
     const statisticsChart = document.getElementById("statisticsChart");
     const chartDetail = document.getElementById("chartDetail");
+    const distributionCurve = document.getElementById("distributionCurve");
+    const distributionNote = document.getElementById("distributionNote");
     const warningsList = document.getElementById("warningsList");
     const recordList = document.getElementById("recordList");
     const clearRecordsBtn = document.getElementById("clearRecordsBtn");
@@ -1556,6 +1679,10 @@
     const googleSignInBtn = document.getElementById("googleSignInBtn");
     const topGoogleSignInBtn = document.getElementById("topGoogleSignInBtn");
     const countryPicker = document.getElementById("countryPicker");
+    const activeCountryButton = document.getElementById("activeCountryButton");
+    const activeCountryFlag = document.getElementById("activeCountryFlag");
+    const activeCountryCode = document.getElementById("activeCountryCode");
+    const countryPanel = document.getElementById("countryPanel");
     const authCookieName = "scoreAnalyzerUser";
     const baseRecordsKey = "studentScoreAnalyzerRecords";
     const countryStorageKey = "studentScoreAnalyzerCountry";
@@ -1569,6 +1696,7 @@
     clearBtn.addEventListener("click", clearAll);
     maxScoreInput.addEventListener("input", updateScaleText);
     countryPicker.addEventListener("click", handleCountryChoice);
+    document.addEventListener("click", closeCountryPanelOnOutsideClick);
     statisticsChart.addEventListener("click", handleChartSelection);
     statisticsChart.addEventListener("keydown", handleChartKeyboardSelection);
     signInForm.addEventListener("submit", signIn);
@@ -1582,6 +1710,20 @@
 
     async function analyzeScores() {
       hideError();
+
+      if (!currentUser) {
+        if (googleConfigured) {
+          startGoogleSignIn();
+        } else {
+          showError("Please sign in before analyzing scores. Google sign-in is not configured yet.");
+          authPanel.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+        }
+
+        return;
+      }
 
       const input = scoreInput.value.trim();
       const maxScore = getSelectedMaxScore();
@@ -1642,9 +1784,14 @@
       document.getElementById("sortedResult").textContent = statistics.sortedScores.join(", ");
 
       drawStatisticsChart(statistics);
+      drawDistributionCurve(statistics);
       displayWarnings(statistics);
       results.style.display = "block";
       prepareResultReveal();
+      results.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
     }
 
     async function initializePage() {
@@ -1662,27 +1809,49 @@
       const savedCountry = localStorage.getItem(countryStorageKey);
 
       if (savedCountry) {
-        selectedCountry = savedCountry;
+        selectedCountry = savedCountry === "UK" ? "GB" : savedCountry;
       }
 
       applyCountryPreference();
     }
 
     function handleCountryChoice(event) {
-      const button = event.target.closest(".country-ball");
+      const menuButton = event.target.closest("#activeCountryButton");
+      const option = event.target.closest(".country-option");
 
-      if (!button) {
+      if (menuButton) {
+        countryPanel.classList.toggle("is-open");
+        activeCountryButton.setAttribute("aria-expanded", countryPanel.classList.contains("is-open") ? "true" : "false");
         return;
       }
 
-      selectedCountry = button.dataset.country;
+      if (!option) {
+        return;
+      }
+
+      selectedCountry = option.dataset.country;
+      countryPanel.classList.remove("is-open");
+      activeCountryButton.setAttribute("aria-expanded", "false");
       applyCountryPreference();
+    }
+
+    function closeCountryPanelOnOutsideClick(event) {
+      if (countryPicker.contains(event.target)) {
+        return;
+      }
+
+      countryPanel.classList.remove("is-open");
+      activeCountryButton.setAttribute("aria-expanded", "false");
     }
 
     function applyCountryPreference() {
       localStorage.setItem(countryStorageKey, selectedCountry);
+      renderCountryOptions();
 
-      countryPicker.querySelectorAll(".country-ball").forEach(function (button) {
+      activeCountryFlag.textContent = getFlagEmoji(selectedCountry);
+      activeCountryCode.textContent = selectedCountry;
+
+      countryPanel.querySelectorAll(".country-option").forEach(function (button) {
         const isActive = button.dataset.country === selectedCountry;
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", isActive ? "true" : "false");
@@ -1712,6 +1881,62 @@
       renderRecords();
     }
 
+    function renderCountryOptions() {
+      const regionCodes = getRegionCodes();
+      const names = getRegionDisplayNames();
+      const sortedRegions = regionCodes.map(function (code) {
+        return {
+          code: code,
+          name: names.of(code) || code
+        };
+      }).sort(function (a, b) {
+        return a.name.localeCompare(b.name);
+      });
+
+      countryPanel.innerHTML = sortedRegions.map(function (region) {
+        return `
+          <button class="country-option" type="button" data-country="${region.code}" aria-pressed="false">
+            <span class="country-flag">${getFlagEmoji(region.code)}</span>
+            <span class="country-name">${region.name}</span>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function getRegionCodes() {
+      if (Intl.supportedValuesOf) {
+        return Intl.supportedValuesOf("region").filter(function (code) {
+          return /^[A-Z]{2}$/.test(code);
+        });
+      }
+
+      return ["US", "CN", "GB", "CA", "AU", "FR", "DE", "JP", "KR", "SG", "IN", "BR", "MX", "ES", "IT"];
+    }
+
+    function getRegionDisplayNames() {
+      if (Intl.DisplayNames) {
+        return new Intl.DisplayNames([selectedCountry === "CN" ? "zh-CN" : "en"], {
+          type: "region"
+        });
+      }
+
+      return {
+        of: function (code) {
+          return code;
+        }
+      };
+    }
+
+    function getFlagEmoji(code) {
+      if (!/^[A-Z]{2}$/.test(code)) {
+        return "🌐";
+      }
+
+      return code.replace(/./g, function (letter) {
+        return String.fromCodePoint(127397 + letter.charCodeAt());
+      });
+    }
+
     function updateScaleText() {
       const maxScore = getSelectedMaxScore() || 100;
       const isChinese = selectedCountry === "CN";
@@ -1733,7 +1958,7 @@
 
     function setupScrollReveal() {
       const revealElements = document.querySelectorAll(
-        ".topbar, .hero-copy, .score-poster, .analyzer-panel, label, textarea, .hint, .button-group, .warnings-section, .chart-section, .key-grid .card, .advanced-details"
+        ".topbar, .hero-copy, .score-poster, .analyzer-panel, label, textarea, .hint, .button-group, .warnings-section, .chart-section, .distribution-section, .key-grid .card, .advanced-details"
       );
 
       if (!("IntersectionObserver" in window)) {
@@ -1771,7 +1996,7 @@
 
     function prepareResultReveal() {
       const resultElements = results.querySelectorAll(
-        ".warnings-section, .chart-section, .key-grid .card, .advanced-details"
+        ".warnings-section, .chart-section, .distribution-section, .key-grid .card, .advanced-details"
       );
 
       resultElements.forEach(function (element, index) {
@@ -1976,6 +2201,95 @@
         <strong>${group.dataset.chartLabel}</strong>
         <span>Value: ${group.dataset.chartValue} · ${group.dataset.chartPercent}% of the selected scale</span>
       `;
+    }
+
+    function drawDistributionCurve(statistics) {
+      const scores = statistics.sortedScores || [];
+      const maxScore = statistics.maxScore || getSelectedMaxScore() || 100;
+      const bucketCount = 10;
+      const buckets = new Array(bucketCount).fill(0);
+
+      scores.forEach(function (score) {
+        const bucketIndex = Math.min(bucketCount - 1, Math.floor((score / maxScore) * bucketCount));
+        buckets[bucketIndex]++;
+      });
+
+      const maxBucket = Math.max(...buckets, 1);
+      const left = 58;
+      const right = 708;
+      const bottom = 230;
+      const top = 42;
+      const width = right - left;
+      const points = buckets.map(function (count, index) {
+        const x = left + (index / (bucketCount - 1)) * width;
+        const y = bottom - (count / maxBucket) * (bottom - top);
+
+        return {
+          x: x,
+          y: y,
+          count: count,
+          start: (index / bucketCount) * maxScore,
+          end: ((index + 1) / bucketCount) * maxScore
+        };
+      });
+      const path = buildSmoothPath(points);
+      const areaPath = path + ` L ${right} ${bottom} L ${left} ${bottom} Z`;
+      const shape = describeDistributionShape(statistics, maxScore);
+
+      distributionNote.textContent = shape;
+      distributionCurve.innerHTML = `
+        <rect x="0" y="0" width="760" height="280" fill="#f8fafc"></rect>
+        <line x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}" stroke="#111827" stroke-width="2"></line>
+        <line x1="${left}" y1="${top}" x2="${left}" y2="${bottom}" stroke="#111827" stroke-width="2"></line>
+        <path d="${areaPath}" fill="#facc15" opacity="0.18"></path>
+        <path class="distribution-path" d="${path}" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+        <line x1="${scoreToCurveX(statistics.mean, maxScore, left, right)}" y1="${top}" x2="${scoreToCurveX(statistics.mean, maxScore, left, right)}" y2="${bottom}" stroke="#16a34a" stroke-width="3" stroke-dasharray="7 7"></line>
+        <line x1="${scoreToCurveX(statistics.median, maxScore, left, right)}" y1="${top}" x2="${scoreToCurveX(statistics.median, maxScore, left, right)}" y2="${bottom}" stroke="#b61f26" stroke-width="3" stroke-dasharray="3 7"></line>
+        <text x="${left}" y="258" font-size="12" fill="#374151">0</text>
+        <text x="${right - 34}" y="258" font-size="12" fill="#374151">${formatNumber(maxScore)}</text>
+        <text x="${scoreToCurveX(statistics.mean, maxScore, left, right) + 7}" y="34" font-size="12" font-weight="800" fill="#16a34a">mean</text>
+        <text x="${scoreToCurveX(statistics.median, maxScore, left, right) + 7}" y="52" font-size="12" font-weight="800" fill="#b61f26">median</text>
+        ${points.map(function (point) {
+          return `<circle cx="${point.x}" cy="${point.y}" r="${point.count > 0 ? 5 : 3}" fill="${point.count > 0 ? "#2563eb" : "#cbd5e1"}"></circle>`;
+        }).join("")}
+      `;
+    }
+
+    function buildSmoothPath(points) {
+      if (points.length === 0) {
+        return "";
+      }
+
+      let path = `M ${points[0].x} ${points[0].y}`;
+
+      for (let i = 1; i < points.length; i++) {
+        const previous = points[i - 1];
+        const current = points[i];
+        const controlX = (previous.x + current.x) / 2;
+
+        path += ` C ${controlX} ${previous.y}, ${controlX} ${current.y}, ${current.x} ${current.y}`;
+      }
+
+      return path;
+    }
+
+    function scoreToCurveX(score, maxScore, left, right) {
+      return left + (score / maxScore) * (right - left);
+    }
+
+    function describeDistributionShape(statistics, maxScore) {
+      const difference = statistics.mean - statistics.median;
+      const threshold = Math.max(maxScore * 0.03, (statistics.standardDeviation || 0) * 0.12);
+
+      if (difference > threshold) {
+        return "Distribution shape: right-skewed. A few higher scores are pulling the mean above the median.";
+      }
+
+      if (difference < -threshold) {
+        return "Distribution shape: left-skewed. A few lower scores are pulling the mean below the median.";
+      }
+
+      return "Distribution shape: roughly symmetric. Mean and median are close to each other.";
     }
 
     function addMissingStandardDeviation(statistics) {
@@ -2312,6 +2626,8 @@
       statisticsChart.innerHTML = "";
       chartDetail.style.display = "none";
       chartDetail.innerHTML = "";
+      distributionCurve.innerHTML = "";
+      distributionNote.textContent = "Run an analysis to see the score distribution shape.";
       warningsList.innerHTML = "";
     }
   </script>
