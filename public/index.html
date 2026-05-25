@@ -6,41 +6,198 @@
   <title>Student Score Analyzer</title>
 
   <style>
+    :root {
+      --ink: #10131c;
+      --muted: #667085;
+      --line: #e6e8ef;
+      --panel: rgba(255, 255, 255, 0.9);
+      --gold: #f0be22;
+      --red: #b61f26;
+      --blue: #2563eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(240, 190, 34, 0.22), transparent 28%),
+        radial-gradient(circle at 86% 20%, rgba(182, 31, 38, 0.18), transparent 30%),
+        linear-gradient(180deg, #0d1117 0%, #171a22 34%, #f4f6f8 34%, #eef1f6 100%);
       margin: 0;
-      padding: 0;
-      color: #222;
+      color: var(--ink);
     }
 
     .container {
-      max-width: 850px;
-      margin: 40px auto;
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      max-width: none;
+      margin: 0;
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .site-shell {
+      width: min(1120px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      color: white;
+      margin-bottom: 54px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-weight: 800;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      background: var(--gold);
+      color: #111827;
+      box-shadow: 0 0 0 3px rgba(240, 190, 34, 0.18);
+    }
+
+    .nav-pill {
+      padding: 9px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero {
+      min-height: calc(100vh - 120px);
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
+      gap: 34px;
+      align-items: center;
+      padding-bottom: 44px;
+    }
+
+    .hero-copy {
+      color: white;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 18px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(240, 190, 34, 0.14);
+      color: #fef3c7;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
     h1 {
-      text-align: center;
-      margin-bottom: 10px;
+      margin: 0 0 18px;
+      max-width: 660px;
+      font-size: clamp(42px, 7vw, 82px);
+      line-height: 0.95;
+      letter-spacing: 0;
+      color: white;
     }
 
     .subtitle {
-      text-align: center;
-      color: #666;
-      margin-bottom: 30px;
+      max-width: 560px;
+      color: rgba(255, 255, 255, 0.72);
+      margin: 0 0 28px;
+      font-size: 18px;
+      line-height: 1.65;
+      text-align: left;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 560px;
+    }
+
+    .hero-metric {
+      padding: 15px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      color: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero-metric strong {
+      display: block;
+      margin-bottom: 3px;
+      color: white;
+      font-size: 24px;
+    }
+
+    .analyzer-panel {
+      margin: 26px auto 0;
+      padding: 28px;
+      border: 1px solid rgba(230, 232, 239, 0.9);
+      border-radius: 22px;
+      background: var(--panel);
+      box-shadow: 0 24px 80px rgba(16, 19, 28, 0.16);
+      backdrop-filter: blur(18px);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .panel-header h2 {
+      margin: 0 0 6px;
+      font-size: 28px;
+    }
+
+    .panel-header p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .panel-tag {
+      white-space: nowrap;
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: #10131c;
+      color: #fef3c7;
+      font-size: 13px;
+      font-weight: 800;
     }
 
     .score-poster {
-      margin: 0 0 28px;
-      border-radius: 14px;
+      margin: 0;
+      border-radius: 22px;
       overflow: hidden;
       border: 3px solid #111;
       background: #111;
-      box-shadow: 0 10px 0 #d7a514;
+      box-shadow: 0 18px 0 #d7a514, 0 30px 70px rgba(0, 0, 0, 0.34);
     }
 
     .score-poster svg {
@@ -509,15 +666,181 @@
       word-break: break-word;
     }
 
+    label {
+      color: #1f2937;
+    }
+
+    textarea {
+      min-height: 154px;
+      padding: 16px;
+      border: 1px solid #d8dce6;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.88);
+      color: #10131c;
+      box-shadow: inset 0 1px 2px rgba(16, 19, 28, 0.04);
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .hint {
+      color: var(--muted);
+    }
+
+    button {
+      border-radius: 12px;
+      font-weight: 800;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    #analyzeBtn {
+      background: linear-gradient(135deg, #2563eb, #111827);
+      box-shadow: 0 12px 26px rgba(37, 99, 235, 0.22);
+    }
+
+    #analyzeBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 30px rgba(37, 99, 235, 0.3);
+    }
+
+    #clearBtn {
+      background: #eef1f6;
+      color: #1f2937;
+    }
+
+    .results {
+      margin-top: 34px;
+    }
+
+    .results h2 {
+      margin: 0 0 16px;
+      font-size: 30px;
+    }
+
+    .warnings-section,
+    .chart-section,
+    .advanced-details,
+    .sorted-section,
+    .card {
+      border-radius: 18px;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      padding: 20px;
+      background: white;
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 28px rgba(16, 19, 28, 0.06);
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gold), var(--red), var(--blue));
+      opacity: 0.75;
+    }
+
+    .card-title {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .card-value {
+      font-size: 30px;
+    }
+
+    .advanced-details {
+      background: white;
+      border-color: var(--line);
+      box-shadow: 0 12px 28px rgba(16, 19, 28, 0.05);
+    }
+
+    .advanced-details summary {
+      padding: 18px 20px;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        background:
+          radial-gradient(circle at 18% 8%, rgba(240, 190, 34, 0.2), transparent 28%),
+          radial-gradient(circle at 86% 20%, rgba(182, 31, 38, 0.16), transparent 30%),
+          linear-gradient(180deg, #0d1117 0%, #171a22 44%, #f4f6f8 44%, #eef1f6 100%);
+      }
+
+      .site-shell {
+        width: min(100% - 28px, 760px);
+      }
+
+      .topbar {
+        margin-bottom: 32px;
+      }
+
+      .hero {
+        min-height: auto;
+        grid-template-columns: 1fr;
+        padding-bottom: 28px;
+      }
+
+      .hero-metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .panel-tag {
+        white-space: normal;
+      }
+    }
+
     @media (max-width: 600px) {
       .container {
-        margin: 18px;
-        padding: 20px;
+        margin: 0;
+        padding: 0;
+      }
+
+      .site-shell {
+        width: min(100% - 22px, 520px);
+        padding-top: 18px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      h1 {
+        font-size: clamp(38px, 16vw, 58px);
+      }
+
+      .subtitle {
+        font-size: 16px;
       }
 
       .score-poster {
         border-width: 2px;
         box-shadow: 0 7px 0 #d7a514;
+      }
+
+      .analyzer-panel {
+        padding: 20px;
+        border-radius: 18px;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
       }
     }
 
@@ -534,13 +857,42 @@
 
 <body>
   <div class="container">
-    <h1>Student Score Analyzer</h1>
-    <p class="subtitle">
-      Enter student scores and calculate maximum, minimum, mean, median, quartiles, IQR, and range.
-    </p>
+    <main class="site-shell">
+      <nav class="topbar">
+        <div class="brand">
+          <span class="brand-mark">S</span>
+          <span>Score Analyzer</span>
+        </div>
+        <div class="nav-pill">Full-stack Node + Express app</div>
+      </nav>
 
-    <div class="score-poster" aria-label="Dark comic and number seven football inspired score analysis illustration">
-      <svg viewBox="0 0 900 260" role="img" xmlns="http://www.w3.org/2000/svg">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Live classroom intelligence</p>
+          <h1>Student Score Analyzer</h1>
+          <p class="subtitle">
+            Turn raw student scores into a focused performance dashboard with statistics,
+            warnings, animated charts, and deploy-ready full-stack architecture.
+          </p>
+
+          <div class="hero-metrics">
+            <div class="hero-metric">
+              <strong>12+</strong>
+              Stats
+            </div>
+            <div class="hero-metric">
+              <strong>0-100</strong>
+              Validation
+            </div>
+            <div class="hero-metric">
+              <strong>Live</strong>
+              Web app
+            </div>
+          </div>
+        </div>
+
+        <div class="score-poster" aria-label="Dark comic and number seven football inspired score analysis illustration">
+          <svg viewBox="0 0 900 260" role="img" xmlns="http://www.w3.org/2000/svg">
         <rect width="900" height="260" fill="#181716" />
         <polygon points="0,0 520,0 425,260 0,260" fill="#f0be22" />
         <polygon points="526,0 900,0 900,260 432,260" fill="#064e3b" />
@@ -617,10 +969,20 @@
           <path d="M498 154 L535 168 L500 185 Z" />
           <path d="M34 218 L72 202 L74 237 Z" />
         </g>
-      </svg>
-    </div>
+          </svg>
+        </div>
+      </section>
 
-    <label for="scoreInput">Enter scores:</label>
+      <section class="analyzer-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Analyze Scores</h2>
+            <p>Paste a class list, run the analyzer, and scan the results without losing the important signals.</p>
+          </div>
+          <span class="panel-tag">Browser saved</span>
+        </div>
+
+    <label for="scoreInput">Score input</label>
     <textarea 
       id="scoreInput" 
       placeholder="Example: 87, 92, 76, 100, 65, 88, 91"
@@ -728,6 +1090,8 @@
         </div>
       </details>
     </div>
+      </section>
+    </main>
   </div>
 
   <script>
@@ -807,7 +1171,7 @@
 
     function setupScrollReveal() {
       const revealElements = document.querySelectorAll(
-        "h1, .subtitle, .score-poster, label, textarea, .hint, .button-group, .warnings-section, .chart-section, .key-grid .card, .advanced-details"
+        ".topbar, .hero-copy, .score-poster, .analyzer-panel, label, textarea, .hint, .button-group, .warnings-section, .chart-section, .key-grid .card, .advanced-details"
       );
 
       if (!("IntersectionObserver" in window)) {
