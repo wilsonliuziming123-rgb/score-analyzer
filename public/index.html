@@ -83,6 +83,31 @@
       backdrop-filter: blur(14px);
     }
 
+    .auth-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .auth-status {
+      padding: 9px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(14px);
+    }
+
+    .auth-toggle {
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: var(--gold);
+      color: #111827;
+      font-size: 14px;
+      box-shadow: none;
+    }
+
     .hero {
       min-height: calc(100vh - 120px);
       display: grid;
@@ -189,6 +214,57 @@
       color: #fef3c7;
       font-size: 13px;
       font-weight: 800;
+    }
+
+    .auth-panel {
+      margin-bottom: 20px;
+      padding: 16px;
+      border: 1px solid #e6e8ef;
+      border-radius: 16px;
+      background: #f8fafc;
+    }
+
+    .auth-panel.signed-in {
+      background: #ecfdf5;
+      border-color: #bbf7d0;
+    }
+
+    .auth-panel h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .auth-panel p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .auth-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    .auth-form input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #d8dce6;
+      border-radius: 12px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .auth-form input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .auth-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
     }
 
     .score-poster {
@@ -923,6 +999,14 @@
         flex-direction: column;
       }
 
+      .auth-controls,
+      .auth-form {
+        width: 100%;
+        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
       h1 {
         font-size: clamp(38px, 16vw, 58px);
       }
@@ -977,7 +1061,10 @@
           <span class="brand-mark">S</span>
           <span>Score Analyzer</span>
         </div>
-        <div class="nav-pill">Full-stack Node + Express app</div>
+        <div class="auth-controls">
+          <div id="authStatus" class="auth-status">Signed out</div>
+          <button id="signOutBtn" class="auth-toggle" type="button">Sign out</button>
+        </div>
       </nav>
 
       <section class="hero">
@@ -1095,6 +1182,16 @@
           </div>
           <span class="panel-tag">Browser saved</span>
         </div>
+
+    <section id="authPanel" class="auth-panel">
+      <h3 id="authPanelTitle">Sign in to save your records</h3>
+      <p id="authPanelText">Use a name for this browser. Your saved analyses will be separated by user.</p>
+      <form id="signInForm" class="auth-form">
+        <input id="userNameInput" type="text" autocomplete="name" placeholder="Your name, e.g. Ziming" />
+        <button id="signInBtn" type="submit">Sign in</button>
+      </form>
+      <div class="auth-note">This demo uses a cookie for the signed-in name and browser storage for records.</div>
+    </section>
 
     <label for="scoreInput">Score input</label>
     <textarea 
@@ -1229,11 +1326,22 @@
     const warningsList = document.getElementById("warningsList");
     const recordList = document.getElementById("recordList");
     const clearRecordsBtn = document.getElementById("clearRecordsBtn");
-    const recordsKey = "studentScoreAnalyzerRecords";
+    const authStatus = document.getElementById("authStatus");
+    const signOutBtn = document.getElementById("signOutBtn");
+    const signInForm = document.getElementById("signInForm");
+    const userNameInput = document.getElementById("userNameInput");
+    const authPanel = document.getElementById("authPanel");
+    const authPanelTitle = document.getElementById("authPanelTitle");
+    const authPanelText = document.getElementById("authPanelText");
+    const authCookieName = "scoreAnalyzerUser";
+    const baseRecordsKey = "studentScoreAnalyzerRecords";
+    let currentUser = "";
     let revealObserver;
 
     analyzeBtn.addEventListener("click", analyzeScores);
     clearBtn.addEventListener("click", clearAll);
+    signInForm.addEventListener("submit", signIn);
+    signOutBtn.addEventListener("click", signOut);
     clearRecordsBtn.addEventListener("click", clearRecords);
     recordList.addEventListener("click", handleRecordAction);
     window.addEventListener("load", initializePage);
@@ -1262,7 +1370,12 @@
           return;
         }
 
-        saveRecord(input, result.data);
+        if (currentUser) {
+          saveRecord(input, result.data);
+        } else {
+          renderRecords();
+        }
+
         displayResults(result.data);
       } catch (error) {
         showError("Unable to analyze scores. Please make sure the server is running.");
@@ -1295,6 +1408,8 @@
 
     function initializePage() {
       setupScrollReveal();
+      currentUser = getCookie(authCookieName);
+      updateAuthUI();
       loadSavedRecords();
       scoreInput.value = "";
       document.body.classList.remove("loading-reveal");
@@ -1546,7 +1661,67 @@
       errorBox.style.display = "none";
     }
 
+    function signIn(event) {
+      event.preventDefault();
+
+      const name = userNameInput.value.trim();
+
+      if (!name) {
+        showError("Please enter a name to sign in.");
+        return;
+      }
+
+      currentUser = name;
+      setCookie(authCookieName, name, 30);
+      userNameInput.value = "";
+      hideError();
+      updateAuthUI();
+      renderRecords();
+    }
+
+    function signOut() {
+      currentUser = "";
+      deleteCookie(authCookieName);
+      scoreInput.value = "";
+      clearAll();
+      updateAuthUI();
+      renderRecords();
+    }
+
+    function updateAuthUI() {
+      if (currentUser) {
+        authStatus.textContent = "Signed in as " + currentUser;
+        signOutBtn.style.display = "inline-block";
+        authPanel.classList.add("signed-in");
+        authPanelTitle.textContent = "Welcome back, " + currentUser;
+        authPanelText.textContent = "Your analyses will be saved automatically to your personal records on this browser.";
+        signInForm.style.display = "none";
+        return;
+      }
+
+      authStatus.textContent = "Signed out";
+      signOutBtn.style.display = "none";
+      authPanel.classList.remove("signed-in");
+      authPanelTitle.textContent = "Sign in to save your records";
+      authPanelText.textContent = "Use a name for this browser. Your saved analyses will be separated by user.";
+      signInForm.style.display = "grid";
+    }
+
+    function getRecordStorageKey() {
+      if (!currentUser) {
+        return "";
+      }
+
+      return baseRecordsKey + ":" + encodeURIComponent(currentUser.trim().toLowerCase());
+    }
+
     function saveRecord(input, statistics) {
+      const recordsKey = getRecordStorageKey();
+
+      if (!recordsKey) {
+        return;
+      }
+
       const records = getRecords();
       const normalizedInput = input.replace(/\s+/g, " ").trim();
       const existingIndex = records.findIndex(function (record) {
@@ -1569,6 +1744,12 @@
     }
 
     function getRecords() {
+      const recordsKey = getRecordStorageKey();
+
+      if (!recordsKey) {
+        return [];
+      }
+
       try {
         return JSON.parse(localStorage.getItem(recordsKey)) || [];
       } catch (error) {
@@ -1579,14 +1760,20 @@
     function loadSavedRecords() {
       localStorage.removeItem("studentScoreAnalyzerInput");
       localStorage.removeItem("studentScoreAnalyzerResults");
+      localStorage.removeItem(baseRecordsKey);
       renderRecords();
     }
 
     function renderRecords() {
+      if (!currentUser) {
+        recordList.innerHTML = `<p class="record-empty">Sign in to save, open, and edit your analysis records.</p>`;
+        return;
+      }
+
       const records = getRecords();
 
       if (records.length === 0) {
-        recordList.innerHTML = `<p class="record-empty">No saved records yet. Run an analysis and it will appear here.</p>`;
+        recordList.innerHTML = `<p class="record-empty">No saved records for ${currentUser} yet. Run an analysis and it will appear here.</p>`;
         return;
       }
 
@@ -1645,6 +1832,7 @@
     }
 
     function deleteRecord(id) {
+      const recordsKey = getRecordStorageKey();
       const records = getRecords().filter(function (record) {
         return record.id !== id;
       });
@@ -1654,8 +1842,35 @@
     }
 
     function clearRecords() {
-      localStorage.removeItem(recordsKey);
+      const recordsKey = getRecordStorageKey();
+
+      if (recordsKey) {
+        localStorage.removeItem(recordsKey);
+      }
+
       renderRecords();
+    }
+
+    function setCookie(name, value, days) {
+      const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+      document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + expires + "; path=/; SameSite=Lax";
+    }
+
+    function getCookie(name) {
+      const cookiePrefix = name + "=";
+      const cookies = document.cookie.split("; ");
+
+      for (let i = 0; i < cookies.length; i++) {
+        if (cookies[i].indexOf(cookiePrefix) === 0) {
+          return decodeURIComponent(cookies[i].slice(cookiePrefix.length));
+        }
+      }
+
+      return "";
+    }
+
+    function deleteCookie(name) {
+      document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax";
     }
 
     function clearAll() {
