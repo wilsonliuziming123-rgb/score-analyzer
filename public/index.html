@@ -1857,28 +1857,89 @@
         button.setAttribute("aria-pressed", isActive ? "true" : "false");
       });
 
-      const isChinese = selectedCountry === "CN";
-      document.documentElement.lang = isChinese ? "zh-CN" : "en";
+      const locale = getActiveLocale();
+      const text = getLocaleText(locale);
 
-      document.getElementById("heroEyebrow").textContent = isChinese ? "实时课堂数据分析" : "Live classroom intelligence";
-      document.getElementById("heroTitle").textContent = isChinese ? "学生成绩分析器" : "Student Score Analyzer";
-      document.getElementById("heroSubtitle").textContent = isChinese
-        ? "把原始成绩变成清晰的表现仪表盘，包含统计数据、预警、动态图表和可部署的全栈架构。"
-        : "Turn raw student scores into a focused performance dashboard with statistics, warnings, animated charts, and deploy-ready full-stack architecture.";
-      document.getElementById("metricStats").textContent = isChinese ? "统计项" : "Stats";
-      document.getElementById("metricScale").textContent = isChinese ? "灵活" : "Flexible";
-      document.getElementById("metricValidation").textContent = isChinese ? "满分制" : "Score scale";
-      document.getElementById("metricWebApp").textContent = isChinese ? "网页应用" : "Web app";
-      document.getElementById("maxScoreLabel").textContent = isChinese ? "满分" : "Maximum score";
-      document.getElementById("maxScoreHelp").textContent = isChinese
-        ? "分析器会按照这个满分检查分数，并使用满分的 60% 作为及格线。"
-        : "The analyzer validates scores against this scale and uses 60% of it as the passing line.";
-      document.getElementById("scoreInputLabel").textContent = isChinese ? "成绩输入" : "Score input";
-      analyzeBtn.textContent = isChinese ? "分析成绩" : "Analyze Scores";
-      clearBtn.textContent = isChinese ? "清空" : "Clear";
+      document.documentElement.lang = locale;
+
+      document.getElementById("heroEyebrow").textContent = text.heroEyebrow;
+      document.getElementById("heroTitle").textContent = text.heroTitle;
+      document.getElementById("heroSubtitle").textContent = text.heroSubtitle;
+      document.getElementById("metricStats").textContent = text.metricStats;
+      document.getElementById("metricScale").textContent = text.metricScale;
+      document.getElementById("metricValidation").textContent = text.metricValidation;
+      document.getElementById("metricWebApp").textContent = text.metricWebApp;
+      document.getElementById("maxScoreLabel").textContent = text.maxScoreLabel;
+      document.getElementById("maxScoreHelp").textContent = text.maxScoreHelp;
+      document.getElementById("scoreInputLabel").textContent = text.scoreInputLabel;
+      analyzeBtn.textContent = text.analyze;
+      clearBtn.textContent = text.clear;
       updateScaleText();
       updateAuthUI();
       renderRecords();
+    }
+
+    function getActiveLocale() {
+      if (selectedCountry === "CN") {
+        return "zh-CN";
+      }
+
+      if (selectedCountry === "TW" || selectedCountry === "HK" || selectedCountry === "MO") {
+        return "zh-TW";
+      }
+
+      return "en";
+    }
+
+    function getLocaleText(locale) {
+      if (locale === "zh-CN") {
+        return {
+          heroEyebrow: "实时课堂数据分析",
+          heroTitle: "学生成绩分析器",
+          heroSubtitle: "把原始成绩变成清晰的表现仪表盘，包含统计数据、预警、动态图表和可部署的全栈架构。",
+          metricStats: "统计项",
+          metricScale: "灵活",
+          metricValidation: "满分制",
+          metricWebApp: "网页应用",
+          maxScoreLabel: "满分",
+          maxScoreHelp: "分析器会按照这个满分检查分数，并使用满分的 60% 作为及格线。",
+          scoreInputLabel: "成绩输入",
+          analyze: "分析成绩",
+          clear: "清空"
+        };
+      }
+
+      if (locale === "zh-TW") {
+        return {
+          heroEyebrow: "即時課堂數據分析",
+          heroTitle: "學生成績分析器",
+          heroSubtitle: "把原始成績變成清晰的表現儀表板，包含統計數據、預警、動態圖表和可部署的全端架構。",
+          metricStats: "統計項",
+          metricScale: "彈性",
+          metricValidation: "滿分制",
+          metricWebApp: "網頁應用",
+          maxScoreLabel: "滿分",
+          maxScoreHelp: "分析器會按照這個滿分檢查分數，並使用滿分的 60% 作為及格線。",
+          scoreInputLabel: "成績輸入",
+          analyze: "分析成績",
+          clear: "清除"
+        };
+      }
+
+      return {
+        heroEyebrow: "Live classroom intelligence",
+        heroTitle: "Student Score Analyzer",
+        heroSubtitle: "Turn raw student scores into a focused performance dashboard with statistics, warnings, animated charts, and deploy-ready full-stack architecture.",
+        metricStats: "Stats",
+        metricScale: "Flexible",
+        metricValidation: "Score scale",
+        metricWebApp: "Web app",
+        maxScoreLabel: "Maximum score",
+        maxScoreHelp: "The analyzer validates scores against this scale and uses 60% of it as the passing line.",
+        scoreInputLabel: "Score input",
+        analyze: "Analyze Scores",
+        clear: "Clear"
+      };
     }
 
     function renderCountryOptions() {
@@ -1943,7 +2004,7 @@
 
     function getRegionDisplayNames() {
       if (Intl.DisplayNames) {
-        return new Intl.DisplayNames([selectedCountry === "CN" ? "zh-CN" : "en"], {
+        return new Intl.DisplayNames([getActiveLocale()], {
           type: "region"
         });
       }
@@ -1967,11 +2028,18 @@
 
     function updateScaleText() {
       const maxScore = getSelectedMaxScore() || 100;
-      const isChinese = selectedCountry === "CN";
+      const locale = getActiveLocale();
+      let hint = "You can separate scores with commas, spaces, or new lines. Scores must be between 0 and " + formatNumber(maxScore) + ".";
 
-      document.getElementById("scoreHint").textContent = isChinese
-        ? "可以用逗号、空格或换行分隔成绩。每个成绩必须在 0 到 " + formatNumber(maxScore) + " 之间。"
-        : "You can separate scores with commas, spaces, or new lines. Scores must be between 0 and " + formatNumber(maxScore) + ".";
+      if (locale === "zh-CN") {
+        hint = "可以用逗号、空格或换行分隔成绩。每个成绩必须在 0 到 " + formatNumber(maxScore) + " 之间。";
+      }
+
+      if (locale === "zh-TW") {
+        hint = "可以用逗號、空格或換行分隔成績。每個成績必須在 0 到 " + formatNumber(maxScore) + " 之間。";
+      }
+
+      document.getElementById("scoreHint").textContent = hint;
     }
 
     function getSelectedMaxScore() {
