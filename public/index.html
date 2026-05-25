@@ -720,6 +720,103 @@
       color: #1f2937;
     }
 
+    .records-section {
+      margin-top: 26px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: white;
+      box-shadow: 0 12px 28px rgba(16, 19, 28, 0.05);
+    }
+
+    .records-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .records-header h3 {
+      margin: 0 0 4px;
+      font-size: 20px;
+    }
+
+    .records-header p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .text-button {
+      padding: 8px 10px;
+      background: transparent;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+      font-size: 13px;
+      box-shadow: none;
+    }
+
+    .record-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .record-empty {
+      margin: 0;
+      padding: 14px;
+      border-radius: 12px;
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .record-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid #edf0f6;
+      border-radius: 14px;
+      background: #fbfcff;
+    }
+
+    .record-title {
+      margin: 0 0 5px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .record-meta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .record-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .record-actions button {
+      padding: 8px 10px;
+      font-size: 13px;
+      box-shadow: none;
+    }
+
+    .record-open {
+      background: #111827;
+      color: white;
+    }
+
+    .record-delete {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
     .results {
       margin-top: 34px;
     }
@@ -850,6 +947,14 @@
 
       button {
         width: 100%;
+      }
+
+      .records-header,
+      .record-item,
+      .record-actions {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: stretch;
       }
     }
 
@@ -1008,6 +1113,17 @@
 
     <div id="errorBox" class="error"></div>
 
+    <section class="records-section">
+      <div class="records-header">
+        <div>
+          <h3>Saved Records</h3>
+          <p>Analyses are saved automatically here. Open one to review or modify it.</p>
+        </div>
+        <button id="clearRecordsBtn" class="text-button" type="button">Clear Records</button>
+      </div>
+      <div id="recordList" class="record-list"></div>
+    </section>
+
     <div id="results" class="results">
       <h2>Results</h2>
 
@@ -1111,13 +1227,15 @@
     const results = document.getElementById("results");
     const statisticsChart = document.getElementById("statisticsChart");
     const warningsList = document.getElementById("warningsList");
-    const savedInputKey = "studentScoreAnalyzerInput";
-    const savedResultsKey = "studentScoreAnalyzerResults";
+    const recordList = document.getElementById("recordList");
+    const clearRecordsBtn = document.getElementById("clearRecordsBtn");
+    const recordsKey = "studentScoreAnalyzerRecords";
     let revealObserver;
 
     analyzeBtn.addEventListener("click", analyzeScores);
     clearBtn.addEventListener("click", clearAll);
-    scoreInput.addEventListener("input", saveCurrentInput);
+    clearRecordsBtn.addEventListener("click", clearRecords);
+    recordList.addEventListener("click", handleRecordAction);
     window.addEventListener("load", initializePage);
 
     async function analyzeScores() {
@@ -1141,12 +1259,10 @@
 
         if (!result.success) {
           showError(result.error);
-          localStorage.removeItem(savedResultsKey);
           return;
         }
 
-        localStorage.setItem(savedInputKey, input);
-        localStorage.setItem(savedResultsKey, JSON.stringify(result.data));
+        saveRecord(input, result.data);
         displayResults(result.data);
       } catch (error) {
         showError("Unable to analyze scores. Please make sure the server is running.");
@@ -1179,7 +1295,8 @@
 
     function initializePage() {
       setupScrollReveal();
-      loadSavedData();
+      loadSavedRecords();
+      scoreInput.value = "";
       document.body.classList.remove("loading-reveal");
     }
 
@@ -1429,25 +1546,116 @@
       errorBox.style.display = "none";
     }
 
-    function saveCurrentInput() {
-      localStorage.setItem(savedInputKey, scoreInput.value);
+    function saveRecord(input, statistics) {
+      const records = getRecords();
+      const normalizedInput = input.replace(/\s+/g, " ").trim();
+      const existingIndex = records.findIndex(function (record) {
+        return record.scoresInput === normalizedInput;
+      });
+      const record = {
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString(),
+        scoresInput: normalizedInput,
+        statistics: statistics
+      };
+
+      if (existingIndex >= 0) {
+        records.splice(existingIndex, 1);
+      }
+
+      records.unshift(record);
+      localStorage.setItem(recordsKey, JSON.stringify(records.slice(0, 12)));
+      renderRecords();
     }
 
-    function loadSavedData() {
-      const savedInput = localStorage.getItem(savedInputKey);
-      const savedResults = localStorage.getItem(savedResultsKey);
+    function getRecords() {
+      try {
+        return JSON.parse(localStorage.getItem(recordsKey)) || [];
+      } catch (error) {
+        return [];
+      }
+    }
 
-      if (savedInput) {
-        scoreInput.value = savedInput;
+    function loadSavedRecords() {
+      localStorage.removeItem("studentScoreAnalyzerInput");
+      localStorage.removeItem("studentScoreAnalyzerResults");
+      renderRecords();
+    }
+
+    function renderRecords() {
+      const records = getRecords();
+
+      if (records.length === 0) {
+        recordList.innerHTML = `<p class="record-empty">No saved records yet. Run an analysis and it will appear here.</p>`;
+        return;
       }
 
-      if (savedResults) {
-        try {
-          displayResults(JSON.parse(savedResults));
-        } catch (error) {
-          localStorage.removeItem(savedResultsKey);
-        }
+      recordList.innerHTML = records.map(function (record) {
+        const stats = record.statistics;
+        const date = new Date(record.createdAt).toLocaleString();
+
+        return `
+          <article class="record-item">
+            <div>
+              <p class="record-title">Mean ${formatNumber(stats.mean)} · ${stats.count} students</p>
+              <p class="record-meta">${date}<br>${record.scoresInput}</p>
+            </div>
+            <div class="record-actions">
+              <button class="record-open" type="button" data-id="${record.id}">Open</button>
+              <button class="record-delete" type="button" data-id="${record.id}">Delete</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function handleRecordAction(event) {
+      const button = event.target.closest("button[data-id]");
+
+      if (!button) {
+        return;
       }
+
+      if (button.classList.contains("record-open")) {
+        openRecord(button.dataset.id);
+      }
+
+      if (button.classList.contains("record-delete")) {
+        deleteRecord(button.dataset.id);
+      }
+    }
+
+    function openRecord(id) {
+      const record = getRecords().find(function (item) {
+        return item.id === id;
+      });
+
+      if (!record) {
+        return;
+      }
+
+      scoreInput.value = record.scoresInput;
+      hideError();
+      displayResults(record.statistics);
+      scoreInput.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+      scoreInput.focus();
+    }
+
+    function deleteRecord(id) {
+      const records = getRecords().filter(function (record) {
+        return record.id !== id;
+      });
+
+      localStorage.setItem(recordsKey, JSON.stringify(records));
+      renderRecords();
+    }
+
+    function clearRecords() {
+      localStorage.removeItem(recordsKey);
+      renderRecords();
     }
 
     function clearAll() {
@@ -1456,8 +1664,6 @@
       results.style.display = "none";
       statisticsChart.innerHTML = "";
       warningsList.innerHTML = "";
-      localStorage.removeItem(savedInputKey);
-      localStorage.removeItem(savedResultsKey);
     }
   </script>
 </body>
