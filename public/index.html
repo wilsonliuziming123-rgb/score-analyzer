@@ -26,7 +26,7 @@
       background:
         radial-gradient(circle at 18% 8%, rgba(240, 190, 34, 0.22), transparent 28%),
         radial-gradient(circle at 86% 20%, rgba(182, 31, 38, 0.18), transparent 30%),
-        linear-gradient(180deg, #0d1117 0%, #171a22 72vh, #f4f6f8 72vh, #eef1f6 100%);
+        linear-gradient(180deg, #0d1117 0%, #171a22 104vh, #f4f6f8 104vh, #eef1f6 100%);
       margin: 0;
       color: var(--ink);
     }
@@ -43,7 +43,7 @@
     .site-shell {
       width: min(1120px, calc(100% - 36px));
       margin: 0 auto;
-      padding: 28px 0 56px;
+      padding: 42px 0 56px;
     }
 
     .topbar {
@@ -109,7 +109,7 @@
     }
 
     .hero {
-      min-height: calc(100vh - 120px);
+      min-height: calc(100vh - 96px);
       display: grid;
       grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
       gap: 34px;
@@ -159,15 +159,17 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
       max-width: 560px;
+      margin-bottom: 26px;
     }
 
     .hero-metric {
-      padding: 15px;
+      padding: 16px 18px;
       border-radius: 14px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.13);
-      color: rgba(255, 255, 255, 0.72);
+      background: rgba(15, 18, 27, 0.76);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(14px);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
     }
 
     .hero-metric strong {
@@ -978,7 +980,7 @@
         background:
           radial-gradient(circle at 18% 8%, rgba(240, 190, 34, 0.2), transparent 28%),
           radial-gradient(circle at 86% 20%, rgba(182, 31, 38, 0.16), transparent 30%),
-          linear-gradient(180deg, #0d1117 0%, #171a22 840px, #f4f6f8 840px, #eef1f6 100%);
+          linear-gradient(180deg, #0d1117 0%, #171a22 980px, #f4f6f8 980px, #eef1f6 100%);
       }
 
       .site-shell {
@@ -1218,10 +1220,10 @@
         <button id="signInBtn" type="submit">Sign in</button>
       </form>
       <div class="oauth-row">
-        <button class="oauth-button" type="button" disabled>G Continue with Google</button>
-        <button class="oauth-button" type="button" disabled>Apple Continue with Apple</button>
+        <button id="googleSignInBtn" class="oauth-button" type="button" disabled>G Continue with Google</button>
+        <button id="appleSignInBtn" class="oauth-button" type="button" disabled>Apple Continue with Apple</button>
       </div>
-      <div class="auth-note">This demo uses a cookie for the signed-in name and browser storage for records.</div>
+      <div class="auth-note">Google sign-in uses a secure server cookie. Apple sign-in needs Apple Developer setup and is not enabled yet.</div>
     </section>
 
     <label for="scoreInput">Score input</label>
@@ -1364,15 +1366,19 @@
     const authPanel = document.getElementById("authPanel");
     const authPanelTitle = document.getElementById("authPanelTitle");
     const authPanelText = document.getElementById("authPanelText");
+    const googleSignInBtn = document.getElementById("googleSignInBtn");
     const authCookieName = "scoreAnalyzerUser";
     const baseRecordsKey = "studentScoreAnalyzerRecords";
     let currentUser = "";
+    let currentUserLabel = "";
+    let googleConfigured = false;
     let revealObserver;
 
     analyzeBtn.addEventListener("click", analyzeScores);
     clearBtn.addEventListener("click", clearAll);
     signInForm.addEventListener("submit", signIn);
     signOutBtn.addEventListener("click", signOut);
+    googleSignInBtn.addEventListener("click", startGoogleSignIn);
     clearRecordsBtn.addEventListener("click", clearRecords);
     recordList.addEventListener("click", handleRecordAction);
     window.addEventListener("load", initializePage);
@@ -1437,9 +1443,9 @@
       prepareResultReveal();
     }
 
-    function initializePage() {
+    async function initializePage() {
       setupScrollReveal();
-      currentUser = getCookie(authCookieName);
+      await loadAuthSession();
       updateAuthUI();
       loadSavedRecords();
       scoreInput.value = "";
@@ -1692,6 +1698,36 @@
       errorBox.style.display = "none";
     }
 
+    async function loadAuthSession() {
+      try {
+        const response = await fetch("/api/me");
+        const data = await response.json();
+
+        googleConfigured = data.googleConfigured;
+
+        if (data.authenticated && data.user) {
+          currentUser = data.user.provider + ":" + (data.user.email || data.user.id);
+          currentUserLabel = data.user.name || data.user.email;
+          return;
+        }
+      } catch (error) {
+        googleConfigured = false;
+      }
+
+      const localUser = getCookie(authCookieName);
+      currentUser = localUser;
+      currentUserLabel = localUser;
+    }
+
+    function startGoogleSignIn() {
+      if (!googleConfigured) {
+        showError("Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Render.");
+        return;
+      }
+
+      window.location.href = "/auth/google";
+    }
+
     function signIn(event) {
       event.preventDefault();
 
@@ -1703,6 +1739,7 @@
       }
 
       currentUser = name;
+      currentUserLabel = name;
       setCookie(authCookieName, name, 30);
       userNameInput.value = "";
       hideError();
@@ -1710,8 +1747,17 @@
       renderRecords();
     }
 
-    function signOut() {
+    async function signOut() {
+      try {
+        await fetch("/auth/logout", {
+          method: "POST"
+        });
+      } catch (error) {
+        // Local sign-out should still continue even if the network request fails.
+      }
+
       currentUser = "";
+      currentUserLabel = "";
       deleteCookie(authCookieName);
       scoreInput.value = "";
       clearAll();
@@ -1721,12 +1767,13 @@
 
     function updateAuthUI() {
       if (currentUser) {
-        authStatus.textContent = "Signed in as " + currentUser;
+        authStatus.textContent = "Signed in as " + currentUserLabel;
         signOutBtn.style.display = "inline-block";
         authPanel.classList.add("signed-in");
-        authPanelTitle.textContent = "Welcome back, " + currentUser;
+        authPanelTitle.textContent = "Welcome back, " + currentUserLabel;
         authPanelText.textContent = "Your analyses will be saved automatically to your personal records on this browser.";
         signInForm.style.display = "none";
+        googleSignInBtn.style.display = "none";
         return;
       }
 
@@ -1736,6 +1783,9 @@
       authPanelTitle.textContent = "Sign in to save your records";
       authPanelText.textContent = "Use a name for this browser. Your saved analyses will be separated by user.";
       signInForm.style.display = "grid";
+      googleSignInBtn.style.display = "flex";
+      googleSignInBtn.disabled = !googleConfigured;
+      googleSignInBtn.textContent = googleConfigured ? "G Continue with Google" : "G Google setup required";
     }
 
     function getRecordStorageKey() {
@@ -1804,7 +1854,7 @@
       const records = getRecords();
 
       if (records.length === 0) {
-        recordList.innerHTML = `<p class="record-empty">No saved records for ${currentUser} yet. Run an analysis and it will appear here.</p>`;
+        recordList.innerHTML = `<p class="record-empty">No saved records for ${currentUserLabel} yet. Run an analysis and it will appear here.</p>`;
         return;
       }
 

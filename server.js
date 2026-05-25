@@ -1,12 +1,112 @@
 const express = require("express");
 const path = require("path");
+const crypto = require("crypto");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const AUTH_COOKIE_NAME = "scoreAnalyzerAuth";
+const googleAuthStates = new Map();
 
+app.set("trust proxy", 1);
 app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/api/me", function (req, res) {
+    const user = getSignedInUser(req);
+
+    return res.json({
+        authenticated: Boolean(user),
+        user: user,
+        googleConfigured: isGoogleConfigured()
+    });
+});
+
+app.get("/auth/google", function (req, res) {
+    if (!isGoogleConfigured()) {
+        return res.redirect("/?authError=google-not-configured");
+    }
+
+    const state = crypto.randomBytes(16).toString("hex");
+    const redirectUri = getGoogleRedirectUri(req);
+
+    googleAuthStates.set(state, Date.now());
+
+    const params = new URLSearchParams({
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        redirect_uri: redirectUri,
+        response_type: "code",
+        scope: "openid email profile",
+        state: state,
+        prompt: "select_account"
+    });
+
+    return res.redirect("https://accounts.google.com/o/oauth2/v2/auth?" + params.toString());
+});
+
+app.get("/auth/google/callback", async function (req, res) {
+    const code = req.query.code;
+    const state = req.query.state;
+
+    if (!code || !state || !googleAuthStates.has(state)) {
+        return res.redirect("/?authError=google-state");
+    }
+
+    googleAuthStates.delete(state);
+
+    try {
+        const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({
+                code: code,
+                client_id: process.env.GOOGLE_CLIENT_ID,
+                client_secret: process.env.GOOGLE_CLIENT_SECRET,
+                redirect_uri: getGoogleRedirectUri(req),
+                grant_type: "authorization_code"
+            })
+        });
+
+        if (!tokenResponse.ok) {
+            return res.redirect("/?authError=google-token");
+        }
+
+        const tokenData = await tokenResponse.json();
+        const profileResponse = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+            headers: {
+                Authorization: "Bearer " + tokenData.access_token
+            }
+        });
+
+        if (!profileResponse.ok) {
+            return res.redirect("/?authError=google-profile");
+        }
+
+        const profile = await profileResponse.json();
+
+        setAuthCookie(res, {
+            provider: "google",
+            id: profile.sub,
+            name: profile.name || profile.email,
+            email: profile.email,
+            picture: profile.picture
+        });
+
+        return res.redirect("/");
+    } catch (error) {
+        return res.redirect("/?authError=google-server");
+    }
+});
+
+app.post("/auth/logout", function (req, res) {
+    clearAuthCookie(res);
+
+    return res.json({
+        success: true
+    });
+});
 
 app.post("/api/analyze-scores", function (req, res) {
     const scoresInput = req.body.scoresInput;
@@ -166,6 +266,65 @@ function getUpperHalf(arr) {
 
 function roundToTwo(num) {
     return Math.round(num * 100) / 100;
+}
+
+function isGoogleConfigured() {
+    return Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+}
+
+function getGoogleRedirectUri(req) {
+    return process.env.GOOGLE_CALLBACK_URL || getBaseUrl(req) + "/auth/google/callback";
+}
+
+function getBaseUrl(req) {
+    return process.env.PUBLIC_BASE_URL || req.protocol + "://" + req.get("host");
+}
+
+function setAuthCookie(res, user) {
+    const cookieValue = Buffer.from(JSON.stringify(user)).toString("base64url");
+    const secureFlag = process.env.NODE_ENV === "production" || process.env.RENDER ? "; Secure" : "";
+
+    res.setHeader(
+        "Set-Cookie",
+        AUTH_COOKIE_NAME + "=" + cookieValue + "; Max-Age=2592000; Path=/; HttpOnly; SameSite=Lax" + secureFlag
+    );
+}
+
+function clearAuthCookie(res) {
+    res.setHeader(
+        "Set-Cookie",
+        AUTH_COOKIE_NAME + "=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax"
+    );
+}
+
+function getSignedInUser(req) {
+    const cookies = parseCookies(req.headers.cookie || "");
+    const cookieValue = cookies[AUTH_COOKIE_NAME];
+
+    if (!cookieValue) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(Buffer.from(cookieValue, "base64url").toString("utf8"));
+    } catch (error) {
+        return null;
+    }
+}
+
+function parseCookies(cookieHeader) {
+    const cookies = {};
+
+    cookieHeader.split(";").forEach(function (cookie) {
+        const parts = cookie.trim().split("=");
+        const name = parts.shift();
+
+        if (name) {
+            cookies[name] = decodeURIComponent(parts.join("="));
+        }
+    });
+
+    return cookies;
 }
 
 app.listen(PORT, function () {
