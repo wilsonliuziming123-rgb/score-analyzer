@@ -73,12 +73,20 @@
     }
 
     .topbar {
+      position: sticky;
+      top: 18px;
+      z-index: 30;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
       color: white;
       margin-bottom: 54px;
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 22px;
+      background: rgba(13, 17, 23, 0.2);
+      backdrop-filter: blur(18px);
     }
 
     .brand {
@@ -241,12 +249,26 @@
     }
 
     .hero {
+      position: relative;
       min-height: calc(100vh - 96px);
       display: grid;
       grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
       gap: 34px;
       align-items: center;
       padding-bottom: 44px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 9% -8% auto auto;
+      width: 420px;
+      height: 420px;
+      border: 1px solid rgba(240, 190, 34, 0.22);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(240, 190, 34, 0.1), transparent 64%);
+      animation: orbitGlow 8s ease-in-out infinite;
+      pointer-events: none;
     }
 
     .hero-copy {
@@ -295,6 +317,8 @@
     }
 
     .hero-metric {
+      position: relative;
+      overflow: hidden;
       padding: 16px 18px;
       border-radius: 14px;
       background: rgba(15, 18, 27, 0.76);
@@ -302,6 +326,15 @@
       color: rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(14px);
       box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+    }
+
+    .hero-metric::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+      transform: translateX(-110%);
+      animation: metricShine 4.8s ease-in-out infinite;
     }
 
     .hero-metric strong {
@@ -393,13 +426,15 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 11px 12px;
+      min-height: 54px;
+      padding: 14px 18px;
       border: 1px solid #d8dce6;
-      border-radius: 12px;
+      border-radius: 16px;
       background: white;
       color: #111827;
       box-shadow: none;
-      font-size: 14px;
+      font-size: 16px;
+      font-weight: 900;
     }
 
     .oauth-button[disabled] {
@@ -637,6 +672,28 @@
       50% {
         filter: hue-rotate(12deg) brightness(1.12);
         transform: translateX(1.5%);
+      }
+    }
+
+    @keyframes orbitGlow {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.6;
+      }
+
+      50% {
+        transform: translateY(18px) scale(1.08);
+        opacity: 1;
+      }
+    }
+
+    @keyframes metricShine {
+      0%, 55%, 100% {
+        transform: translateX(-110%);
+      }
+
+      75% {
+        transform: translateX(110%);
       }
     }
 
@@ -1778,14 +1835,14 @@
         </div>
 
     <section id="authPanel" class="auth-panel">
-      <h3 id="authPanelTitle">Sign in to save your records</h3>
-      <p id="authPanelText">Use a name for this browser. Your saved analyses will be separated by user.</p>
+      <h3 id="authPanelTitle">Sign in with email</h3>
+      <p id="authPanelText">Use your email to keep saved analyses tied to the right workspace.</p>
       <form id="signInForm" class="auth-form">
-        <input id="userNameInput" type="text" autocomplete="name" placeholder="Your name, e.g. Ziming" />
+        <input id="userNameInput" type="email" autocomplete="email" placeholder="you@example.com" />
         <button id="signInBtn" type="submit">Sign in</button>
       </form>
       <div class="oauth-row">
-        <button id="googleSignInBtn" class="oauth-button" type="button" disabled>G Continue with Google</button>
+        <button id="googleSignInBtn" class="oauth-button" type="button" disabled>Continue with Google</button>
       </div>
       <div class="auth-note">Google sign-in uses a secure server cookie.</div>
     </section>
@@ -2111,6 +2168,10 @@
         selectedCountry = savedCountry === "UK" ? "GB" : savedCountry;
       }
 
+      if (!getRegionCodes().includes(selectedCountry)) {
+        selectedCountry = "US";
+      }
+
       applyCountryPreference();
     }
 
@@ -2394,31 +2455,18 @@
 
     function getRegionCodes() {
       return [
-        "AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AR", "AS", "AT", "AU", "AW", "AX", "AZ",
-        "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BW", "BY", "BZ",
-        "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CU", "CV", "CW", "CX", "CY", "CZ",
-        "DE", "DJ", "DK", "DM", "DO", "DZ",
-        "EC", "EE", "EG", "EH", "ER", "ES", "ET",
-        "FI", "FJ", "FK", "FM", "FO", "FR",
-        "GA", "GB", "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GT", "GU", "GW", "GY",
-        "HK", "HN", "HR", "HT", "HU",
-        "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IR", "IS", "IT",
-        "JE", "JM", "JO", "JP",
-        "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ",
-        "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY",
-        "MA", "MC", "MD", "ME", "MF", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ",
-        "NA", "NC", "NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ",
-        "OM",
-        "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PW", "PY",
-        "QA",
-        "RE", "RO", "RS", "RU", "RW",
-        "SA", "SB", "SC", "SD", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ",
-        "TC", "TD", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ",
-        "UA", "UG", "US", "UY", "UZ",
-        "VA", "VC", "VE", "VG", "VI", "VN", "VU",
-        "WF", "WS",
-        "YE", "YT",
-        "ZA", "ZM", "ZW"
+        "US", "GB", "AU", "NZ", "IE", "SG",
+        "CN", "TW", "HK", "MO",
+        "JP", "KR",
+        "ES", "MX", "AR", "BO", "CL", "CO", "CR", "CU", "DO", "EC", "GT", "HN", "NI", "PA", "PE", "PY", "SV", "UY", "VE",
+        "FR", "BE", "CA", "CH", "MC", "LU", "BF", "BJ", "CD", "CF", "CG", "CI", "CM", "GA", "GF", "GP", "MG", "ML", "MQ", "NE", "RE", "SN", "TD",
+        "DE", "AT", "LI",
+        "BR", "PT", "CV", "GW", "MZ", "ST",
+        "IT", "SM", "VA",
+        "SA", "AE", "EG", "QA", "KW", "BH", "OM", "JO", "LB", "MA", "DZ", "TN",
+        "RU", "BY",
+        "NL", "AW", "CW", "SX",
+        "TR", "ID", "TH", "VN", "IN", "BD", "PK", "SE", "NO", "DK", "FI", "PL", "CZ", "GR", "IL"
       ];
     }
 
@@ -2767,8 +2815,13 @@
           end: ((index + 1) / bucketCount) * maxScore
         };
       });
-      const path = buildSmoothPath(points);
-      const areaPath = path + ` L ${right} ${bottom} L ${left} ${bottom} Z`;
+      const visiblePoints = points.filter(function (point) {
+        return point.count > 0;
+      });
+      const path = buildSmoothPath(visiblePoints);
+      const areaPath = visiblePoints.length > 1
+        ? path + ` L ${visiblePoints[visiblePoints.length - 1].x} ${bottom} L ${visiblePoints[0].x} ${bottom} Z`
+        : "";
       const shape = describeDistributionShape(statistics, maxScore);
 
       distributionNote.textContent = shape;
@@ -2778,15 +2831,15 @@
         <polygon points="540,0 760,0 760,280 620,280" fill="#b61f26" opacity="0.1"></polygon>
         <line x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}" stroke="#fef3c7" stroke-width="2"></line>
         <line x1="${left}" y1="${top}" x2="${left}" y2="${bottom}" stroke="#fef3c7" stroke-width="2"></line>
-        <path d="${areaPath}" fill="#facc15" opacity="0.18"></path>
-        <path class="distribution-path" d="${path}" fill="none" stroke="#60a5fa" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+        ${areaPath ? `<path d="${areaPath}" fill="#facc15" opacity="0.18"></path>` : ""}
+        ${visiblePoints.length > 1 ? `<path class="distribution-path" d="${path}" fill="none" stroke="#60a5fa" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>` : ""}
         <line x1="${scoreToCurveX(statistics.mean, maxScore, left, right)}" y1="${top}" x2="${scoreToCurveX(statistics.mean, maxScore, left, right)}" y2="${bottom}" stroke="#16a34a" stroke-width="3" stroke-dasharray="7 7"></line>
         <line x1="${scoreToCurveX(statistics.median, maxScore, left, right)}" y1="${top}" x2="${scoreToCurveX(statistics.median, maxScore, left, right)}" y2="${bottom}" stroke="#b61f26" stroke-width="3" stroke-dasharray="3 7"></line>
         <text x="${left}" y="258" font-size="12" fill="#fef3c7">0</text>
         <text x="${right - 34}" y="258" font-size="12" fill="#fef3c7">${formatNumber(maxScore)}</text>
         <text x="${scoreToCurveX(statistics.mean, maxScore, left, right) + 7}" y="34" font-size="12" font-weight="800" fill="#16a34a">mean</text>
         <text x="${scoreToCurveX(statistics.median, maxScore, left, right) + 7}" y="52" font-size="12" font-weight="800" fill="#b61f26">median</text>
-        ${points.map(function (point) {
+        ${visiblePoints.map(function (point) {
           return `<circle cx="${point.x}" cy="${point.y}" r="${point.count > 0 ? 5 : 3}" fill="${point.count > 0 ? "#60a5fa" : "#475569"}"></circle>`;
         }).join("")}
       `;
@@ -2897,7 +2950,7 @@
 
       const localUser = getCookie(authCookieName);
       currentUser = localUser;
-      currentUserLabel = localUser;
+      currentUserLabel = localUser.indexOf("email:") === 0 ? localUser.slice(6) : localUser;
     }
 
     function startGoogleSignIn() {
@@ -2912,20 +2965,24 @@
     function signIn(event) {
       event.preventDefault();
 
-      const name = userNameInput.value.trim();
+      const email = userNameInput.value.trim().toLowerCase();
 
-      if (!name) {
-        showError("Please enter a name to sign in.");
+      if (!isValidEmail(email)) {
+        showError("Please enter a valid email address to sign in.");
         return;
       }
 
-      currentUser = name;
-      currentUserLabel = name;
-      setCookie(authCookieName, name, 30);
+      currentUser = "email:" + email;
+      currentUserLabel = email;
+      setCookie(authCookieName, currentUser, 30);
       userNameInput.value = "";
       hideError();
       updateAuthUI();
       renderRecords();
+    }
+
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
     async function signOut() {
@@ -2970,12 +3027,12 @@
       topGoogleSignInBtn.disabled = !googleConfigured;
       topGoogleSignInBtn.textContent = googleConfigured ? "Google sign in" : "Google setup required";
       authPanel.classList.remove("signed-in");
-      authPanelTitle.textContent = "Sign in to save your records";
-      authPanelText.textContent = "Use a name for this browser. Your saved analyses will be separated by user.";
+      authPanelTitle.textContent = "Sign in with email";
+      authPanelText.textContent = "Use your email to keep saved analyses tied to the right workspace.";
       signInForm.style.display = "grid";
       googleSignInBtn.style.display = "flex";
       googleSignInBtn.disabled = !googleConfigured;
-      googleSignInBtn.textContent = googleConfigured ? "G Continue with Google" : "G Google setup required";
+      googleSignInBtn.textContent = googleConfigured ? "Continue with Google" : "Google setup required";
     }
 
     function getRecordStorageKey() {
