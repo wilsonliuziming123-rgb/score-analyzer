@@ -258,14 +258,23 @@
       transform-origin: center;
     }
 
+    .loading-reveal .topbar,
+    .loading-reveal .hero-copy,
+    .loading-reveal .score-poster,
+    .loading-reveal .analyzer-panel {
+      opacity: 0;
+      transform: translateY(34px);
+      filter: blur(5px);
+    }
+
     .reveal {
       opacity: 0;
-      transform: translateY(28px);
-      filter: blur(4px);
+      transform: translateY(34px);
+      filter: blur(5px);
       transition:
-        opacity 0.7s ease,
-        transform 0.7s ease,
-        filter 0.7s ease;
+        opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.9s cubic-bezier(0.16, 1, 0.3, 1);
       transition-delay: var(--reveal-delay, 0s);
       will-change: opacity, transform, filter;
     }
@@ -855,7 +864,7 @@
   </style>
 </head>
 
-<body>
+<body class="loading-reveal">
   <div class="container">
     <main class="site-shell">
       <nav class="topbar">
@@ -1109,8 +1118,7 @@
     analyzeBtn.addEventListener("click", analyzeScores);
     clearBtn.addEventListener("click", clearAll);
     scoreInput.addEventListener("input", saveCurrentInput);
-    window.addEventListener("load", loadSavedData);
-    window.addEventListener("load", setupScrollReveal);
+    window.addEventListener("load", initializePage);
 
     async function analyzeScores() {
       hideError();
@@ -1169,6 +1177,12 @@
       prepareResultReveal();
     }
 
+    function initializePage() {
+      setupScrollReveal();
+      loadSavedData();
+      document.body.classList.remove("loading-reveal");
+    }
+
     function setupScrollReveal() {
       const revealElements = document.querySelectorAll(
         ".topbar, .hero-copy, .score-poster, .analyzer-panel, label, textarea, .hint, .button-group, .warnings-section, .chart-section, .key-grid .card, .advanced-details"
@@ -1178,6 +1192,7 @@
         revealElements.forEach(function (element) {
           element.classList.add("reveal", "is-visible");
         });
+        document.body.classList.remove("loading-reveal");
         return;
       }
 
@@ -1195,8 +1210,14 @@
 
       revealElements.forEach(function (element, index) {
         element.classList.add("reveal");
-        element.style.setProperty("--reveal-delay", Math.min(index * 0.05, 0.35) + "s");
-        revealObserver.observe(element);
+        element.classList.remove("is-visible");
+        element.style.setProperty("--reveal-delay", Math.min(index * 0.08, 0.48) + "s");
+      });
+
+      requestAnimationFrame(function () {
+        revealElements.forEach(function (element) {
+          revealObserver.observe(element);
+        });
       });
     }
 
@@ -1208,10 +1229,12 @@
       resultElements.forEach(function (element, index) {
         element.classList.remove("is-visible");
         element.classList.add("reveal");
-        element.style.setProperty("--reveal-delay", Math.min(index * 0.06, 0.32) + "s");
+        element.style.setProperty("--reveal-delay", Math.min(index * 0.08, 0.42) + "s");
 
         if (revealObserver) {
-          revealObserver.observe(element);
+          requestAnimationFrame(function () {
+            revealObserver.observe(element);
+          });
         } else {
           element.classList.add("is-visible");
         }
