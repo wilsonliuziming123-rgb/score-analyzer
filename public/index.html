@@ -283,7 +283,7 @@
 
     .oauth-row {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1fr);
       gap: 10px;
       margin-top: 10px;
     }
@@ -627,6 +627,29 @@
       overflow-x: auto;
     }
 
+    .chart-detail {
+      display: none;
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 2px solid #f0be22;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #fff7cc, #fff);
+      color: #111827;
+      box-shadow: 0 6px 0 #111827;
+      animation: detailPop 0.28s ease both;
+    }
+
+    .chart-detail strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 16px;
+    }
+
+    .chart-detail span {
+      color: #374151;
+      font-weight: 700;
+    }
+
     .warnings-section {
       margin-bottom: 24px;
       padding: 18px;
@@ -714,6 +737,27 @@
       animation: chartRise 0.7s ease-out both, chartGlow 2.2s ease-in-out infinite;
     }
 
+    .chart-group {
+      cursor: pointer;
+      outline: none;
+    }
+
+    .chart-group .chart-hitbox {
+      opacity: 0;
+    }
+
+    .chart-group:hover .chart-bar,
+    .chart-group:focus .chart-bar,
+    .chart-group.is-selected .chart-bar {
+      filter: drop-shadow(0 0 12px rgba(250, 204, 21, 0.86));
+      transform: scaleY(1.05);
+    }
+
+    .chart-group.is-selected .chart-ring {
+      opacity: 1;
+      animation: selectedRing 0.9s ease-in-out infinite;
+    }
+
     .chart-value {
       animation: valuePop 0.45s ease-out both;
     }
@@ -762,6 +806,30 @@
 
       50% {
         filter: drop-shadow(0 0 5px rgba(250, 204, 21, 0.55));
+      }
+    }
+
+    @keyframes selectedRing {
+      0%, 100% {
+        opacity: 0.45;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.08);
+      }
+    }
+
+    @keyframes detailPop {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
       }
     }
 
@@ -1312,9 +1380,8 @@
       </form>
       <div class="oauth-row">
         <button id="googleSignInBtn" class="oauth-button" type="button" disabled>G Continue with Google</button>
-        <button id="appleSignInBtn" class="oauth-button" type="button" disabled>Apple Continue with Apple</button>
       </div>
-      <div class="auth-note">Google sign-in uses a secure server cookie. Apple sign-in needs Apple Developer setup and is not enabled yet.</div>
+      <div class="auth-note">Google sign-in uses a secure server cookie.</div>
     </section>
 
     <div class="score-settings">
@@ -1369,6 +1436,7 @@
         <div class="chart-wrap">
           <svg id="statisticsChart" viewBox="0 0 760 320" role="img" aria-label="Score statistics bar chart"></svg>
         </div>
+        <div id="chartDetail" class="chart-detail" aria-live="polite"></div>
       </div>
 
       <div class="grid key-grid">
@@ -1458,6 +1526,7 @@
     const errorBox = document.getElementById("errorBox");
     const results = document.getElementById("results");
     const statisticsChart = document.getElementById("statisticsChart");
+    const chartDetail = document.getElementById("chartDetail");
     const warningsList = document.getElementById("warningsList");
     const recordList = document.getElementById("recordList");
     const clearRecordsBtn = document.getElementById("clearRecordsBtn");
@@ -1484,6 +1553,8 @@
     clearBtn.addEventListener("click", clearAll);
     maxScoreInput.addEventListener("input", updateScaleText);
     countrySelect.addEventListener("change", applyCountryPreference);
+    statisticsChart.addEventListener("click", handleChartSelection);
+    statisticsChart.addEventListener("keydown", handleChartKeyboardSelection);
     signInForm.addEventListener("submit", signIn);
     recordsShortcutBtn.addEventListener("click", scrollToRecords);
     signOutBtn.addEventListener("click", signOut);
@@ -1826,15 +1897,52 @@
         const barHeight = Math.max((item.value / chartMax) * chartHeight, 2);
         const y = chartBottom - barHeight;
         const delay = index * 0.08;
+        const percentOfScale = (item.value / chartMax) * 100;
 
         chartHtml += `
-          <rect class="chart-bar" x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="7" fill="${item.color}" style="animation-delay: ${delay}s, ${delay + 0.7}s"></rect>
-          <text class="chart-value" x="${x + barWidth / 2}" y="${y - 10}" text-anchor="middle" font-size="15" font-weight="700" fill="#fef3c7" style="animation-delay: ${delay + 0.12}s">${formatNumber(item.value)}</text>
-          <text x="${x + barWidth / 2}" y="282" text-anchor="middle" font-size="13" fill="#fef3c7">${item.label}</text>
+          <g class="chart-group" tabindex="0" role="button" aria-label="${item.label} ${formatNumber(item.value)}" data-chart-label="${item.label}" data-chart-value="${formatNumber(item.value)}" data-chart-percent="${formatNumber(percentOfScale)}">
+            <rect class="chart-hitbox" x="${x - 18}" y="28" width="${barWidth + 36}" height="264" rx="12" fill="#fff"></rect>
+            <rect class="chart-ring" x="${x - 7}" y="${Math.max(y - 7, 32)}" width="${barWidth + 14}" height="${Math.min(barHeight + 14, chartBottom - Math.max(y - 7, 32) + 8)}" rx="11" fill="none" stroke="#facc15" stroke-width="3" opacity="0"></rect>
+            <rect class="chart-bar" x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="7" fill="${item.color}" style="animation-delay: ${delay}s, ${delay + 0.7}s"></rect>
+            <text class="chart-value" x="${x + barWidth / 2}" y="${y - 10}" text-anchor="middle" font-size="15" font-weight="700" fill="#fef3c7" style="animation-delay: ${delay + 0.12}s">${formatNumber(item.value)}</text>
+            <text x="${x + barWidth / 2}" y="282" text-anchor="middle" font-size="13" fill="#fef3c7">${item.label}</text>
+          </g>
         `;
       });
 
       statisticsChart.innerHTML = chartHtml;
+      chartDetail.style.display = "none";
+      chartDetail.innerHTML = "";
+    }
+
+    function handleChartKeyboardSelection(event) {
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
+
+      event.preventDefault();
+      selectChartGroup(event.target.closest(".chart-group"));
+    }
+
+    function handleChartSelection(event) {
+      selectChartGroup(event.target.closest(".chart-group"));
+    }
+
+    function selectChartGroup(group) {
+      if (!group) {
+        return;
+      }
+
+      statisticsChart.querySelectorAll(".chart-group").forEach(function (item) {
+        item.classList.remove("is-selected");
+      });
+
+      group.classList.add("is-selected");
+      chartDetail.style.display = "block";
+      chartDetail.innerHTML = `
+        <strong>${group.dataset.chartLabel}</strong>
+        <span>Value: ${group.dataset.chartValue} · ${group.dataset.chartPercent}% of the selected scale</span>
+      `;
     }
 
     function addMissingStandardDeviation(statistics) {
@@ -2169,6 +2277,8 @@
       hideError();
       results.style.display = "none";
       statisticsChart.innerHTML = "";
+      chartDetail.style.display = "none";
+      chartDetail.innerHTML = "";
       warningsList.innerHTML = "";
     }
   </script>
