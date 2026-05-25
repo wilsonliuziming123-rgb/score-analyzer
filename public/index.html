@@ -26,7 +26,7 @@
       background:
         radial-gradient(circle at 18% 8%, rgba(240, 190, 34, 0.22), transparent 28%),
         radial-gradient(circle at 86% 20%, rgba(182, 31, 38, 0.18), transparent 30%),
-        linear-gradient(180deg, #0d1117 0%, #171a22 34%, #f4f6f8 34%, #eef1f6 100%);
+        linear-gradient(180deg, #0d1117 0%, #171a22 72vh, #f4f6f8 72vh, #eef1f6 100%);
       margin: 0;
       color: var(--ink);
     }
@@ -245,6 +245,32 @@
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       gap: 10px;
+    }
+
+    .oauth-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .oauth-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 12px;
+      border: 1px solid #d8dce6;
+      border-radius: 12px;
+      background: white;
+      color: #111827;
+      box-shadow: none;
+      font-size: 14px;
+    }
+
+    .oauth-button[disabled] {
+      cursor: not-allowed;
+      opacity: 0.72;
     }
 
     .auth-form input {
@@ -952,7 +978,7 @@
         background:
           radial-gradient(circle at 18% 8%, rgba(240, 190, 34, 0.2), transparent 28%),
           radial-gradient(circle at 86% 20%, rgba(182, 31, 38, 0.16), transparent 30%),
-          linear-gradient(180deg, #0d1117 0%, #171a22 44%, #f4f6f8 44%, #eef1f6 100%);
+          linear-gradient(180deg, #0d1117 0%, #171a22 840px, #f4f6f8 840px, #eef1f6 100%);
       }
 
       .site-shell {
@@ -1000,7 +1026,8 @@
       }
 
       .auth-controls,
-      .auth-form {
+      .auth-form,
+      .oauth-row {
         width: 100%;
         grid-template-columns: 1fr;
         flex-direction: column;
@@ -1190,6 +1217,10 @@
         <input id="userNameInput" type="text" autocomplete="name" placeholder="Your name, e.g. Ziming" />
         <button id="signInBtn" type="submit">Sign in</button>
       </form>
+      <div class="oauth-row">
+        <button class="oauth-button" type="button" disabled>G Continue with Google</button>
+        <button class="oauth-button" type="button" disabled>Apple Continue with Apple</button>
+      </div>
       <div class="auth-note">This demo uses a cookie for the signed-in name and browser storage for records.</div>
     </section>
 
