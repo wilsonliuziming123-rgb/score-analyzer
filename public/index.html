@@ -120,24 +120,38 @@
       transform: translateY(-1px);
     }
 
-    .country-select {
-      width: auto;
-      min-width: 138px;
-      padding: 9px 34px 9px 13px;
+    .country-picker {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px;
       border: 1px solid rgba(255, 255, 255, 0.16);
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.08);
-      color: white;
-      font: inherit;
-      font-size: 14px;
-      font-weight: 700;
-      outline: none;
       backdrop-filter: blur(14px);
     }
 
-    .country-select option {
-      color: #111827;
-      background: white;
+    .country-ball {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: none;
+      font-size: 18px;
+      line-height: 1;
+      filter: saturate(0.78);
+    }
+
+    .country-ball:hover,
+    .country-ball.is-active {
+      border-color: var(--gold);
+      background: rgba(240, 190, 34, 0.18);
+      filter: saturate(1.2);
+      transform: translateY(-1px) scale(1.05);
     }
 
     .hero {
@@ -1182,7 +1196,8 @@
         align-items: stretch;
       }
 
-      .country-select {
+      .country-picker {
+        justify-content: center;
         width: 100%;
       }
 
@@ -1241,13 +1256,13 @@
           <span>Score Analyzer</span>
         </div>
         <div class="auth-controls">
-          <select id="countrySelect" class="country-select" aria-label="Country and language">
-            <option value="US">US English</option>
-            <option value="CN">China 中文</option>
-            <option value="UK">UK English</option>
-            <option value="CA">Canada English</option>
-            <option value="AU">Australia English</option>
-          </select>
+          <div id="countryPicker" class="country-picker" aria-label="Country and language">
+            <button class="country-ball" type="button" data-country="US" aria-label="United States English">🇺🇸</button>
+            <button class="country-ball" type="button" data-country="CN" aria-label="China Chinese">🇨🇳</button>
+            <button class="country-ball" type="button" data-country="UK" aria-label="United Kingdom English">🇬🇧</button>
+            <button class="country-ball" type="button" data-country="CA" aria-label="Canada English">🇨🇦</button>
+            <button class="country-ball" type="button" data-country="AU" aria-label="Australia English">🇦🇺</button>
+          </div>
           <div id="authStatus" class="auth-status">Signed out</div>
           <button id="recordsShortcutBtn" class="auth-toggle records-shortcut" type="button">Records</button>
           <button id="topGoogleSignInBtn" class="auth-toggle" type="button">Google sign in</button>
@@ -1270,7 +1285,7 @@
               <span id="metricStats">Stats</span>
             </div>
             <div class="hero-metric">
-              <strong id="metricScale">Custom</strong>
+              <strong id="metricScale">Flexible</strong>
               <span id="metricValidation">Scale</span>
             </div>
             <div class="hero-metric">
@@ -1540,7 +1555,7 @@
     const authPanelText = document.getElementById("authPanelText");
     const googleSignInBtn = document.getElementById("googleSignInBtn");
     const topGoogleSignInBtn = document.getElementById("topGoogleSignInBtn");
-    const countrySelect = document.getElementById("countrySelect");
+    const countryPicker = document.getElementById("countryPicker");
     const authCookieName = "scoreAnalyzerUser";
     const baseRecordsKey = "studentScoreAnalyzerRecords";
     const countryStorageKey = "studentScoreAnalyzerCountry";
@@ -1548,11 +1563,12 @@
     let currentUserLabel = "";
     let googleConfigured = false;
     let revealObserver;
+    let selectedCountry = "US";
 
     analyzeBtn.addEventListener("click", analyzeScores);
     clearBtn.addEventListener("click", clearAll);
     maxScoreInput.addEventListener("input", updateScaleText);
-    countrySelect.addEventListener("change", applyCountryPreference);
+    countryPicker.addEventListener("click", handleCountryChoice);
     statisticsChart.addEventListener("click", handleChartSelection);
     statisticsChart.addEventListener("keydown", handleChartKeyboardSelection);
     signInForm.addEventListener("submit", signIn);
@@ -1646,16 +1662,33 @@
       const savedCountry = localStorage.getItem(countryStorageKey);
 
       if (savedCountry) {
-        countrySelect.value = savedCountry;
+        selectedCountry = savedCountry;
       }
 
       applyCountryPreference();
     }
 
-    function applyCountryPreference() {
-      localStorage.setItem(countryStorageKey, countrySelect.value);
+    function handleCountryChoice(event) {
+      const button = event.target.closest(".country-ball");
 
-      const isChinese = countrySelect.value === "CN";
+      if (!button) {
+        return;
+      }
+
+      selectedCountry = button.dataset.country;
+      applyCountryPreference();
+    }
+
+    function applyCountryPreference() {
+      localStorage.setItem(countryStorageKey, selectedCountry);
+
+      countryPicker.querySelectorAll(".country-ball").forEach(function (button) {
+        const isActive = button.dataset.country === selectedCountry;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
+
+      const isChinese = selectedCountry === "CN";
       document.documentElement.lang = isChinese ? "zh-CN" : "en";
 
       document.getElementById("heroEyebrow").textContent = isChinese ? "实时课堂数据分析" : "Live classroom intelligence";
@@ -1664,7 +1697,8 @@
         ? "把原始成绩变成清晰的表现仪表盘，包含统计数据、预警、动态图表和可部署的全栈架构。"
         : "Turn raw student scores into a focused performance dashboard with statistics, warnings, animated charts, and deploy-ready full-stack architecture.";
       document.getElementById("metricStats").textContent = isChinese ? "统计项" : "Stats";
-      document.getElementById("metricValidation").textContent = isChinese ? "满分制" : "Scale";
+      document.getElementById("metricScale").textContent = isChinese ? "灵活" : "Flexible";
+      document.getElementById("metricValidation").textContent = isChinese ? "满分制" : "Score scale";
       document.getElementById("metricWebApp").textContent = isChinese ? "网页应用" : "Web app";
       document.getElementById("maxScoreLabel").textContent = isChinese ? "满分" : "Maximum score";
       document.getElementById("maxScoreHelp").textContent = isChinese
@@ -1680,9 +1714,8 @@
 
     function updateScaleText() {
       const maxScore = getSelectedMaxScore() || 100;
-      const isChinese = countrySelect.value === "CN";
+      const isChinese = selectedCountry === "CN";
 
-      document.getElementById("metricScale").textContent = "0-" + formatNumber(maxScore);
       document.getElementById("scoreHint").textContent = isChinese
         ? "可以用逗号、空格或换行分隔成绩。每个成绩必须在 0 到 " + formatNumber(maxScore) + " 之间。"
         : "You can separate scores with commas, spaces, or new lines. Scores must be between 0 and " + formatNumber(maxScore) + ".";
