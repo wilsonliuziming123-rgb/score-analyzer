@@ -108,6 +108,18 @@
       box-shadow: none;
     }
 
+    .records-shortcut {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(14px);
+    }
+
+    .records-shortcut:hover {
+      background: rgba(255, 255, 255, 0.14);
+      transform: translateY(-1px);
+    }
+
     .hero {
       min-height: calc(100vh - 96px);
       display: grid;
@@ -1092,6 +1104,7 @@
         </div>
         <div class="auth-controls">
           <div id="authStatus" class="auth-status">Signed out</div>
+          <button id="recordsShortcutBtn" class="auth-toggle records-shortcut" type="button">Records</button>
           <button id="topGoogleSignInBtn" class="auth-toggle" type="button">Google sign in</button>
           <button id="signOutBtn" class="auth-toggle" type="button">Sign out</button>
         </div>
@@ -1244,7 +1257,7 @@
 
     <div id="errorBox" class="error"></div>
 
-    <section class="records-section">
+    <section id="recordsSection" class="records-section">
       <div class="records-header">
         <div>
           <h3>Saved Records</h3>
@@ -1361,6 +1374,7 @@
     const recordList = document.getElementById("recordList");
     const clearRecordsBtn = document.getElementById("clearRecordsBtn");
     const authStatus = document.getElementById("authStatus");
+    const recordsShortcutBtn = document.getElementById("recordsShortcutBtn");
     const signOutBtn = document.getElementById("signOutBtn");
     const signInForm = document.getElementById("signInForm");
     const userNameInput = document.getElementById("userNameInput");
@@ -1379,6 +1393,7 @@
     analyzeBtn.addEventListener("click", analyzeScores);
     clearBtn.addEventListener("click", clearAll);
     signInForm.addEventListener("submit", signIn);
+    recordsShortcutBtn.addEventListener("click", scrollToRecords);
     signOutBtn.addEventListener("click", signOut);
     googleSignInBtn.addEventListener("click", startGoogleSignIn);
     topGoogleSignInBtn.addEventListener("click", startGoogleSignIn);
@@ -1771,6 +1786,7 @@
     function updateAuthUI() {
       if (currentUser) {
         authStatus.textContent = "Signed in as " + currentUserLabel;
+        recordsShortcutBtn.style.display = "inline-block";
         signOutBtn.style.display = "inline-block";
         topGoogleSignInBtn.style.display = "none";
         authPanel.classList.add("signed-in");
@@ -1782,6 +1798,8 @@
       }
 
       authStatus.textContent = "Signed out";
+      recordsShortcutBtn.style.display = "inline-block";
+      recordsShortcutBtn.textContent = "Records";
       signOutBtn.style.display = "none";
       topGoogleSignInBtn.style.display = "inline-block";
       topGoogleSignInBtn.disabled = !googleConfigured;
@@ -1854,11 +1872,13 @@
 
     function renderRecords() {
       if (!currentUser) {
+        recordsShortcutBtn.textContent = "Records";
         recordList.innerHTML = `<p class="record-empty">Sign in to save, open, and edit your analysis records.</p>`;
         return;
       }
 
       const records = getRecords();
+      recordsShortcutBtn.textContent = records.length > 0 ? "Records (" + records.length + ")" : "Records";
 
       if (records.length === 0) {
         recordList.innerHTML = `<p class="record-empty">No saved records for ${currentUserLabel} yet. Run an analysis and it will appear here.</p>`;
@@ -1937,6 +1957,15 @@
       }
 
       renderRecords();
+    }
+
+    function scrollToRecords() {
+      const target = document.getElementById("recordsSection");
+
+      target.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
     }
 
     function setCookie(name, value, days) {
