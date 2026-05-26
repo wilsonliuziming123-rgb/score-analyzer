@@ -1752,16 +1752,23 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 48px;
-      height: 42px;
-      padding: 0 13px;
+      width: 48px;
+      height: 48px;
+      padding: 0;
       border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 999px;
+      border-radius: 50%;
       color: white;
       background: rgba(255, 255, 255, 0.08);
       text-decoration: none;
       font-weight: 900;
       transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .social-link img {
+      width: 22px;
+      height: 22px;
+      display: block;
+      filter: drop-shadow(0 1px 8px rgba(0, 0, 0, 0.28));
     }
 
     .social-link:hover {
@@ -2462,10 +2469,18 @@
             <h2>Get in touch</h2>
             <p>Want to adapt this analyzer for a class, tutoring group, or portfolio project? Send a quick note and keep the conversation moving.</p>
             <div class="social-row" aria-label="Social links">
-              <a class="social-link" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">IG</a>
-              <a class="social-link" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">FB</a>
-              <a class="social-link" href="https://x.com/" target="_blank" rel="noopener noreferrer">X</a>
-              <a class="social-link" href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer">TikTok</a>
+              <a class="social-link" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <img src="https://cdn.simpleicons.org/instagram/FFFFFF" alt="" loading="lazy">
+              </a>
+              <a class="social-link" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                <img src="https://cdn.simpleicons.org/facebook/FFFFFF" alt="" loading="lazy">
+              </a>
+              <a class="social-link" href="https://x.com/" target="_blank" rel="noopener noreferrer" aria-label="X">
+                <img src="https://cdn.simpleicons.org/x/FFFFFF" alt="" loading="lazy">
+              </a>
+              <a class="social-link" href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+                <img src="https://cdn.simpleicons.org/tiktok/FFFFFF" alt="" loading="lazy">
+              </a>
             </div>
           </div>
 
