@@ -232,6 +232,30 @@
       backdrop-filter: blur(18px);
     }
 
+    .country-search {
+      grid-column: 1 / -1;
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      outline: none;
+    }
+
+    .country-search::placeholder {
+      color: rgba(255, 255, 255, 0.48);
+    }
+
+    .country-empty {
+      grid-column: 1 / -1;
+      margin: 0;
+      padding: 10px;
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 13px;
+      text-align: center;
+    }
+
     .country-panel.is-open {
       display: grid;
     }
@@ -469,6 +493,26 @@
     .auth-form input:focus {
       border-color: var(--blue);
       box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .auth-panel {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(120deg, transparent, rgba(240, 190, 34, 0.12), transparent);
+      transform: translateX(-110%);
+      animation: metricShine 5.8s ease-in-out infinite;
+    }
+
+    .auth-panel > * {
+      position: relative;
+      z-index: 1;
     }
 
     .auth-note {
@@ -1557,6 +1601,83 @@
       animation: cookieSlideUp 0.45s ease both;
     }
 
+    .records-drawer {
+      position: fixed;
+      z-index: 45;
+      inset: 0;
+      display: none;
+      background: rgba(3, 7, 18, 0.62);
+      backdrop-filter: blur(10px);
+    }
+
+    .records-drawer.is-open {
+      display: block;
+    }
+
+    .records-drawer-panel {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      bottom: 18px;
+      width: min(620px, calc(100vw - 36px));
+      padding: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(240, 190, 34, 0.2), transparent 30%),
+        linear-gradient(145deg, rgba(13, 17, 23, 0.98), rgba(24, 23, 22, 0.96));
+      color: white;
+      box-shadow: 0 30px 110px rgba(0, 0, 0, 0.42);
+      overflow: auto;
+      animation: drawerIn 0.34s ease both;
+    }
+
+    .records-drawer-panel .records-section {
+      margin-top: 0;
+    }
+
+    .records-drawer-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .records-drawer-header h3 {
+      margin: 0 0 5px;
+      font-size: 24px;
+    }
+
+    .records-drawer-header p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.68);
+      line-height: 1.45;
+    }
+
+    .drawer-close {
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      box-shadow: none;
+    }
+
+    @keyframes drawerIn {
+      from {
+        opacity: 0;
+        transform: translateX(28px) scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
     .cookie-banner.is-visible {
       display: grid;
     }
@@ -1881,12 +2002,8 @@
         </div>
 
     <section id="authPanel" class="auth-panel">
-      <h3 id="authPanelTitle">Sign in with email</h3>
-      <p id="authPanelText">Use your email to keep saved analyses tied to the right workspace.</p>
-      <form id="signInForm" class="auth-form">
-        <input id="userNameInput" type="email" autocomplete="email" placeholder="you@example.com" />
-        <button id="signInBtn" type="submit">Sign in</button>
-      </form>
+      <h3 id="authPanelTitle">Sign in with Google</h3>
+      <p id="authPanelText">Use a verified Google account so saved analyses stay connected to a real user.</p>
       <div class="oauth-row">
         <button id="googleSignInBtn" class="oauth-button" type="button" disabled>Continue with Google</button>
       </div>
@@ -1919,17 +2036,6 @@
     </div>
 
     <div id="errorBox" class="error"></div>
-
-    <section id="recordsSection" class="records-section">
-      <div class="records-header">
-        <div>
-          <h3>Saved Records</h3>
-          <p>Analyses are saved automatically here. Open one to review or modify it.</p>
-        </div>
-        <button id="clearRecordsBtn" class="text-button" type="button">Clear Records</button>
-      </div>
-      <div id="recordList" class="record-list"></div>
-    </section>
 
     <div id="results" class="results">
       <h2>Results</h2>
@@ -2046,6 +2152,29 @@
     </div>
   </section>
 
+  <section id="recordsDrawer" class="records-drawer" aria-hidden="true">
+    <div class="records-drawer-panel">
+      <div class="records-drawer-header">
+        <div>
+          <h3>Saved Records</h3>
+          <p>Open previous analyses, compare sessions, or delete old runs.</p>
+        </div>
+        <button id="closeRecordsBtn" class="drawer-close" type="button" aria-label="Close records">×</button>
+      </div>
+
+      <section id="recordsSection" class="records-section">
+        <div class="records-header">
+          <div>
+            <h3>All Records</h3>
+            <p>Analyses are saved automatically after each run.</p>
+          </div>
+          <button id="clearRecordsBtn" class="text-button" type="button">Clear Records</button>
+        </div>
+        <div id="recordList" class="record-list"></div>
+      </section>
+    </div>
+  </section>
+
   <script>
     const scoreInput = document.getElementById("scoreInput");
     const maxScoreInput = document.getElementById("maxScoreInput");
@@ -2063,8 +2192,6 @@
     const authStatus = document.getElementById("authStatus");
     const recordsShortcutBtn = document.getElementById("recordsShortcutBtn");
     const signOutBtn = document.getElementById("signOutBtn");
-    const signInForm = document.getElementById("signInForm");
-    const userNameInput = document.getElementById("userNameInput");
     const authPanel = document.getElementById("authPanel");
     const authPanelTitle = document.getElementById("authPanelTitle");
     const authPanelText = document.getElementById("authPanelText");
@@ -2075,6 +2202,8 @@
     const activeCountryFlag = document.getElementById("activeCountryFlag");
     const activeCountryCode = document.getElementById("activeCountryCode");
     const countryPanel = document.getElementById("countryPanel");
+    const recordsDrawer = document.getElementById("recordsDrawer");
+    const closeRecordsBtn = document.getElementById("closeRecordsBtn");
     const cookieBanner = document.getElementById("cookieBanner");
     const cookieTitle = document.getElementById("cookieTitle");
     const cookieText = document.getElementById("cookieText");
@@ -2089,16 +2218,19 @@
     let googleConfigured = false;
     let revealObserver;
     let selectedCountry = "US";
+    let countrySearchTerm = "";
 
     analyzeBtn.addEventListener("click", analyzeScores);
     clearBtn.addEventListener("click", clearAll);
     maxScoreInput.addEventListener("input", updateScaleText);
     countryPicker.addEventListener("click", handleCountryChoice);
+    countryPicker.addEventListener("input", handleCountrySearch);
     document.addEventListener("click", closeCountryPanelOnOutsideClick);
     statisticsChart.addEventListener("click", handleChartSelection);
     statisticsChart.addEventListener("keydown", handleChartKeyboardSelection);
-    signInForm.addEventListener("submit", signIn);
-    recordsShortcutBtn.addEventListener("click", scrollToRecords);
+    recordsShortcutBtn.addEventListener("click", openRecordsDrawer);
+    closeRecordsBtn.addEventListener("click", closeRecordsDrawer);
+    recordsDrawer.addEventListener("click", closeRecordsDrawerOnBackdrop);
     signOutBtn.addEventListener("click", signOut);
     googleSignInBtn.addEventListener("click", startGoogleSignIn);
     topGoogleSignInBtn.addEventListener("click", startGoogleSignIn);
@@ -2236,9 +2368,19 @@
       }
 
       selectedCountry = option.dataset.country;
+      countrySearchTerm = "";
       countryPanel.classList.remove("is-open");
       activeCountryButton.setAttribute("aria-expanded", "false");
       applyCountryPreference();
+    }
+
+    function handleCountrySearch(event) {
+      if (!event.target.classList.contains("country-search")) {
+        return;
+      }
+
+      countrySearchTerm = event.target.value.trim().toLowerCase();
+      filterCountryOptions();
     }
 
     function closeCountryPanelOnOutsideClick(event) {
@@ -2262,6 +2404,7 @@
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", isActive ? "true" : "false");
       });
+      filterCountryOptions();
 
       const locale = getActiveLocale();
       const text = getLocaleText(locale);
@@ -2299,31 +2442,13 @@
       }
 
       const localeByCountry = {
-        AE: "ar", SA: "ar", EG: "ar", QA: "ar", KW: "ar", BH: "ar", OM: "ar", JO: "ar", LB: "ar", MA: "ar", DZ: "ar", TN: "ar",
-        AR: "es", BO: "es", CL: "es", CO: "es", CR: "es", CU: "es", DO: "es", EC: "es", ES: "es", GT: "es", HN: "es", MX: "es", NI: "es", PA: "es", PE: "es", PY: "es", SV: "es", UY: "es", VE: "es",
-        AT: "de", CH: "de", DE: "de", LI: "de", LU: "de",
-        BE: "fr", BF: "fr", BJ: "fr", BL: "fr", CA: "fr", CD: "fr", CF: "fr", CG: "fr", CI: "fr", CM: "fr", FR: "fr", GA: "fr", GF: "fr", GP: "fr", MC: "fr", MF: "fr", MG: "fr", ML: "fr", MQ: "fr", NE: "fr", RE: "fr", SN: "fr", TD: "fr",
-        BR: "pt", CV: "pt", GW: "pt", MO: "zh-TW", MZ: "pt", PT: "pt", ST: "pt",
-        IT: "it", SM: "it", VA: "it",
+        AE: "ar", SA: "ar", EG: "ar",
+        AR: "es", CL: "es", CO: "es", ES: "es", MX: "es", PE: "es",
+        AT: "de", DE: "de",
+        BE: "fr", CA: "fr", CH: "fr", FR: "fr",
+        BR: "pt", PT: "pt",
         JP: "ja",
-        KR: "ko",
-        RU: "ru", BY: "ru",
-        NL: "nl", AW: "nl", CW: "nl", SX: "nl",
-        TR: "tr",
-        ID: "id",
-        TH: "th",
-        VN: "vi",
-        IN: "hi",
-        BD: "bn",
-        PK: "ur",
-        SE: "sv",
-        NO: "no",
-        DK: "da",
-        FI: "fi",
-        PL: "pl",
-        CZ: "cs",
-        GR: "el",
-        IL: "he"
+        KR: "ko"
       };
 
       if (localeByCountry[selectedCountry]) {
@@ -2352,7 +2477,16 @@
           cookieTitle: "你的体验，由你决定",
           cookieText: "我们使用 cookies 来支持登录和保存偏好设置。你可以选择是否启用个性化。",
           acceptCookies: "接受全部 cookies",
-          rejectCookies: "拒绝 cookies"
+          rejectCookies: "拒绝 cookies",
+          records: "记录",
+          googleSignIn: "Google 登录",
+          googleSetupRequired: "需要配置 Google",
+          continueWithGoogle: "使用 Google 继续",
+          authTitle: "使用 Google 登录",
+          authText: "使用已验证的 Google 账号，让保存的分析记录真正绑定到用户。",
+          welcomePrefix: "欢迎回来，",
+          savedText: "你的分析会自动保存到这个浏览器中的个人记录。",
+          signOut: "退出登录"
         };
       }
 
@@ -2374,7 +2508,16 @@
           cookieTitle: "你的體驗，由你決定",
           cookieText: "我們使用 cookies 來支援登入和儲存偏好設定。你可以選擇是否啟用個人化。",
           acceptCookies: "接受全部 cookies",
-          rejectCookies: "拒絕 cookies"
+          rejectCookies: "拒絕 cookies",
+          records: "紀錄",
+          googleSignIn: "Google 登入",
+          googleSetupRequired: "需要設定 Google",
+          continueWithGoogle: "使用 Google 繼續",
+          authTitle: "使用 Google 登入",
+          authText: "使用已驗證的 Google 帳號，讓儲存的分析紀錄真正綁定到使用者。",
+          welcomePrefix: "歡迎回來，",
+          savedText: "你的分析會自動儲存到這個瀏覽器中的個人紀錄。",
+          signOut: "登出"
         };
       }
 
@@ -2465,7 +2608,16 @@
         cookieTitle: "Your experience, your choice",
         cookieText: "We use cookies for sign-in and saved preferences. Choose how much personalization you want.",
         acceptCookies: "Accept all cookies",
-        rejectCookies: "Reject cookies"
+        rejectCookies: "Reject cookies",
+        records: "Records",
+        googleSignIn: "Google sign in",
+        googleSetupRequired: "Google setup required",
+        continueWithGoogle: "Continue with Google",
+        authTitle: "Sign in with Google",
+        authText: "Use a verified Google account so saved analyses stay connected to a real user.",
+        welcomePrefix: "Welcome back, ",
+        savedText: "Your analyses will be saved automatically to your personal records on this browser.",
+        signOut: "Sign out"
       };
     }
 
@@ -2489,11 +2641,14 @@
         return a.name.localeCompare(b.name);
       });
 
-      countryPanel.innerHTML = sortedRegions.map(function (region) {
+      countryPanel.innerHTML = `
+        <input id="countrySearchInput" class="country-search" type="search" placeholder="Search country..." value="${escapeHtml(countrySearchTerm)}" autocomplete="off">
+        <p id="countryEmptyMessage" class="country-empty" style="display: none;">No covered language found.</p>
+      ` + sortedRegions.map(function (region) {
         return `
-          <button class="country-option" type="button" data-country="${region.code}" aria-pressed="false">
+          <button class="country-option" type="button" data-country="${region.code}" data-country-name="${escapeHtml((region.name + " " + region.code).toLowerCase())}" aria-pressed="false">
             <span class="country-flag">${getFlagEmoji(region.code)}</span>
-            <span class="country-name">${region.name}</span>
+            <span class="country-name">${escapeHtml(region.name)}</span>
           </button>
         `;
       }).join("");
@@ -2504,16 +2659,40 @@
         "US", "GB", "AU", "NZ", "IE", "SG",
         "CN", "TW", "HK", "MO",
         "JP", "KR",
-        "ES", "MX", "AR", "BO", "CL", "CO", "CR", "CU", "DO", "EC", "GT", "HN", "NI", "PA", "PE", "PY", "SV", "UY", "VE",
-        "FR", "BE", "CA", "CH", "MC", "LU", "BF", "BJ", "CD", "CF", "CG", "CI", "CM", "GA", "GF", "GP", "MG", "ML", "MQ", "NE", "RE", "SN", "TD",
-        "DE", "AT", "LI",
-        "BR", "PT", "CV", "GW", "MZ", "ST",
-        "IT", "SM", "VA",
-        "SA", "AE", "EG", "QA", "KW", "BH", "OM", "JO", "LB", "MA", "DZ", "TN",
-        "RU", "BY",
-        "NL", "AW", "CW", "SX",
-        "TR", "ID", "TH", "VN", "IN", "BD", "PK", "SE", "NO", "DK", "FI", "PL", "CZ", "GR", "IL"
+        "ES", "MX", "AR", "CL", "CO", "PE",
+        "FR", "BE", "CA", "CH",
+        "DE", "AT",
+        "BR", "PT",
+        "SA", "AE", "EG"
       ];
+    }
+
+    function filterCountryOptions() {
+      const options = countryPanel.querySelectorAll(".country-option");
+      const emptyMessage = document.getElementById("countryEmptyMessage");
+      let visibleCount = 0;
+
+      options.forEach(function (button) {
+        const matches = !countrySearchTerm || button.dataset.countryName.indexOf(countrySearchTerm) !== -1;
+        button.style.display = matches ? "flex" : "none";
+
+        if (matches) {
+          visibleCount += 1;
+        }
+      });
+
+      if (emptyMessage) {
+        emptyMessage.style.display = visibleCount === 0 ? "block" : "none";
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
     function getRegionDisplayNames() {
@@ -3028,9 +3207,8 @@
         googleConfigured = false;
       }
 
-      const localUser = getCookie(authCookieName);
-      currentUser = localUser;
-      currentUserLabel = localUser.indexOf("email:") === 0 ? localUser.slice(6) : localUser;
+      currentUser = "";
+      currentUserLabel = "";
     }
 
     function startGoogleSignIn() {
@@ -3040,29 +3218,6 @@
       }
 
       window.location.href = "/auth/google";
-    }
-
-    function signIn(event) {
-      event.preventDefault();
-
-      const email = userNameInput.value.trim().toLowerCase();
-
-      if (!isValidEmail(email)) {
-        showError("Please enter a valid email address to sign in.");
-        return;
-      }
-
-      currentUser = "email:" + email;
-      currentUserLabel = email;
-      setCookie(authCookieName, currentUser, 30);
-      userNameInput.value = "";
-      hideError();
-      updateAuthUI();
-      renderRecords();
-    }
-
-    function isValidEmail(email) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
     async function signOut() {
@@ -3084,16 +3239,19 @@
     }
 
     function updateAuthUI() {
+      const text = getLocaleText(getActiveLocale());
+      const recordsLabel = text.records || "Records";
+
       if (currentUser) {
         authStatus.textContent = "Signed in as " + currentUserLabel;
         authStatus.style.display = "inline-block";
         recordsShortcutBtn.style.display = "inline-block";
         signOutBtn.style.display = "inline-block";
+        signOutBtn.textContent = text.signOut || "Sign out";
         topGoogleSignInBtn.style.display = "none";
         authPanel.classList.add("signed-in");
-        authPanelTitle.textContent = "Welcome back, " + currentUserLabel;
-        authPanelText.textContent = "Your analyses will be saved automatically to your personal records on this browser.";
-        signInForm.style.display = "none";
+        authPanelTitle.textContent = (text.welcomePrefix || "Welcome back, ") + currentUserLabel;
+        authPanelText.textContent = text.savedText || "Your analyses will be saved automatically to your personal records on this browser.";
         googleSignInBtn.style.display = "none";
         return;
       }
@@ -3101,18 +3259,17 @@
       authStatus.textContent = "";
       authStatus.style.display = "none";
       recordsShortcutBtn.style.display = "inline-block";
-      recordsShortcutBtn.textContent = "Records";
+      recordsShortcutBtn.textContent = recordsLabel;
       signOutBtn.style.display = "none";
       topGoogleSignInBtn.style.display = "inline-block";
       topGoogleSignInBtn.disabled = !googleConfigured;
-      topGoogleSignInBtn.textContent = googleConfigured ? "Google sign in" : "Google setup required";
+      topGoogleSignInBtn.textContent = googleConfigured ? (text.googleSignIn || "Google sign in") : (text.googleSetupRequired || "Google setup required");
       authPanel.classList.remove("signed-in");
-      authPanelTitle.textContent = "Sign in with email";
-      authPanelText.textContent = "Use your email to keep saved analyses tied to the right workspace.";
-      signInForm.style.display = "grid";
+      authPanelTitle.textContent = text.authTitle || "Sign in with Google";
+      authPanelText.textContent = text.authText || "Use a verified Google account so saved analyses stay connected to a real user.";
       googleSignInBtn.style.display = "flex";
       googleSignInBtn.disabled = !googleConfigured;
-      googleSignInBtn.textContent = googleConfigured ? "Continue with Google" : "Google setup required";
+      googleSignInBtn.textContent = googleConfigured ? (text.continueWithGoogle || "Continue with Google") : (text.googleSetupRequired || "Google setup required");
     }
 
     function getRecordStorageKey() {
@@ -3174,14 +3331,17 @@
     }
 
     function renderRecords() {
+      const text = getLocaleText(getActiveLocale());
+      const recordsLabel = text.records || "Records";
+
       if (!currentUser) {
-        recordsShortcutBtn.textContent = "Records";
+        recordsShortcutBtn.textContent = recordsLabel;
         recordList.innerHTML = `<p class="record-empty">Sign in to save, open, and edit your analysis records.</p>`;
         return;
       }
 
       const records = getRecords();
-      recordsShortcutBtn.textContent = records.length > 0 ? "Records (" + records.length + ")" : "Records";
+      recordsShortcutBtn.textContent = records.length > 0 ? recordsLabel + " (" + records.length + ")" : recordsLabel;
 
       if (records.length === 0) {
         recordList.innerHTML = `<p class="record-empty">No saved records for ${currentUserLabel} yet. Run an analysis and it will appear here.</p>`;
@@ -3239,6 +3399,7 @@
       maxScoreInput.value = record.statistics.maxScore || 100;
       updateScaleText();
       hideError();
+      closeRecordsDrawer();
       displayResults(record.statistics);
       scoreInput.scrollIntoView({
         behavior: "smooth",
@@ -3267,13 +3428,21 @@
       renderRecords();
     }
 
-    function scrollToRecords() {
-      const target = document.getElementById("recordsSection");
+    function openRecordsDrawer() {
+      renderRecords();
+      recordsDrawer.classList.add("is-open");
+      recordsDrawer.setAttribute("aria-hidden", "false");
+    }
 
-      target.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
+    function closeRecordsDrawer() {
+      recordsDrawer.classList.remove("is-open");
+      recordsDrawer.setAttribute("aria-hidden", "true");
+    }
+
+    function closeRecordsDrawerOnBackdrop(event) {
+      if (event.target === recordsDrawer) {
+        closeRecordsDrawer();
+      }
     }
 
     function setCookie(name, value, days) {
