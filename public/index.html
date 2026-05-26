@@ -373,6 +373,7 @@
       background: rgba(15, 18, 27, 0.76);
       color: white;
       text-decoration: none;
+      text-align: left;
       box-shadow: 0 18px 42px rgba(0, 0, 0, 0.26);
       backdrop-filter: blur(14px);
       transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
@@ -401,8 +402,37 @@
       background: rgba(24, 23, 22, 0.86);
     }
 
+    .mode-card.is-selected {
+      border-color: var(--gold);
+      background:
+        linear-gradient(145deg, rgba(240, 190, 34, 0.22), rgba(220, 38, 38, 0.12)),
+        rgba(24, 23, 22, 0.92);
+      transform: translateY(-3px);
+    }
+
+    .mode-card:focus-visible {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(240, 190, 34, 0.22), 0 18px 42px rgba(0, 0, 0, 0.26);
+    }
+
     .mode-card:hover::before {
       transform: translateX(115%);
+    }
+
+    .mode-card::after {
+      content: "Start analysis";
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      margin-top: 16px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: var(--gold);
+      color: #111827;
+      font-size: 13px;
+      font-weight: 900;
     }
 
     .mode-card strong,
@@ -2455,36 +2485,21 @@
           </p>
 
           <div class="mode-grid" aria-label="Choose score analyzer mode">
-            <a class="mode-card" href="/standard">
-              <span>Standard</span>
-              <strong>100 max / 60 pass</strong>
-              <p>Fast default for regular classroom scores.</p>
-            </a>
-            <a class="mode-card" href="/custom">
-              <span>Curve</span>
-              <strong>Custom max + raw pass</strong>
-              <p>Use any full score and any passing cutoff.</p>
-            </a>
-            <a class="mode-card" href="/ap">
-              <span>AP</span>
-              <strong>AP-style target cutoff</strong>
-              <p>Analyze curved AP-style raw score targets.</p>
-            </a>
-          </div>
-
-          <div class="hero-metrics">
-            <div class="hero-metric">
-              <strong>12+</strong>
-              <span id="metricStats">Stats</span>
-            </div>
-            <div class="hero-metric">
-              <strong id="metricScale">Flexible</strong>
-              <span id="metricValidation">Scale</span>
-            </div>
-          <div class="hero-metric">
-            <strong>Live</strong>
-            <span id="metricWebApp">Web app</span>
-          </div>
+            <button class="mode-card" type="button" data-mode="standard">
+              <span>Classic classroom</span>
+              <strong>100-point default</strong>
+              <p>Use the familiar 100-point scale with 60 as the passing score.</p>
+            </button>
+            <button class="mode-card" type="button" data-mode="custom">
+              <span>Build your curve</span>
+              <strong>Custom scale</strong>
+              <p>Set your own full score and raw passing cutoff for any grading system.</p>
+            </button>
+            <button class="mode-card" type="button" data-mode="ap">
+              <span>Exam target mode</span>
+              <strong>AP-style cutoff</strong>
+              <p>Pick an AP target and analyze scores against an editable curved cutoff.</p>
+            </button>
           </div>
         </div>
 
@@ -2871,6 +2886,7 @@
     const activeCountryCode = document.getElementById("activeCountryCode");
     const countryPanel = document.getElementById("countryPanel");
     const recordsDrawer = document.getElementById("recordsDrawer");
+    const modeGrid = document.querySelector(".mode-grid");
     const closeRecordsBtn = document.getElementById("closeRecordsBtn");
     const cookieBanner = document.getElementById("cookieBanner");
     const cookieTitle = document.getElementById("cookieTitle");
@@ -2890,6 +2906,7 @@
     let latestStatistics = null;
     let analyzerMode = getAnalyzerMode();
 
+    modeGrid.addEventListener("click", handleModeSelection);
     analyzeBtn.addEventListener("click", analyzeScores);
     clearBtn.addEventListener("click", clearAll);
     maxScoreInput.addEventListener("input", updateInputFlow);
@@ -3049,6 +3066,7 @@
     function setupAnalyzerMode() {
       document.body.classList.remove("home-mode", "standard-mode", "custom-mode", "ap-mode");
       document.body.classList.add(analyzerMode + "-mode");
+      updateModeButtonState();
 
       if (analyzerMode === "home") {
         return;
@@ -3077,6 +3095,35 @@
         document.querySelector(".panel-tag").textContent = "AP-style";
         updateApTargetDefaults();
       }
+    }
+
+    function handleModeSelection(event) {
+      const button = event.target.closest(".mode-card[data-mode]");
+
+      if (!button) {
+        return;
+      }
+
+      analyzerMode = button.dataset.mode;
+      window.history.pushState({}, "", "/" + analyzerMode);
+      setupAnalyzerMode();
+      updateInputFlow();
+
+      requestAnimationFrame(function () {
+        document.querySelector(".analyzer-panel").scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      });
+    }
+
+    function updateModeButtonState() {
+      modeGrid.querySelectorAll(".mode-card").forEach(function (button) {
+        const isSelected = button.dataset.mode === analyzerMode;
+
+        button.classList.toggle("is-selected", isSelected);
+        button.setAttribute("aria-pressed", isSelected ? "true" : "false");
+      });
     }
 
     function loadCountryPreference() {
@@ -3154,10 +3201,6 @@
       document.getElementById("heroEyebrow").textContent = text.heroEyebrow;
       document.getElementById("heroTitle").textContent = text.heroTitle;
       document.getElementById("heroSubtitle").textContent = text.heroSubtitle;
-      document.getElementById("metricStats").textContent = text.metricStats;
-      document.getElementById("metricScale").textContent = text.metricScale;
-      document.getElementById("metricValidation").textContent = text.metricValidation;
-      document.getElementById("metricWebApp").textContent = text.metricWebApp;
       document.getElementById("maxScoreLabel").textContent = text.maxScoreLabel;
       document.getElementById("maxScoreHelp").textContent = text.maxScoreHelp;
       document.getElementById("scoreInputLabel").textContent = text.scoreInputLabel;
