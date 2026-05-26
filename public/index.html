@@ -830,6 +830,29 @@
       margin-bottom: 16px;
     }
 
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .results-header h2 {
+      margin: 0;
+    }
+
+    .report-button {
+      padding: 10px 13px;
+      border: 1px solid rgba(240, 190, 34, 0.42);
+      border-radius: 999px;
+      background: rgba(240, 190, 34, 0.16);
+      color: #fef3c7;
+      box-shadow: none;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
     .chart-section {
       margin-bottom: 24px;
       padding: 18px;
@@ -1012,6 +1035,87 @@
       color: #166534;
     }
 
+    .ai-advice-section {
+      margin-bottom: 24px;
+      padding: 18px;
+      border: 1px solid rgba(96, 165, 250, 0.28);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(96, 165, 250, 0.16), transparent 34%),
+        rgba(255, 255, 255, 0.07);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 16px 40px rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(16px);
+    }
+
+    .ai-advice-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .ai-advice-header h3 {
+      margin: 0;
+      color: #dbeafe;
+    }
+
+    .ai-badge {
+      padding: 7px 10px;
+      border: 1px solid rgba(96, 165, 250, 0.34);
+      border-radius: 999px;
+      color: #bfdbfe;
+      background: rgba(37, 99, 235, 0.18);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .ai-advice-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .ai-advice-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 132px;
+      padding: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      background: rgba(3, 7, 18, 0.48);
+    }
+
+    .ai-advice-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: translateX(-115%);
+      animation: metricShine 6.2s ease-in-out infinite;
+    }
+
+    .ai-advice-card strong,
+    .ai-advice-card p {
+      position: relative;
+      z-index: 1;
+    }
+
+    .ai-advice-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: white;
+      font-size: 15px;
+    }
+
+    .ai-advice-card p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.72);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
     .chart-bar {
       transform-box: fill-box;
       transform-origin: bottom;
@@ -1038,6 +1142,12 @@
     .chart-group.is-selected .chart-marker {
       opacity: 1;
       animation: selectedPulse 1.1s ease-in-out infinite;
+    }
+
+    .chart-spotlight,
+    .chart-marker {
+      transform-box: fill-box;
+      transform-origin: center;
     }
 
     .chart-value {
@@ -1094,12 +1204,10 @@
     @keyframes selectedPulse {
       0%, 100% {
         opacity: 0.56;
-        transform: scale(1);
       }
 
       50% {
         opacity: 1;
-        transform: scale(1.05);
       }
     }
 
@@ -1601,6 +1709,120 @@
       animation: cookieSlideUp 0.45s ease both;
     }
 
+    .site-footer {
+      margin-top: 40px;
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(240, 190, 34, 0.16), transparent 30%),
+        radial-gradient(circle at 88% 28%, rgba(37, 99, 235, 0.15), transparent 28%),
+        rgba(255, 255, 255, 0.06);
+      color: white;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 24px 70px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(16px);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    .footer-copy h2 {
+      margin: 0 0 10px;
+      font-size: 34px;
+      line-height: 1.04;
+    }
+
+    .footer-copy p {
+      margin: 0 0 18px;
+      color: rgba(255, 255, 255, 0.68);
+      line-height: 1.6;
+    }
+
+    .social-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 48px;
+      height: 42px;
+      padding: 0 13px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      color: white;
+      background: rgba(255, 255, 255, 0.08);
+      text-decoration: none;
+      font-weight: 900;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .social-link:hover {
+      transform: translateY(-2px);
+      border-color: rgba(240, 190, 34, 0.55);
+      background: rgba(240, 190, 34, 0.14);
+    }
+
+    .contact-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .contact-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 14px;
+      background: rgba(3, 7, 18, 0.58);
+      color: white;
+      outline: none;
+      box-shadow: inset 0 1px 12px rgba(0, 0, 0, 0.22);
+    }
+
+    .contact-form textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder {
+      color: rgba(255, 255, 255, 0.42);
+    }
+
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      border-color: rgba(240, 190, 34, 0.72);
+      box-shadow: 0 0 0 4px rgba(240, 190, 34, 0.14), inset 0 1px 12px rgba(0, 0, 0, 0.22);
+    }
+
+    .contact-submit {
+      justify-self: start;
+      background: var(--gold);
+      color: #111827;
+      box-shadow: 0 14px 30px rgba(240, 190, 34, 0.22);
+    }
+
+    .contact-status {
+      min-height: 20px;
+      margin: 0;
+      color: #bfdbfe;
+      font-size: 14px;
+    }
+
     .records-drawer {
       position: fixed;
       z-index: 45;
@@ -1762,6 +1984,10 @@
         flex-direction: column;
       }
 
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
       .panel-tag {
         white-space: normal;
       }
@@ -1786,7 +2012,8 @@
       .auth-controls,
       .auth-form,
       .score-settings,
-      .oauth-row {
+      .oauth-row,
+      .contact-row {
         width: 100%;
         grid-template-columns: 1fr;
         flex-direction: column;
@@ -1848,6 +2075,85 @@
         grid-template-columns: 1fr;
         flex-direction: column;
         align-items: stretch;
+      }
+
+      .results-header,
+      .ai-advice-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+        color: #111827;
+      }
+
+      body::before,
+      body::after,
+      .topbar,
+      .hero,
+      .auth-panel,
+      .button-group,
+      .cookie-banner,
+      .records-drawer,
+      .site-footer,
+      .report-button {
+        display: none !important;
+      }
+
+      .site-shell {
+        width: 100%;
+        padding: 0;
+      }
+
+      .site-shell::before {
+        display: none;
+      }
+
+      .analyzer-panel,
+      .warnings-section,
+      .ai-advice-section,
+      .chart-section,
+      .distribution-section,
+      .advanced-details,
+      .sorted-section,
+      .card {
+        color: #111827;
+        background: white !important;
+        border: 1px solid #d0d5dd !important;
+        box-shadow: none !important;
+      }
+
+      .results,
+      .advanced-details {
+        display: block !important;
+      }
+
+      .panel-header h2,
+      .results h2,
+      .warnings-section h3,
+      .ai-advice-header h3,
+      .chart-section h3,
+      .distribution-section h3,
+      .card-value,
+      .record-title,
+      label {
+        color: #111827 !important;
+      }
+
+      .panel-header p,
+      .ai-advice-card p,
+      .distribution-note,
+      .card-title,
+      .hint {
+        color: #475467 !important;
+      }
+
+      textarea,
+      .score-settings {
+        display: none;
       }
     }
 
@@ -2038,11 +2344,22 @@
     <div id="errorBox" class="error"></div>
 
     <div id="results" class="results">
-      <h2>Results</h2>
+      <div class="results-header">
+        <h2>Results</h2>
+        <button id="downloadReportBtn" class="report-button" type="button">Download PDF Report</button>
+      </div>
 
       <div class="warnings-section">
         <h3>Warnings</h3>
         <div id="warningsList" class="warning-list"></div>
+      </div>
+
+      <div class="ai-advice-section">
+        <div class="ai-advice-header">
+          <h3>AI Recommendations</h3>
+          <span class="ai-badge">Smart analysis</span>
+        </div>
+        <div id="aiAdviceList" class="ai-advice-list"></div>
       </div>
 
       <div class="chart-section">
@@ -2138,6 +2455,31 @@
       </details>
     </div>
       </section>
+
+      <footer class="site-footer">
+        <div class="footer-grid">
+          <div class="footer-copy">
+            <h2>Get in touch</h2>
+            <p>Want to adapt this analyzer for a class, tutoring group, or portfolio project? Send a quick note and keep the conversation moving.</p>
+            <div class="social-row" aria-label="Social links">
+              <a class="social-link" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">IG</a>
+              <a class="social-link" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">FB</a>
+              <a class="social-link" href="https://x.com/" target="_blank" rel="noopener noreferrer">X</a>
+              <a class="social-link" href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer">TikTok</a>
+            </div>
+          </div>
+
+          <form id="contactForm" class="contact-form">
+            <div class="contact-row">
+              <input id="contactName" type="text" placeholder="Your name" required>
+              <input id="contactEmail" type="email" placeholder="Your email" required>
+            </div>
+            <textarea id="contactMessage" placeholder="Your message" required></textarea>
+            <button class="contact-submit" type="submit">Send Message</button>
+            <p id="contactStatus" class="contact-status" aria-live="polite"></p>
+          </form>
+        </div>
+      </footer>
     </main>
   </div>
 
@@ -2182,13 +2524,17 @@
     const clearBtn = document.getElementById("clearBtn");
     const errorBox = document.getElementById("errorBox");
     const results = document.getElementById("results");
+    const downloadReportBtn = document.getElementById("downloadReportBtn");
     const statisticsChart = document.getElementById("statisticsChart");
     const chartDetail = document.getElementById("chartDetail");
     const distributionCurve = document.getElementById("distributionCurve");
     const distributionNote = document.getElementById("distributionNote");
+    const aiAdviceList = document.getElementById("aiAdviceList");
     const warningsList = document.getElementById("warningsList");
     const recordList = document.getElementById("recordList");
     const clearRecordsBtn = document.getElementById("clearRecordsBtn");
+    const contactForm = document.getElementById("contactForm");
+    const contactStatus = document.getElementById("contactStatus");
     const authStatus = document.getElementById("authStatus");
     const recordsShortcutBtn = document.getElementById("recordsShortcutBtn");
     const signOutBtn = document.getElementById("signOutBtn");
@@ -2219,6 +2565,7 @@
     let revealObserver;
     let selectedCountry = "US";
     let countrySearchTerm = "";
+    let latestStatistics = null;
 
     analyzeBtn.addEventListener("click", analyzeScores);
     clearBtn.addEventListener("click", clearAll);
@@ -2236,6 +2583,8 @@
     topGoogleSignInBtn.addEventListener("click", startGoogleSignIn);
     acceptCookiesBtn.addEventListener("click", acceptCookies);
     rejectCookiesBtn.addEventListener("click", rejectCookies);
+    downloadReportBtn.addEventListener("click", downloadReport);
+    contactForm.addEventListener("submit", handleContactSubmit);
     document.addEventListener("pointermove", updatePointerGlow);
     clearRecordsBtn.addEventListener("click", clearRecords);
     recordList.addEventListener("click", handleRecordAction);
@@ -2300,6 +2649,7 @@
 
     function displayResults(statistics) {
       statistics = addMissingStandardDeviation(statistics);
+      latestStatistics = statistics;
 
       // Put each returned statistic into its matching result card.
       document.getElementById("countResult").textContent = statistics.count;
@@ -2319,6 +2669,7 @@
       drawStatisticsChart(statistics);
       drawDistributionCurve(statistics);
       displayWarnings(statistics);
+      displayAdvice(statistics);
       results.style.display = "block";
       prepareResultReveal();
       results.scrollIntoView({
@@ -2828,6 +3179,84 @@
       warningsList.innerHTML = warnings.map(function (warning) {
         return `<div class="warning-item warning-${warning.type}"><strong>${warning.label}</strong> ${warning.message}</div>`;
       }).join("");
+    }
+
+    function displayAdvice(statistics) {
+      const advice = buildAdvice(statistics);
+
+      aiAdviceList.innerHTML = advice.map(function (item) {
+        return `
+          <article class="ai-advice-card">
+            <strong>${item.title}</strong>
+            <p>${item.message}</p>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function buildAdvice(statistics) {
+      const maxScore = statistics.maxScore || getSelectedMaxScore() || 100;
+      const meanRate = statistics.mean / maxScore;
+      const medianRate = statistics.median / maxScore;
+      const spreadRate = statistics.standardDeviation / maxScore;
+      const failingRate = statistics.failingCount / statistics.count;
+      const rangeRate = statistics.range / maxScore;
+      const advice = [];
+
+      if (meanRate < 0.6) {
+        advice.push({
+          title: "Priority plan",
+          message: "Start with a short reteach session before new material. The average is below the passing line, so the class needs a foundation reset."
+        });
+      } else if (meanRate >= 0.85) {
+        advice.push({
+          title: "Stretch challenge",
+          message: "The group is performing strongly. Add extension questions for top students while keeping a quick review loop for the lower end."
+        });
+      } else {
+        advice.push({
+          title: "Balanced next step",
+          message: "The class is in a workable range. Use one targeted review activity, then reassess with a short exit quiz."
+        });
+      }
+
+      if (spreadRate >= 0.2 || rangeRate >= 0.5) {
+        advice.push({
+          title: "Group by need",
+          message: "Scores are widely spread. Split students into support, core practice, and challenge groups instead of teaching one pace to everyone."
+        });
+      } else {
+        advice.push({
+          title: "Consistent pacing",
+          message: "The score spread is controlled. A single class-wide plan should work, with light individual support for outliers."
+        });
+      }
+
+      if (failingRate > 0) {
+        advice.push({
+          title: "Support checkpoint",
+          message: `${statistics.failingCount} student${statistics.failingCount === 1 ? "" : "s"} are below the passing line. Schedule a quick check-in and assign focused practice.`
+        });
+      } else {
+        advice.push({
+          title: "Maintain momentum",
+          message: "Everyone is currently above the passing line. Keep the energy high with mixed review and a few higher-order questions."
+        });
+      }
+
+      if (Math.abs(statistics.mean - statistics.median) / maxScore > 0.08) {
+        advice.push({
+          title: "Check skew",
+          message: meanRate > medianRate ? "The average is being pulled upward by high scores. Look closely at the middle and lower bands." : "The average is being pulled downward by low scores. Identify whether a few students need individual rescue."
+        });
+      } else if (medianRate < 0.7) {
+        advice.push({
+          title: "Middle-band lift",
+          message: "Mean and median are close, but the center is still not high enough. Focus on the most common mistake pattern."
+        });
+      }
+
+      return advice.slice(0, 4);
     }
 
     function buildWarnings(statistics) {
@@ -3445,6 +3874,36 @@
       }
     }
 
+    function downloadReport() {
+      if (!latestStatistics) {
+        showError("Run an analysis before downloading a report.");
+        return;
+      }
+
+      const previousTitle = document.title;
+      document.title = "Score Analyzer Report - " + new Date().toLocaleDateString();
+      window.print();
+      document.title = previousTitle;
+    }
+
+    function handleContactSubmit(event) {
+      event.preventDefault();
+
+      const name = document.getElementById("contactName").value.trim();
+      const email = document.getElementById("contactEmail").value.trim();
+      const message = document.getElementById("contactMessage").value.trim();
+
+      if (!name || !email || !message) {
+        contactStatus.textContent = "Please fill in every field before sending.";
+        return;
+      }
+
+      const subject = encodeURIComponent("Score Analyzer message from " + name);
+      const body = encodeURIComponent("Name: " + name + "\nEmail: " + email + "\n\nMessage:\n" + message);
+      window.location.href = "mailto:?subject=" + subject + "&body=" + body;
+      contactStatus.textContent = "Opening your email app with the message ready to send.";
+    }
+
     function setCookie(name, value, days) {
       const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
       document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + expires + "; path=/; SameSite=Lax";
@@ -3477,6 +3936,8 @@
       distributionCurve.innerHTML = "";
       distributionNote.textContent = "Run an analysis to see the score distribution shape.";
       warningsList.innerHTML = "";
+      aiAdviceList.innerHTML = "";
+      latestStatistics = null;
     }
   </script>
 </body>
