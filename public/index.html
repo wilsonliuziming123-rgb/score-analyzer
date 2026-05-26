@@ -355,6 +355,81 @@
       margin-bottom: 26px;
     }
 
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 760px;
+      margin-top: 24px;
+    }
+
+    .mode-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 154px;
+      padding: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 18px;
+      background: rgba(15, 18, 27, 0.76);
+      color: white;
+      text-decoration: none;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.26);
+      backdrop-filter: blur(14px);
+      transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+    }
+
+    .mode-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(240, 190, 34, 0.16), transparent);
+      transform: translateX(-115%);
+      transition: transform 0.55s ease;
+    }
+
+    .mode-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(240, 190, 34, 0.48);
+      background: rgba(24, 23, 22, 0.86);
+    }
+
+    .mode-card:hover::before {
+      transform: translateX(115%);
+    }
+
+    .mode-card strong,
+    .mode-card span,
+    .mode-card p {
+      position: relative;
+      z-index: 1;
+    }
+
+    .mode-card span {
+      display: inline-flex;
+      margin-bottom: 12px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(240, 190, 34, 0.16);
+      color: #fef3c7;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .mode-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 20px;
+      line-height: 1.1;
+    }
+
+    .mode-card p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
     .hero-metric {
       position: relative;
       overflow: hidden;
@@ -523,7 +598,7 @@
 
     .score-settings {
       display: grid;
-      grid-template-columns: minmax(0, 180px) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 180px) minmax(0, 180px) minmax(0, 1fr);
       gap: 14px;
       align-items: end;
       margin: 18px 0;
@@ -585,7 +660,21 @@
       outline: none;
     }
 
+    .setting-field select {
+      width: 100%;
+      padding: 12px 13px;
+      border: 1px solid #d8dce6;
+      border-radius: 12px;
+      font-size: 15px;
+      outline: none;
+    }
+
     .setting-field input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .setting-field select:focus {
       border-color: var(--blue);
       box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
     }
@@ -595,6 +684,26 @@
       color: var(--muted);
       line-height: 1.45;
       font-size: 14px;
+    }
+
+    .ap-field {
+      display: none;
+    }
+
+    .ap-mode .ap-field {
+      display: grid;
+    }
+
+    .standard-mode .score-settings {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .standard-mode .setting-field {
+      display: none;
+    }
+
+    .home-mode .analyzer-panel {
+      display: none;
     }
 
     .score-poster {
@@ -1733,6 +1842,7 @@
 
     .auth-form input,
     .setting-field input,
+    .setting-field select,
     textarea {
       border-color: rgba(255, 255, 255, 0.14);
       background: rgba(3, 7, 18, 0.58);
@@ -1747,6 +1857,7 @@
 
     .auth-form input:focus,
     .setting-field input:focus,
+    .setting-field select:focus,
     textarea:focus {
       border-color: rgba(240, 190, 34, 0.72);
       box-shadow: 0 0 0 4px rgba(240, 190, 34, 0.14), inset 0 1px 12px rgba(0, 0, 0, 0.22);
@@ -2106,6 +2217,10 @@
         grid-template-columns: 1fr;
       }
 
+      .mode-grid {
+        grid-template-columns: 1fr;
+      }
+
       .panel-header {
         align-items: flex-start;
         flex-direction: column;
@@ -2340,10 +2455,28 @@
               <strong id="metricScale">Flexible</strong>
               <span id="metricValidation">Scale</span>
             </div>
-            <div class="hero-metric">
-              <strong>Live</strong>
-              <span id="metricWebApp">Web app</span>
-            </div>
+          <div class="hero-metric">
+            <strong>Live</strong>
+            <span id="metricWebApp">Web app</span>
+          </div>
+          </div>
+
+          <div class="mode-grid" aria-label="Choose score analyzer mode">
+            <a class="mode-card" href="/standard">
+              <span>Standard</span>
+              <strong>100 max / 60 pass</strong>
+              <p>Fast default for regular classroom scores.</p>
+            </a>
+            <a class="mode-card" href="/custom">
+              <span>Curve</span>
+              <strong>Custom max + raw pass</strong>
+              <p>Use any full score and any passing cutoff.</p>
+            </a>
+            <a class="mode-card" href="/ap">
+              <span>AP</span>
+              <strong>AP-style target cutoff</strong>
+              <p>Analyze curved AP-style raw score targets.</p>
+            </a>
           </div>
         </div>
 
@@ -2448,9 +2581,21 @@
     </section>
 
     <div class="score-settings">
+      <div class="setting-field ap-field">
+        <label for="apTargetSelect">AP target</label>
+        <select id="apTargetSelect">
+          <option value="3">AP 3+ target</option>
+          <option value="4">AP 4+ target</option>
+          <option value="5" selected>AP 5 target</option>
+        </select>
+      </div>
       <div class="setting-field">
         <label id="maxScoreLabel" for="maxScoreInput">Maximum score</label>
         <input id="maxScoreInput" type="number" min="1" step="0.01" placeholder="100" />
+      </div>
+      <div class="setting-field">
+        <label id="passingScoreLabel" for="passingScoreInput">Passing score</label>
+        <input id="passingScoreInput" type="number" min="0" step="0.01" placeholder="60" />
       </div>
       <p id="maxScoreHelp" class="setting-copy">
         The analyzer validates scores against this scale and uses 60% of it as the passing line.
@@ -2682,6 +2827,9 @@
   <script>
     const scoreInput = document.getElementById("scoreInput");
     const maxScoreInput = document.getElementById("maxScoreInput");
+    const passingScoreInput = document.getElementById("passingScoreInput");
+    const passingScoreLabel = document.getElementById("passingScoreLabel");
+    const apTargetSelect = document.getElementById("apTargetSelect");
     const analyzeBtn = document.getElementById("analyzeBtn");
     const clearBtn = document.getElementById("clearBtn");
     const scoreEntryStep = document.getElementById("scoreEntryStep");
@@ -2732,10 +2880,13 @@
     let selectedCountry = "US";
     let countrySearchTerm = "";
     let latestStatistics = null;
+    let analyzerMode = getAnalyzerMode();
 
     analyzeBtn.addEventListener("click", analyzeScores);
     clearBtn.addEventListener("click", clearAll);
     maxScoreInput.addEventListener("input", updateInputFlow);
+    passingScoreInput.addEventListener("input", updateInputFlow);
+    apTargetSelect.addEventListener("change", updateApTargetDefaults);
     scoreInput.addEventListener("input", updateInputFlow);
     countryPicker.addEventListener("click", handleCountryChoice);
     countryPicker.addEventListener("input", handleCountrySearch);
@@ -2780,9 +2931,15 @@
 
       const input = scoreInput.value.trim();
       const maxScore = getSelectedMaxScore();
+      const passingScore = getSelectedPassingScore();
 
       if (!maxScore) {
         showError("Maximum score must be a number greater than 0.");
+        return;
+      }
+
+      if (passingScore === null) {
+        showError("Passing score must be a number between 0 and the maximum score.");
         return;
       }
 
@@ -2795,7 +2952,9 @@
           },
           body: JSON.stringify({
             scoresInput: input,
-            maxScore: maxScore
+            maxScore: maxScore,
+            passingScore: passingScore,
+            passingRule: analyzerMode
           })
         });
 
@@ -2852,16 +3011,64 @@
 
     async function initializePage() {
       setupScrollReveal();
+      setupAnalyzerMode();
       loadCountryPreference();
-      updateScaleText();
       showCookieBannerIfNeeded();
       await loadAuthSession();
       updateAuthUI();
       loadSavedRecords();
       scoreInput.value = "";
-      maxScoreInput.value = "";
       updateInputFlow();
       document.body.classList.remove("loading-reveal");
+    }
+
+    function getAnalyzerMode() {
+      if (window.location.pathname === "/standard") {
+        return "standard";
+      }
+
+      if (window.location.pathname === "/custom") {
+        return "custom";
+      }
+
+      if (window.location.pathname === "/ap") {
+        return "ap";
+      }
+
+      return "home";
+    }
+
+    function setupAnalyzerMode() {
+      document.body.classList.remove("home-mode", "standard-mode", "custom-mode", "ap-mode");
+      document.body.classList.add(analyzerMode + "-mode");
+
+      if (analyzerMode === "home") {
+        return;
+      }
+
+      if (analyzerMode === "standard") {
+        maxScoreInput.value = "100";
+        passingScoreInput.value = "60";
+        passingScoreLabel.textContent = "Passing score";
+        document.querySelector(".panel-header h2").textContent = "Standard Analyzer";
+        document.querySelector(".panel-header p").textContent = "Use the classic 100-point scale with 60 as the passing line.";
+        document.querySelector(".panel-tag").textContent = "100 / 60";
+      } else if (analyzerMode === "custom") {
+        maxScoreInput.value = "";
+        passingScoreInput.value = "";
+        passingScoreLabel.textContent = "Passing score";
+        document.querySelector(".panel-header h2").textContent = "Custom Curve Analyzer";
+        document.querySelector(".panel-header p").textContent = "Set any maximum score and any raw passing cutoff for curved classes or unusual grading systems.";
+        document.querySelector(".panel-tag").textContent = "Custom cutoff";
+      } else {
+        maxScoreInput.value = "100";
+        passingScoreInput.value = "60";
+        passingScoreLabel.textContent = "Target cutoff";
+        document.querySelector(".panel-header h2").textContent = "AP-Style Analyzer";
+        document.querySelector(".panel-header p").textContent = "Use an editable AP-style target cutoff for curved raw scores and AP score goals.";
+        document.querySelector(".panel-tag").textContent = "AP-style";
+        updateApTargetDefaults();
+      }
     }
 
     function loadCountryPreference() {
@@ -3246,23 +3453,45 @@
 
     function updateScaleText() {
       const maxScore = getSelectedMaxScore() || 100;
+      const passingScore = getSelectedPassingScore();
       const text = getLocaleText(getActiveLocale());
       const hint = (text.scoreHint || "You can separate scores with commas, spaces, or new lines. Scores must be between 0 and {max}.")
         .replace("{max}", formatNumber(maxScore));
 
       document.getElementById("scoreHint").textContent = hint;
+
+      if (analyzerMode === "home") {
+        return;
+      }
+
+      if (analyzerMode === "standard") {
+        maxScoreHelp.textContent = "Classic mode: scores are checked from 0 to 100, and 60 is the passing line.";
+        maxScorePrompt.textContent = "";
+      } else if (analyzerMode === "ap") {
+        maxScoreHelp.textContent = "AP-style mode: use an editable target cutoff. These are flexible classroom targets, not official College Board cut scores.";
+        maxScorePrompt.textContent = passingScore === null
+          ? "Choose an AP target and confirm the cutoff to unlock score input."
+          : "";
+      } else {
+        maxScoreHelp.textContent = "Custom mode: set both the full score and the raw passing score. The passing line does not have to be 60%.";
+        maxScorePrompt.textContent = passingScore === null
+          ? "Enter a maximum score and passing score to unlock score input."
+          : "";
+      }
     }
 
     function updateInputFlow() {
       const hasValidMaxScore = getSelectedMaxScore() > 0;
+      const hasValidPassingScore = getSelectedPassingScore() !== null;
+      const isConfigured = hasValidMaxScore && hasValidPassingScore;
       const hasScores = scoreInput.value.trim().length > 0;
 
       updateScaleText();
-      scoreEntryStep.classList.toggle("is-locked", !hasValidMaxScore);
-      actionStep.classList.toggle("is-locked", !hasValidMaxScore || !hasScores);
-      maxScorePrompt.style.display = hasValidMaxScore ? "none" : "block";
+      scoreEntryStep.classList.toggle("is-locked", !isConfigured);
+      actionStep.classList.toggle("is-locked", !isConfigured || !hasScores);
+      maxScorePrompt.style.display = isConfigured ? "none" : "block";
 
-      if (!hasValidMaxScore) {
+      if (!isConfigured) {
         scoreInput.value = "";
       }
     }
@@ -3301,6 +3530,31 @@
       }
 
       return maxScore;
+    }
+
+    function getSelectedPassingScore() {
+      const maxScore = getSelectedMaxScore();
+      const passingScore = Number(passingScoreInput.value);
+
+      if (!Number.isFinite(passingScore) || passingScore < 0 || !maxScore || passingScore > maxScore) {
+        return null;
+      }
+
+      return passingScore;
+    }
+
+    function updateApTargetDefaults() {
+      const targetCutoffs = {
+        3: 45,
+        4: 55,
+        5: 60
+      };
+      const cutoff = targetCutoffs[apTargetSelect.value] || 60;
+
+      maxScoreInput.value = maxScoreInput.value || "100";
+      passingScoreInput.value = cutoff;
+      passingScoreLabel.textContent = "Target cutoff";
+      updateInputFlow();
     }
 
     function setupScrollReveal() {
@@ -3382,6 +3636,7 @@
 
     function buildAdvice(statistics) {
       const maxScore = statistics.maxScore || getSelectedMaxScore() || 100;
+      const passingScore = Number.isFinite(statistics.passingScore) ? statistics.passingScore : maxScore * 0.6;
       const meanRate = statistics.mean / maxScore;
       const medianRate = statistics.median / maxScore;
       const spreadRate = statistics.standardDeviation / maxScore;
@@ -3389,7 +3644,7 @@
       const rangeRate = statistics.range / maxScore;
       const advice = [];
 
-      if (meanRate < 0.6) {
+      if (statistics.mean < passingScore) {
         advice.push({
           title: "Priority plan",
           message: "Start with a short reteach session before new material. The average is below the passing line, so the class needs a foundation reset."
@@ -3464,19 +3719,20 @@
       const warnings = [];
       const failingRate = statistics.failingCount / statistics.count;
       const maxScore = statistics.maxScore || getSelectedMaxScore() || 100;
+      const passingScore = Number.isFinite(statistics.passingScore) ? statistics.passingScore : maxScore * 0.6;
       const meanRate = statistics.mean / maxScore;
       const minRate = statistics.min / maxScore;
       const maxRate = statistics.max / maxScore;
       const deviationRate = statistics.standardDeviation / maxScore;
       const rangeRate = statistics.range / maxScore;
 
-      if (meanRate < 0.6) {
+      if (statistics.mean < passingScore) {
         warnings.push({
           type: "danger",
           label: "Urgent:",
-          message: "Average score is below the 60% passing line. The group may need urgent support."
+          message: "Average score is below the selected passing line. The group may need urgent support."
         });
-      } else if (meanRate < 0.7) {
+      } else if (statistics.mean < passingScore + maxScore * 0.1) {
         warnings.push({
           type: "caution",
           label: "Watch:",
@@ -3496,7 +3752,7 @@
           label: "Low score:",
           message: "Lowest score is under 40% of the full scale. At least one student may need individual help."
         });
-      } else if (minRate < 0.6) {
+      } else if (statistics.min < passingScore) {
         warnings.push({
           type: "caution",
           label: "Below pass:",
@@ -3957,7 +4213,13 @@
       const normalizedInput = input.replace(/\s+/g, " ").trim();
       const existingIndex = records.findIndex(function (record) {
         const recordMaxScore = record.statistics && record.statistics.maxScore ? record.statistics.maxScore : 100;
-        return record.scoresInput === normalizedInput && recordMaxScore === statistics.maxScore;
+        const recordPassingScore = record.statistics && Number.isFinite(record.statistics.passingScore)
+          ? record.statistics.passingScore
+          : recordMaxScore * 0.6;
+
+        return record.scoresInput === normalizedInput
+          && recordMaxScore === statistics.maxScore
+          && recordPassingScore === statistics.passingScore;
       });
       const record = {
         id: Date.now().toString(),
@@ -4025,7 +4287,7 @@
           <article class="record-item">
             <div>
               <p class="record-title">Mean ${formatNumber(stats.mean)} · ${stats.count} students</p>
-              <p class="record-meta">${date}<br>Scale 0-${formatNumber(stats.maxScore || 100)} · ${scorePreview}</p>
+              <p class="record-meta">${date}<br>Scale 0-${formatNumber(stats.maxScore || 100)} · Pass ${formatNumber(Number.isFinite(stats.passingScore) ? stats.passingScore : (stats.maxScore || 100) * 0.6)} · ${scorePreview}</p>
             </div>
             <div class="record-actions">
               <button class="record-open" type="button" data-id="${record.id}">Open</button>
@@ -4063,6 +4325,9 @@
 
       scoreInput.value = record.scoresInput;
       maxScoreInput.value = record.statistics.maxScore || 100;
+      passingScoreInput.value = Number.isFinite(record.statistics.passingScore)
+        ? record.statistics.passingScore
+        : (record.statistics.maxScore || 100) * 0.6;
       updateInputFlow();
       hideError();
       closeRecordsDrawer();
@@ -4323,7 +4588,7 @@
       y -= 22;
       drawText("Generated: " + new Date().toISOString().slice(0, 19).replace("T", " "), margin, y, 10, "F1", "#667085");
       y -= 26;
-      drawWrappedText("Scale: 0-" + formatNumber(maxScore) + " | Passing line: " + formatNumber(statistics.passingScore || maxScore * 0.6) + " | " + describeStandardDeviation(statistics), margin, 10, "F1", "#475467", 92, 10);
+      drawWrappedText("Scale: 0-" + formatNumber(maxScore) + " | Passing line: " + formatNumber(Number.isFinite(statistics.passingScore) ? statistics.passingScore : maxScore * 0.6) + " | " + describeStandardDeviation(statistics), margin, 10, "F1", "#475467", 92, 10);
       drawSectionTitle("Summary");
       drawSummaryCards();
       drawStatsChart();
@@ -4463,7 +4728,7 @@
 
     function clearAll() {
       scoreInput.value = "";
-      maxScoreInput.value = "";
+      setupAnalyzerMode();
       hideError();
       results.style.display = "none";
       statisticsChart.innerHTML = "";
