@@ -887,7 +887,42 @@
     }
 
     .results-header h2 {
+      margin: 0 0 5px;
+    }
+
+    .results-header p {
       margin: 0;
+      color: rgba(255, 255, 255, 0.68);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .analysis-flow {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 20px;
+    }
+
+    .analysis-step {
+      position: relative;
+      overflow: hidden;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 13px;
+      font-weight: 800;
+      backdrop-filter: blur(12px);
+    }
+
+    .analysis-step strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #fef3c7;
+      font-size: 12px;
+      text-transform: uppercase;
     }
 
     .report-button {
@@ -2174,6 +2209,10 @@
         align-items: flex-start;
         flex-direction: column;
       }
+
+      .analysis-flow {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media print {
@@ -2440,39 +2479,26 @@
 
     <div id="results" class="results">
       <div class="results-header">
-        <h2>Results</h2>
+        <div>
+          <h2>Results</h2>
+          <p>Read the evidence first, then use warnings and recommendations to decide the next teaching move.</p>
+        </div>
         <button id="downloadReportBtn" class="report-button" type="button">Download PDF Report</button>
       </div>
 
-      <div class="warnings-section result-block">
-        <h3>Warnings</h3>
-        <div id="warningsList" class="warning-list"></div>
-      </div>
-
-      <div class="ai-advice-section result-block">
-        <div class="ai-advice-header">
-          <h3>AI Recommendations</h3>
-          <span class="ai-badge">Smart analysis</span>
+      <div class="analysis-flow result-block" aria-label="Analysis order">
+        <div class="analysis-step">
+          <strong>01</strong>
+          Read key metrics
         </div>
-        <div id="aiAdviceList" class="ai-advice-list"></div>
-      </div>
-
-      <div class="chart-section result-block">
-        <h3>Statistics Chart</h3>
-        <p class="chart-note">Visual comparison of all score statistics.</p>
-        <div class="chart-wrap">
-          <svg id="statisticsChart" viewBox="0 0 760 320" role="img" aria-label="Score statistics bar chart"></svg>
+        <div class="analysis-step">
+          <strong>02</strong>
+          Inspect charts
         </div>
-        <div id="chartDetail" class="chart-detail" aria-live="polite"></div>
-      </div>
-
-      <div class="distribution-section result-block">
-        <h3>Score Distribution</h3>
-        <p id="distributionNote" class="distribution-note">Run an analysis to see where scores cluster across the selected scale.</p>
-        <div class="distribution-wrap">
-          <svg id="distributionCurve" viewBox="0 0 760 280" role="img" aria-label="Score distribution curve"></svg>
+        <div class="analysis-step">
+          <strong>03</strong>
+          Act on insights
         </div>
-        <div id="distributionDetail" class="distribution-detail" aria-live="polite"></div>
       </div>
 
       <div class="grid key-grid result-block">
@@ -2495,6 +2521,37 @@
           <div class="card-title">Failing Count</div>
           <div class="card-value" id="failingResult"></div>
         </div>
+      </div>
+
+      <div class="chart-section result-block">
+        <h3>Statistics Chart</h3>
+        <p class="chart-note">Visual comparison of all score statistics.</p>
+        <div class="chart-wrap">
+          <svg id="statisticsChart" viewBox="0 0 760 320" role="img" aria-label="Score statistics bar chart"></svg>
+        </div>
+        <div id="chartDetail" class="chart-detail" aria-live="polite"></div>
+      </div>
+
+      <div class="distribution-section result-block">
+        <h3>Score Distribution</h3>
+        <p id="distributionNote" class="distribution-note">Run an analysis to see where scores cluster across the selected scale.</p>
+        <div class="distribution-wrap">
+          <svg id="distributionCurve" viewBox="0 0 760 280" role="img" aria-label="Score distribution curve"></svg>
+        </div>
+        <div id="distributionDetail" class="distribution-detail" aria-live="polite"></div>
+      </div>
+
+      <div class="warnings-section result-block">
+        <h3>Warnings</h3>
+        <div id="warningsList" class="warning-list"></div>
+      </div>
+
+      <div class="ai-advice-section result-block">
+        <div class="ai-advice-header">
+          <h3>AI Recommendations</h3>
+          <span class="ai-badge">Smart analysis</span>
+        </div>
+        <div id="aiAdviceList" class="ai-advice-list"></div>
       </div>
 
       <details class="advanced-details result-block">
