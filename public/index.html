@@ -360,7 +360,7 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
       max-width: 760px;
-      margin-top: 24px;
+      margin: 24px 0 24px;
     }
 
     .mode-card {
@@ -376,6 +376,14 @@
       box-shadow: 0 18px 42px rgba(0, 0, 0, 0.26);
       backdrop-filter: blur(14px);
       transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+    }
+
+    .home-mode .mode-card {
+      min-height: 172px;
+      border-color: rgba(240, 190, 34, 0.3);
+      background:
+        linear-gradient(145deg, rgba(240, 190, 34, 0.1), transparent 42%),
+        rgba(15, 18, 27, 0.82);
     }
 
     .mode-card::before {
@@ -2446,21 +2454,6 @@
             warnings, animated charts, and deploy-ready full-stack architecture.
           </p>
 
-          <div class="hero-metrics">
-            <div class="hero-metric">
-              <strong>12+</strong>
-              <span id="metricStats">Stats</span>
-            </div>
-            <div class="hero-metric">
-              <strong id="metricScale">Flexible</strong>
-              <span id="metricValidation">Scale</span>
-            </div>
-          <div class="hero-metric">
-            <strong>Live</strong>
-            <span id="metricWebApp">Web app</span>
-          </div>
-          </div>
-
           <div class="mode-grid" aria-label="Choose score analyzer mode">
             <a class="mode-card" href="/standard">
               <span>Standard</span>
@@ -2477,6 +2470,21 @@
               <strong>AP-style target cutoff</strong>
               <p>Analyze curved AP-style raw score targets.</p>
             </a>
+          </div>
+
+          <div class="hero-metrics">
+            <div class="hero-metric">
+              <strong>12+</strong>
+              <span id="metricStats">Stats</span>
+            </div>
+            <div class="hero-metric">
+              <strong id="metricScale">Flexible</strong>
+              <span id="metricValidation">Scale</span>
+            </div>
+          <div class="hero-metric">
+            <strong>Live</strong>
+            <span id="metricWebApp">Web app</span>
+          </div>
           </div>
         </div>
 
