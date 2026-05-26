@@ -533,6 +533,37 @@
       background: #f8fafc;
     }
 
+    .flow-step {
+      overflow: hidden;
+      max-height: 520px;
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+      transition:
+        max-height 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 0.45s ease,
+        transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.45s ease,
+        margin 0.45s ease;
+    }
+
+    .flow-step.is-locked {
+      max-height: 0;
+      opacity: 0;
+      margin-top: 0;
+      margin-bottom: 0;
+      transform: translateY(20px);
+      filter: blur(5px);
+      pointer-events: none;
+    }
+
+    .step-prompt {
+      margin: 10px 0 0;
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
     .setting-field {
       display: grid;
       gap: 7px;
@@ -783,6 +814,23 @@
       margin-top: 20px;
       display: flex;
       gap: 12px;
+    }
+
+    .result-block {
+      opacity: 0;
+      transform: translateY(28px);
+      filter: blur(5px);
+      transition:
+        opacity 0.72s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.72s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.72s cubic-bezier(0.16, 1, 0.3, 1);
+      transition-delay: var(--result-delay, 0s);
+    }
+
+    .result-block.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
     }
 
     button {
@@ -2326,24 +2374,27 @@
     <div class="score-settings">
       <div class="setting-field">
         <label id="maxScoreLabel" for="maxScoreInput">Maximum score</label>
-        <input id="maxScoreInput" type="number" min="1" step="0.01" value="100" />
+        <input id="maxScoreInput" type="number" min="1" step="0.01" placeholder="100" />
       </div>
       <p id="maxScoreHelp" class="setting-copy">
         The analyzer validates scores against this scale and uses 60% of it as the passing line.
       </p>
     </div>
+    <p id="maxScorePrompt" class="step-prompt">Enter a maximum score to unlock score input.</p>
 
-    <label id="scoreInputLabel" for="scoreInput">Score input</label>
-    <textarea 
-      id="scoreInput" 
-      placeholder="Example: 87, 92, 76, 100, 65, 88, 91"
-    ></textarea>
+    <div id="scoreEntryStep" class="flow-step is-locked">
+      <label id="scoreInputLabel" for="scoreInput">Score input</label>
+      <textarea 
+        id="scoreInput" 
+        placeholder="Example: 87, 92, 76, 100, 65, 88, 91"
+      ></textarea>
 
-    <p id="scoreHint" class="hint">
-      You can separate scores with commas, spaces, or new lines. Scores must be between 0 and 100.
-    </p>
+      <p id="scoreHint" class="hint">
+        You can separate scores with commas, spaces, or new lines. Scores must be between 0 and 100.
+      </p>
+    </div>
 
-    <div class="button-group">
+    <div id="actionStep" class="button-group flow-step is-locked">
       <button id="analyzeBtn">Analyze Scores</button>
       <button id="clearBtn">Clear</button>
     </div>
@@ -2356,12 +2407,12 @@
         <button id="downloadReportBtn" class="report-button" type="button">Download PDF Report</button>
       </div>
 
-      <div class="warnings-section">
+      <div class="warnings-section result-block">
         <h3>Warnings</h3>
         <div id="warningsList" class="warning-list"></div>
       </div>
 
-      <div class="ai-advice-section">
+      <div class="ai-advice-section result-block">
         <div class="ai-advice-header">
           <h3>AI Recommendations</h3>
           <span class="ai-badge">Smart analysis</span>
@@ -2369,7 +2420,7 @@
         <div id="aiAdviceList" class="ai-advice-list"></div>
       </div>
 
-      <div class="chart-section">
+      <div class="chart-section result-block">
         <h3>Statistics Chart</h3>
         <p class="chart-note">Visual comparison of all score statistics.</p>
         <div class="chart-wrap">
@@ -2378,7 +2429,7 @@
         <div id="chartDetail" class="chart-detail" aria-live="polite"></div>
       </div>
 
-      <div class="distribution-section">
+      <div class="distribution-section result-block">
         <h3>Score Distribution</h3>
         <p id="distributionNote" class="distribution-note">Run an analysis to see where scores cluster across the selected scale.</p>
         <div class="distribution-wrap">
@@ -2386,7 +2437,7 @@
         </div>
       </div>
 
-      <div class="grid key-grid">
+      <div class="grid key-grid result-block">
         <div class="card">
           <div class="card-title">Number of Students</div>
           <div class="card-value" id="countResult"></div>
@@ -2408,7 +2459,7 @@
         </div>
       </div>
 
-      <details class="advanced-details">
+      <details class="advanced-details result-block">
         <summary>Show detailed statistics</summary>
 
         <div class="advanced-content">
@@ -2537,6 +2588,9 @@
     const maxScoreInput = document.getElementById("maxScoreInput");
     const analyzeBtn = document.getElementById("analyzeBtn");
     const clearBtn = document.getElementById("clearBtn");
+    const scoreEntryStep = document.getElementById("scoreEntryStep");
+    const actionStep = document.getElementById("actionStep");
+    const maxScorePrompt = document.getElementById("maxScorePrompt");
     const errorBox = document.getElementById("errorBox");
     const results = document.getElementById("results");
     const downloadReportBtn = document.getElementById("downloadReportBtn");
@@ -2584,7 +2638,8 @@
 
     analyzeBtn.addEventListener("click", analyzeScores);
     clearBtn.addEventListener("click", clearAll);
-    maxScoreInput.addEventListener("input", updateScaleText);
+    maxScoreInput.addEventListener("input", updateInputFlow);
+    scoreInput.addEventListener("input", updateInputFlow);
     countryPicker.addEventListener("click", handleCountryChoice);
     countryPicker.addEventListener("input", handleCountrySearch);
     document.addEventListener("click", closeCountryPanelOnOutsideClick);
@@ -2702,6 +2757,8 @@
       updateAuthUI();
       loadSavedRecords();
       scoreInput.value = "";
+      maxScoreInput.value = "";
+      updateInputFlow();
       document.body.classList.remove("loading-reveal");
     }
 
@@ -2793,7 +2850,7 @@
       cookieText.textContent = text.cookieText;
       acceptCookiesBtn.textContent = text.acceptCookies;
       rejectCookiesBtn.textContent = text.rejectCookies;
-      updateScaleText();
+      updateInputFlow();
       updateAuthUI();
       renderRecords();
     }
@@ -3094,6 +3151,20 @@
       document.getElementById("scoreHint").textContent = hint;
     }
 
+    function updateInputFlow() {
+      const hasValidMaxScore = getSelectedMaxScore() > 0;
+      const hasScores = scoreInput.value.trim().length > 0;
+
+      updateScaleText();
+      scoreEntryStep.classList.toggle("is-locked", !hasValidMaxScore);
+      actionStep.classList.toggle("is-locked", !hasValidMaxScore || !hasScores);
+      maxScorePrompt.style.display = hasValidMaxScore ? "none" : "block";
+
+      if (!hasValidMaxScore) {
+        scoreInput.value = "";
+      }
+    }
+
     function showCookieBannerIfNeeded() {
       if (!localStorage.getItem(cookieChoiceKey)) {
         cookieBanner.classList.add("is-visible");
@@ -3132,7 +3203,7 @@
 
     function setupScrollReveal() {
       const revealElements = document.querySelectorAll(
-        ".topbar, .hero-copy, .score-poster, .analyzer-panel, label, textarea, .hint, .button-group, .warnings-section, .chart-section, .distribution-section, .key-grid .card, .advanced-details"
+        ".topbar, .hero-copy, .score-poster, .analyzer-panel, label, textarea, .hint, .button-group, .warnings-section, .ai-advice-section, .chart-section, .distribution-section, .key-grid .card, .advanced-details"
       );
 
       if (!("IntersectionObserver" in window)) {
@@ -3147,7 +3218,8 @@
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
             entry.target.classList.add("is-visible");
-            revealObserver.unobserve(entry.target);
+          } else {
+            entry.target.classList.remove("is-visible");
           }
         });
       }, {
@@ -3170,21 +3242,18 @@
 
     function prepareResultReveal() {
       const resultElements = results.querySelectorAll(
-        ".warnings-section, .chart-section, .distribution-section, .key-grid .card, .advanced-details"
+        ".result-block, .key-grid .card"
       );
 
       resultElements.forEach(function (element, index) {
         element.classList.remove("is-visible");
-        element.classList.add("reveal");
+        element.classList.add("result-block");
         element.style.setProperty("--reveal-delay", Math.min(index * 0.08, 0.42) + "s");
+        element.style.setProperty("--result-delay", Math.min(index * 0.12, 0.72) + "s");
 
-        if (revealObserver) {
-          requestAnimationFrame(function () {
-            revealObserver.observe(element);
-          });
-        } else {
+        requestAnimationFrame(function () {
           element.classList.add("is-visible");
-        }
+        });
       });
     }
 
@@ -3841,7 +3910,7 @@
 
       scoreInput.value = record.scoresInput;
       maxScoreInput.value = record.statistics.maxScore || 100;
-      updateScaleText();
+      updateInputFlow();
       hideError();
       closeRecordsDrawer();
       displayResults(record.statistics);
@@ -3895,10 +3964,156 @@
         return;
       }
 
-      const previousTitle = document.title;
-      document.title = "Score Analyzer Report - " + new Date().toLocaleDateString();
-      window.print();
-      document.title = previousTitle;
+      const pdfText = createPdfDocument(getReportLines(latestStatistics));
+      const blob = new Blob([pdfText], {
+        type: "application/pdf"
+      });
+      const link = document.createElement("a");
+
+      link.href = URL.createObjectURL(blob);
+      link.download = "score-analyzer-report.pdf";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    }
+
+    function getReportLines(statistics) {
+      const warnings = buildWarnings(statistics);
+      const advice = buildAdvice(statistics);
+      const generatedAt = new Date().toLocaleString();
+
+      return [
+        { text: "Student Score Analyzer Report", size: 20, gap: 18 },
+        { text: "Generated: " + generatedAt, size: 10, gap: 20 },
+        { text: "Summary", size: 14, gap: 14 },
+        { text: "Students: " + statistics.count + " | Scale: 0-" + formatNumber(statistics.maxScore || getSelectedMaxScore() || 100) + " | Passing line: " + formatNumber(statistics.passingScore || (statistics.maxScore || 100) * 0.6), size: 11, gap: 10 },
+        { text: "Mean: " + formatNumber(statistics.mean) + " | Median: " + formatNumber(statistics.median) + " | Standard deviation: " + formatNumber(statistics.standardDeviation), size: 11, gap: 10 },
+        { text: "Highest: " + formatNumber(statistics.max) + " | Lowest: " + formatNumber(statistics.min) + " | Range: " + formatNumber(statistics.range), size: 11, gap: 10 },
+        { text: "Q1: " + formatNumber(statistics.q1) + " | Q3: " + formatNumber(statistics.q3) + " | IQR: " + formatNumber(statistics.iqr), size: 11, gap: 10 },
+        { text: "Passing: " + statistics.passingCount + " | Failing: " + statistics.failingCount, size: 11, gap: 20 },
+        { text: "Warnings", size: 14, gap: 14 }
+      ].concat(warnings.map(function (warning) {
+        return {
+          text: warning.label + " " + warning.message,
+          size: 11,
+          gap: 10
+        };
+      })).concat([
+        { text: "AI Recommendations", size: 14, gap: 14 }
+      ]).concat(advice.map(function (item) {
+        return {
+          text: item.title + ": " + item.message,
+          size: 11,
+          gap: 10
+        };
+      })).concat([
+        { text: "Sorted Scores", size: 14, gap: 14 },
+        { text: statistics.sortedScores.join(", "), size: 11, gap: 10 }
+      ]);
+    }
+
+    function createPdfDocument(reportLines) {
+      const pageWidth = 612;
+      const pageHeight = 792;
+      const margin = 54;
+      const lineHeight = 16;
+      const pages = [];
+      let currentPage = [];
+      let y = pageHeight - margin;
+
+      reportLines.forEach(function (line) {
+        const wrappedLines = wrapReportLine(line.text, line.size >= 14 ? 62 : 82);
+
+        wrappedLines.forEach(function (textLine, index) {
+          if (y < margin) {
+            pages.push(currentPage);
+            currentPage = [];
+            y = pageHeight - margin;
+          }
+
+          currentPage.push({
+            text: textLine,
+            size: line.size,
+            x: margin,
+            y: y
+          });
+          y -= index === wrappedLines.length - 1 ? line.gap : lineHeight;
+        });
+      });
+
+      if (currentPage.length > 0) {
+        pages.push(currentPage);
+      }
+
+      const objects = [];
+      const pageRefs = [];
+
+      objects[1] = "<< /Type /Catalog /Pages 2 0 R >>";
+
+      pages.forEach(function (pageLines, index) {
+        const pageObjectNumber = 3 + index * 2;
+        const contentObjectNumber = pageObjectNumber + 1;
+        const content = pageLines.map(function (line) {
+          return "BT /F1 " + line.size + " Tf " + line.x + " " + line.y + " Td (" + escapePdfText(line.text) + ") Tj ET";
+        }).join("\n");
+
+        pageRefs.push(pageObjectNumber + " 0 R");
+        objects[pageObjectNumber] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + pageWidth + " " + pageHeight + "] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents " + contentObjectNumber + " 0 R >>";
+        objects[contentObjectNumber] = "<< /Length " + content.length + " >>\nstream\n" + content + "\nendstream";
+      });
+
+      objects[2] = "<< /Type /Pages /Kids [" + pageRefs.join(" ") + "] /Count " + pages.length + " >>";
+
+      let pdf = "%PDF-1.4\n";
+      const offsets = [0];
+
+      for (let i = 1; i < objects.length; i++) {
+        offsets[i] = pdf.length;
+        pdf += i + " 0 obj\n" + objects[i] + "\nendobj\n";
+      }
+
+      const xrefStart = pdf.length;
+      pdf += "xref\n0 " + objects.length + "\n";
+      pdf += "0000000000 65535 f \n";
+
+      for (let i = 1; i < objects.length; i++) {
+        pdf += String(offsets[i]).padStart(10, "0") + " 00000 n \n";
+      }
+
+      pdf += "trailer\n<< /Size " + objects.length + " /Root 1 0 R >>\nstartxref\n" + xrefStart + "\n%%EOF";
+      return pdf;
+    }
+
+    function wrapReportLine(text, maxLength) {
+      const words = String(text).split(/\s+/);
+      const lines = [];
+      let currentLine = "";
+
+      words.forEach(function (word) {
+        const nextLine = currentLine ? currentLine + " " + word : word;
+
+        if (nextLine.length > maxLength && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = nextLine;
+        }
+      });
+
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+
+      return lines.length ? lines : [""];
+    }
+
+    function escapePdfText(text) {
+      return String(text)
+        .replace(/[^\x20-\x7E]/g, "?")
+        .replace(/\\/g, "\\\\")
+        .replace(/\(/g, "\\(")
+        .replace(/\)/g, "\\)");
     }
 
     function handleContactSubmit(event) {
@@ -3943,6 +4158,7 @@
 
     function clearAll() {
       scoreInput.value = "";
+      maxScoreInput.value = "";
       hideError();
       results.style.display = "none";
       statisticsChart.innerHTML = "";
@@ -3953,6 +4169,7 @@
       warningsList.innerHTML = "";
       aiAdviceList.innerHTML = "";
       latestStatistics = null;
+      updateInputFlow();
     }
   </script>
 </body>
