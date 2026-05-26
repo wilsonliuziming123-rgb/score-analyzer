@@ -1236,10 +1236,16 @@
 
     .record-list {
       display: grid;
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+      max-height: 440px;
+      overflow: auto;
+      padding-right: 4px;
+      scrollbar-color: rgba(240, 190, 34, 0.55) rgba(255, 255, 255, 0.08);
     }
 
     .record-empty {
+      grid-column: 1 / -1;
       margin: 0;
       padding: 14px;
       border-radius: 12px;
@@ -1249,10 +1255,11 @@
     }
 
     .record-item {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      display: flex;
+      min-height: 168px;
+      flex-direction: column;
+      justify-content: space-between;
       gap: 12px;
-      align-items: center;
       padding: 14px;
       border: 1px solid #edf0f6;
       border-radius: 14px;
@@ -1270,14 +1277,20 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.45;
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
     }
 
     .record-actions {
       display: flex;
       gap: 8px;
+      margin-top: auto;
     }
 
     .record-actions button {
+      flex: 1;
       padding: 8px 10px;
       font-size: 13px;
       box-shadow: none;
@@ -3137,12 +3150,15 @@
       recordList.innerHTML = records.map(function (record) {
         const stats = record.statistics;
         const date = new Date(record.createdAt).toLocaleString();
+        const scorePreview = record.scoresInput.length > 74
+          ? record.scoresInput.slice(0, 74) + "..."
+          : record.scoresInput;
 
         return `
           <article class="record-item">
             <div>
               <p class="record-title">Mean ${formatNumber(stats.mean)} · ${stats.count} students</p>
-              <p class="record-meta">${date}<br>Scale 0-${formatNumber(stats.maxScore || 100)} · ${record.scoresInput}</p>
+              <p class="record-meta">${date}<br>Scale 0-${formatNumber(stats.maxScore || 100)} · ${scorePreview}</p>
             </div>
             <div class="record-actions">
               <button class="record-open" type="button" data-id="${record.id}">Open</button>
