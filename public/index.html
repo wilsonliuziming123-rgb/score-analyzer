@@ -984,6 +984,23 @@
       line-height: 1.45;
     }
 
+    .distribution-detail {
+      display: none;
+      margin-top: 12px;
+      padding: 12px 14px;
+      border: 1px solid rgba(96, 165, 250, 0.42);
+      border-radius: 999px;
+      background: rgba(96, 165, 250, 0.12);
+      color: #dbeafe;
+      font-weight: 800;
+      animation: detailPop 0.22s ease both;
+    }
+
+    .distribution-detail span {
+      color: rgba(219, 234, 254, 0.78);
+      font-weight: 700;
+    }
+
     .distribution-wrap {
       overflow-x: auto;
       border-radius: 12px;
@@ -1000,6 +1017,26 @@
       stroke-dasharray: 920;
       stroke-dashoffset: 920;
       animation: drawCurve 1s ease-out forwards;
+    }
+
+    .distribution-group {
+      cursor: pointer;
+      outline: none;
+    }
+
+    .distribution-group:hover .distribution-bar,
+    .distribution-group:focus .distribution-bar,
+    .distribution-group:hover .distribution-dot,
+    .distribution-group:focus .distribution-dot {
+      filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.75));
+      opacity: 1;
+    }
+
+    .sd-explanation {
+      margin: 8px 0 0;
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 13px;
+      line-height: 1.45;
     }
 
     .warnings-section {
@@ -2435,6 +2472,7 @@
         <div class="distribution-wrap">
           <svg id="distributionCurve" viewBox="0 0 760 280" role="img" aria-label="Score distribution curve"></svg>
         </div>
+        <div id="distributionDetail" class="distribution-detail" aria-live="polite"></div>
       </div>
 
       <div class="grid key-grid result-block">
@@ -2477,6 +2515,7 @@
             <div class="card">
               <div class="card-title">Standard Deviation</div>
               <div class="card-value" id="standardDeviationResult"></div>
+              <p id="sdExplanation" class="sd-explanation"></p>
             </div>
 
             <div class="card">
@@ -2598,6 +2637,7 @@
     const chartDetail = document.getElementById("chartDetail");
     const distributionCurve = document.getElementById("distributionCurve");
     const distributionNote = document.getElementById("distributionNote");
+    const distributionDetail = document.getElementById("distributionDetail");
     const aiAdviceList = document.getElementById("aiAdviceList");
     const warningsList = document.getElementById("warningsList");
     const recordList = document.getElementById("recordList");
@@ -2645,6 +2685,10 @@
     document.addEventListener("click", closeCountryPanelOnOutsideClick);
     statisticsChart.addEventListener("click", handleChartSelection);
     statisticsChart.addEventListener("keydown", handleChartKeyboardSelection);
+    distributionCurve.addEventListener("mouseover", showDistributionDetail);
+    distributionCurve.addEventListener("focusin", showDistributionDetail);
+    distributionCurve.addEventListener("mouseout", hideDistributionDetail);
+    distributionCurve.addEventListener("focusout", hideDistributionDetail);
     recordsShortcutBtn.addEventListener("click", openRecordsDrawer);
     closeRecordsBtn.addEventListener("click", closeRecordsDrawer);
     recordsDrawer.addEventListener("click", closeRecordsDrawerOnBackdrop);
@@ -2727,6 +2771,7 @@
       document.getElementById("minResult").textContent = formatNumber(statistics.min);
       document.getElementById("meanResult").textContent = formatNumber(statistics.mean);
       document.getElementById("standardDeviationResult").textContent = formatNumber(statistics.standardDeviation);
+      document.getElementById("sdExplanation").textContent = describeStandardDeviation(statistics);
       document.getElementById("medianResult").textContent = formatNumber(statistics.median);
       document.getElementById("q1Result").textContent = formatNumber(statistics.q1);
       document.getElementById("q3Result").textContent = formatNumber(statistics.q3);
@@ -3343,6 +3388,21 @@
       return advice.slice(0, 4);
     }
 
+    function describeStandardDeviation(statistics) {
+      const maxScore = statistics.maxScore || getSelectedMaxScore() || 100;
+      const rate = statistics.standardDeviation / maxScore;
+
+      if (rate < 0.08) {
+        return "Low SD: scores are tightly grouped, so the class is fairly consistent.";
+      }
+
+      if (rate < 0.18) {
+        return "Moderate SD: scores have some spread, but the class is not extremely uneven.";
+      }
+
+      return "High SD: scores are spread out, so students are performing at very different levels.";
+    }
+
     function buildWarnings(statistics) {
       const warnings = [];
       const failingRate = statistics.failingCount / statistics.count;
@@ -3598,8 +3658,15 @@
           const barX = left + index * binWidth + 7;
           const barY = point.count > 0 ? point.y : bottom - 2;
           const fill = point.count > 0 ? "#60a5fa" : "#334155";
+          const rangeLabel = formatNumber(point.start) + " to " + formatNumber(point.end);
+          const studentLabel = point.count === 1 ? "1 student" : point.count + " students";
 
-          return `<rect x="${barX}" y="${barY}" width="${Math.max(binWidth - 14, 14)}" height="${Math.max(barHeight, 2)}" rx="8" fill="${fill}" opacity="${point.count > 0 ? 0.88 : 0.28}"></rect>`;
+          return `
+            <g class="distribution-group" tabindex="0" data-range="${rangeLabel}" data-count="${studentLabel}">
+              <rect class="distribution-bar" x="${barX}" y="${barY}" width="${Math.max(binWidth - 14, 14)}" height="${Math.max(barHeight, 2)}" rx="8" fill="${fill}" opacity="${point.count > 0 ? 0.88 : 0.28}"></rect>
+              <rect x="${barX - 4}" y="${top}" width="${Math.max(binWidth - 6, 22)}" height="${bottom - top}" fill="transparent"></rect>
+            </g>
+          `;
         }).join("")}
         ${densityPoints.length > 1 ? `<path class="distribution-path" d="${densityPath}" fill="none" stroke="#facc15" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>` : ""}
         <line x1="${scoreToCurveX(statistics.mean, visibleMin, visibleMax, left, right)}" y1="${top}" x2="${scoreToCurveX(statistics.mean, visibleMin, visibleMax, left, right)}" y2="${bottom}" stroke="#16a34a" stroke-width="3" stroke-dasharray="7 7"></line>
@@ -3609,9 +3676,38 @@
         <text x="${Math.min(scoreToCurveX(statistics.mean, visibleMin, visibleMax, left, right) + 7, right - 50)}" y="34" font-size="12" font-weight="800" fill="#16a34a">mean</text>
         <text x="${Math.min(scoreToCurveX(statistics.median, visibleMin, visibleMax, left, right) + 7, right - 58)}" y="52" font-size="12" font-weight="800" fill="#b61f26">median</text>
         ${visiblePoints.map(function (point) {
-          return `<circle cx="${point.x}" cy="${point.y}" r="4" fill="#fef3c7"></circle>`;
+          const rangeLabel = formatNumber(point.start) + " to " + formatNumber(point.end);
+          const studentLabel = point.count === 1 ? "1 student" : point.count + " students";
+
+          return `
+            <g class="distribution-group" tabindex="0" data-range="${rangeLabel}" data-count="${studentLabel}">
+              <circle class="distribution-dot" cx="${point.x}" cy="${point.y}" r="5" fill="#fef3c7"></circle>
+            </g>
+          `;
         }).join("")}
       `;
+      distributionDetail.style.display = "none";
+      distributionDetail.innerHTML = "";
+    }
+
+    function showDistributionDetail(event) {
+      const group = event.target.closest(".distribution-group");
+
+      if (!group) {
+        return;
+      }
+
+      distributionDetail.style.display = "block";
+      distributionDetail.innerHTML = `Score range <strong>${group.dataset.range}</strong> <span>${group.dataset.count}</span>`;
+    }
+
+    function hideDistributionDetail(event) {
+      if (event.relatedTarget && distributionCurve.contains(event.relatedTarget)) {
+        return;
+      }
+
+      distributionDetail.style.display = "none";
+      distributionDetail.innerHTML = "";
     }
 
     function buildSmoothPath(points) {
@@ -3964,7 +4060,7 @@
         return;
       }
 
-      const pdfText = createPdfDocument(getReportLines(latestStatistics));
+      const pdfText = createPdfDocument(latestStatistics);
       const blob = new Blob([pdfText], {
         type: "application/pdf"
       });
@@ -3978,72 +4074,216 @@
       URL.revokeObjectURL(link.href);
     }
 
-    function getReportLines(statistics) {
+    function createPdfDocument(statistics) {
       const warnings = buildWarnings(statistics);
       const advice = buildAdvice(statistics);
-      const generatedAt = new Date().toLocaleString();
-
-      return [
-        { text: "Student Score Analyzer Report", size: 20, gap: 18 },
-        { text: "Generated: " + generatedAt, size: 10, gap: 20 },
-        { text: "Summary", size: 14, gap: 14 },
-        { text: "Students: " + statistics.count + " | Scale: 0-" + formatNumber(statistics.maxScore || getSelectedMaxScore() || 100) + " | Passing line: " + formatNumber(statistics.passingScore || (statistics.maxScore || 100) * 0.6), size: 11, gap: 10 },
-        { text: "Mean: " + formatNumber(statistics.mean) + " | Median: " + formatNumber(statistics.median) + " | Standard deviation: " + formatNumber(statistics.standardDeviation), size: 11, gap: 10 },
-        { text: "Highest: " + formatNumber(statistics.max) + " | Lowest: " + formatNumber(statistics.min) + " | Range: " + formatNumber(statistics.range), size: 11, gap: 10 },
-        { text: "Q1: " + formatNumber(statistics.q1) + " | Q3: " + formatNumber(statistics.q3) + " | IQR: " + formatNumber(statistics.iqr), size: 11, gap: 10 },
-        { text: "Passing: " + statistics.passingCount + " | Failing: " + statistics.failingCount, size: 11, gap: 20 },
-        { text: "Warnings", size: 14, gap: 14 }
-      ].concat(warnings.map(function (warning) {
-        return {
-          text: warning.label + " " + warning.message,
-          size: 11,
-          gap: 10
-        };
-      })).concat([
-        { text: "AI Recommendations", size: 14, gap: 14 }
-      ]).concat(advice.map(function (item) {
-        return {
-          text: item.title + ": " + item.message,
-          size: 11,
-          gap: 10
-        };
-      })).concat([
-        { text: "Sorted Scores", size: 14, gap: 14 },
-        { text: statistics.sortedScores.join(", "), size: 11, gap: 10 }
-      ]);
-    }
-
-    function createPdfDocument(reportLines) {
       const pageWidth = 612;
       const pageHeight = 792;
-      const margin = 54;
-      const lineHeight = 16;
+      const margin = 44;
       const pages = [];
-      let currentPage = [];
+      let content = [];
       let y = pageHeight - margin;
+      const maxScore = statistics.maxScore || getSelectedMaxScore() || 100;
 
-      reportLines.forEach(function (line) {
-        const wrappedLines = wrapReportLine(line.text, line.size >= 14 ? 62 : 82);
+      function push(command) {
+        content.push(command);
+      }
 
-        wrappedLines.forEach(function (textLine, index) {
-          if (y < margin) {
-            pages.push(currentPage);
-            currentPage = [];
-            y = pageHeight - margin;
-          }
+      function finishPage() {
+        pages.push(content.join("\n"));
+        content = [];
+        y = pageHeight - margin;
+      }
 
-          currentPage.push({
-            text: textLine,
-            size: line.size,
-            x: margin,
-            y: y
-          });
-          y -= index === wrappedLines.length - 1 ? line.gap : lineHeight;
+      function ensureSpace(height) {
+        if (y - height < margin) {
+          finishPage();
+        }
+      }
+
+      function setFill(hex) {
+        push(hexToPdfRgb(hex) + " rg");
+      }
+
+      function setStroke(hex) {
+        push(hexToPdfRgb(hex) + " RG");
+      }
+
+      function drawText(text, x, textY, size, font, color) {
+        setFill(color || "#111827");
+        push("BT /" + (font || "F1") + " " + size + " Tf " + x + " " + textY + " Td (" + escapePdfText(text) + ") Tj ET");
+      }
+
+      function drawWrappedText(text, x, size, font, color, maxChars, afterGap) {
+        const lines = wrapReportLine(text, maxChars || 88);
+
+        lines.forEach(function (line) {
+          ensureSpace(size + 12);
+          drawText(line, x, y, size, font || "F1", color || "#111827");
+          y -= Math.max(size + 7, 16);
         });
-      });
 
-      if (currentPage.length > 0) {
-        pages.push(currentPage);
+        y -= afterGap || 8;
+      }
+
+      function drawSectionTitle(title) {
+        ensureSpace(34);
+        drawText(title, margin, y, 15, "F2", "#111827");
+        y -= 18;
+        setStroke("#E5E7EB");
+        push(margin + " " + y + " m " + (pageWidth - margin) + " " + y + " l S");
+        y -= 18;
+      }
+
+      function drawCard(x, cardY, width, height, title, value, accent) {
+        setFill("#F8FAFC");
+        push(x + " " + cardY + " " + width + " " + height + " re f");
+        setStroke("#D0D5DD");
+        push(x + " " + cardY + " " + width + " " + height + " re S");
+        setFill(accent || "#F0BE22");
+        push(x + " " + cardY + " 5 " + height + " re f");
+        drawText(title, x + 14, cardY + height - 19, 8, "F1", "#667085");
+        drawText(value, x + 14, cardY + 17, 15, "F2", "#111827");
+      }
+
+      function drawSummaryCards() {
+        ensureSpace(130);
+        const width = 120;
+        const height = 52;
+        const gap = 10;
+        const firstY = y - height;
+
+        [
+          ["Students", String(statistics.count), "#2563EB"],
+          ["Average", formatNumber(statistics.mean), "#16A34A"],
+          ["Median", formatNumber(statistics.median), "#111827"],
+          ["Std Dev", formatNumber(statistics.standardDeviation), "#7C3AED"]
+        ].forEach(function (card, index) {
+          drawCard(margin + index * (width + gap), firstY, width, height, card[0], card[1], card[2]);
+        });
+
+        y = firstY - 16;
+        const secondY = y - height;
+
+        [
+          ["Highest", formatNumber(statistics.max), "#2563EB"],
+          ["Lowest", formatNumber(statistics.min), "#B61F26"],
+          ["Passing", String(statistics.passingCount), "#16A34A"],
+          ["Failing", String(statistics.failingCount), "#B61F26"]
+        ].forEach(function (card, index) {
+          drawCard(margin + index * (width + gap), secondY, width, height, card[0], card[1], card[2]);
+        });
+
+        y = secondY - 24;
+      }
+
+      function drawStatsChart() {
+        ensureSpace(230);
+        drawSectionTitle("Statistics Chart");
+
+        const chartX = margin;
+        const chartY = y - 168;
+        const chartWidth = pageWidth - margin * 2;
+        const chartHeight = 150;
+        const values = [
+          ["Lowest", statistics.min, "#B61F26"],
+          ["Q1", statistics.q1, "#D7A514"],
+          ["Median", statistics.median, "#111827"],
+          ["Q3", statistics.q3, "#D7A514"],
+          ["Highest", statistics.max, "#2563EB"],
+          ["Average", statistics.mean, "#16A34A"],
+          ["Std Dev", statistics.standardDeviation, "#7C3AED"]
+        ];
+
+        setFill("#F8FAFC");
+        push(chartX + " " + chartY + " " + chartWidth + " " + chartHeight + " re f");
+        setStroke("#CBD5E1");
+        push(chartX + " " + chartY + " " + chartWidth + " " + chartHeight + " re S");
+        push((chartX + 34) + " " + (chartY + 30) + " m " + (chartX + chartWidth - 18) + " " + (chartY + 30) + " l S");
+        push((chartX + 34) + " " + (chartY + 30) + " m " + (chartX + 34) + " " + (chartY + chartHeight - 18) + " l S");
+
+        const barAreaHeight = chartHeight - 58;
+        const barWidth = 34;
+        const step = (chartWidth - 76) / values.length;
+
+        values.forEach(function (item, index) {
+          const barHeight = Math.max(3, (item[1] / maxScore) * barAreaHeight);
+          const x = chartX + 52 + index * step;
+          const barY = chartY + 30;
+
+          setFill(item[2]);
+          push(x + " " + barY + " " + barWidth + " " + barHeight + " re f");
+          drawText(formatNumber(item[1]), x - 2, barY + barHeight + 8, 8, "F2", "#111827");
+          drawText(item[0], x - 5, chartY + 12, 7, "F1", "#475467");
+        });
+
+        y = chartY - 24;
+      }
+
+      function drawDistributionHistogram() {
+        ensureSpace(220);
+        drawSectionTitle("Score Distribution");
+
+        const chartX = margin;
+        const chartY = y - 150;
+        const chartWidth = pageWidth - margin * 2;
+        const chartHeight = 132;
+        const bucketCount = 8;
+        const buckets = new Array(bucketCount).fill(0);
+
+        statistics.sortedScores.forEach(function (score) {
+          const index = Math.min(bucketCount - 1, Math.max(0, Math.floor((score / maxScore) * bucketCount)));
+          buckets[index] += 1;
+        });
+
+        const maxBucket = Math.max.apply(null, buckets.concat([1]));
+        const barWidth = (chartWidth - 58) / bucketCount - 8;
+
+        setFill("#F8FAFC");
+        push(chartX + " " + chartY + " " + chartWidth + " " + chartHeight + " re f");
+        setStroke("#CBD5E1");
+        push(chartX + " " + chartY + " " + chartWidth + " " + chartHeight + " re S");
+        push((chartX + 32) + " " + (chartY + 24) + " m " + (chartX + chartWidth - 18) + " " + (chartY + 24) + " l S");
+        push((chartX + 32) + " " + (chartY + 24) + " m " + (chartX + 32) + " " + (chartY + chartHeight - 16) + " l S");
+
+        buckets.forEach(function (count, index) {
+          const x = chartX + 42 + index * (barWidth + 8);
+          const barHeight = Math.max(3, (count / maxBucket) * (chartHeight - 54));
+          const yBase = chartY + 24;
+          const start = (index / bucketCount) * maxScore;
+          const end = ((index + 1) / bucketCount) * maxScore;
+
+          setFill(count > 0 ? "#60A5FA" : "#CBD5E1");
+          push(x + " " + yBase + " " + barWidth + " " + barHeight + " re f");
+          drawText(String(count), x + 3, yBase + barHeight + 8, 8, "F2", "#111827");
+          drawText(formatNumber(start) + "-" + formatNumber(end), x - 4, chartY + 9, 6, "F1", "#475467");
+        });
+
+        y = chartY - 24;
+      }
+
+      drawText("Student Score Analyzer Report", margin, y, 24, "F2", "#111827");
+      y -= 22;
+      drawText("Generated: " + new Date().toISOString().slice(0, 19).replace("T", " "), margin, y, 10, "F1", "#667085");
+      y -= 26;
+      drawWrappedText("Scale: 0-" + formatNumber(maxScore) + " | Passing line: " + formatNumber(statistics.passingScore || maxScore * 0.6) + " | " + describeStandardDeviation(statistics), margin, 10, "F1", "#475467", 92, 10);
+      drawSectionTitle("Summary");
+      drawSummaryCards();
+      drawStatsChart();
+      drawDistributionHistogram();
+      drawSectionTitle("Warnings");
+      warnings.forEach(function (warning) {
+        drawWrappedText(warning.label + " " + warning.message, margin, 10, "F1", "#111827", 92, 6);
+      });
+      drawSectionTitle("AI Recommendations");
+      advice.forEach(function (item) {
+        drawWrappedText(item.title + ": " + item.message, margin, 10, "F1", "#111827", 92, 7);
+      });
+      drawSectionTitle("Sorted Scores");
+      drawWrappedText(statistics.sortedScores.join(", "), margin, 10, "F1", "#111827", 96, 8);
+
+      if (content.length > 0) {
+        finishPage();
       }
 
       const objects = [];
@@ -4051,16 +4291,13 @@
 
       objects[1] = "<< /Type /Catalog /Pages 2 0 R >>";
 
-      pages.forEach(function (pageLines, index) {
+      pages.forEach(function (pageContent, index) {
         const pageObjectNumber = 3 + index * 2;
         const contentObjectNumber = pageObjectNumber + 1;
-        const content = pageLines.map(function (line) {
-          return "BT /F1 " + line.size + " Tf " + line.x + " " + line.y + " Td (" + escapePdfText(line.text) + ") Tj ET";
-        }).join("\n");
 
         pageRefs.push(pageObjectNumber + " 0 R");
-        objects[pageObjectNumber] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + pageWidth + " " + pageHeight + "] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents " + contentObjectNumber + " 0 R >>";
-        objects[contentObjectNumber] = "<< /Length " + content.length + " >>\nstream\n" + content + "\nendstream";
+        objects[pageObjectNumber] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + pageWidth + " " + pageHeight + "] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> >> >> /Contents " + contentObjectNumber + " 0 R >>";
+        objects[contentObjectNumber] = "<< /Length " + pageContent.length + " >>\nstream\n" + pageContent + "\nendstream";
       });
 
       objects[2] = "<< /Type /Pages /Kids [" + pageRefs.join(" ") + "] /Count " + pages.length + " >>";
@@ -4083,6 +4320,17 @@
 
       pdf += "trailer\n<< /Size " + objects.length + " /Root 1 0 R >>\nstartxref\n" + xrefStart + "\n%%EOF";
       return pdf;
+    }
+
+    function hexToPdfRgb(hex) {
+      const normalized = hex.replace("#", "");
+      const r = parseInt(normalized.slice(0, 2), 16) / 255;
+      const g = parseInt(normalized.slice(2, 4), 16) / 255;
+      const b = parseInt(normalized.slice(4, 6), 16) / 255;
+
+      return [r, g, b].map(function (value) {
+        return value.toFixed(3);
+      }).join(" ");
     }
 
     function wrapReportLine(text, maxLength) {
