@@ -3013,12 +3013,12 @@
         </a>
       </p>
     </div>
-    <p id="maxScorePrompt" class="step-prompt">Enter a maximum score to unlock score input.</p>
+    <p id="maxScorePrompt" class="step-prompt">Enter the score settings first. Then the next step will unlock.</p>
 
     <div id="examMetaStep" class="exam-meta flow-step is-locked">
       <label for="examNameInput">Class / exam name</label>
       <input id="examNameInput" type="text" placeholder="Example: AP Statistics Unit 4 practice" />
-      <p class="setting-copy">Optional, but helpful when you reopen saved records later.</p>
+      <p class="setting-copy">Name this analysis to unlock score input and make saved records easier to reopen later.</p>
     </div>
 
     <div id="scoreEntryStep" class="flow-step is-locked">
@@ -3387,6 +3387,7 @@
     apFiveCutoffInput.addEventListener("input", updateInputFlow);
     apFourCutoffInput.addEventListener("input", updateInputFlow);
     apThreeCutoffInput.addEventListener("input", updateInputFlow);
+    examNameInput.addEventListener("input", updateInputFlow);
     scoreInput.addEventListener("input", updateInputFlow);
     sampleDataBtn.addEventListener("click", useSampleData);
     uploadCsvBtn.addEventListener("click", function () {
@@ -4336,15 +4337,19 @@
       const hasValidMaxScore = getSelectedMaxScore() > 0;
       const hasValidPassingScore = getSelectedPassingScore() !== null;
       const isConfigured = hasValidMaxScore && hasValidPassingScore;
+      const hasExamName = examNameInput.value.trim().length > 0;
       const hasScores = scoreInput.value.trim().length > 0;
 
       updateScaleText();
       examMetaStep.classList.toggle("is-locked", !isConfigured);
-      scoreEntryStep.classList.toggle("is-locked", !isConfigured);
-      actionStep.classList.toggle("is-locked", !isConfigured || !hasScores);
+      scoreEntryStep.classList.toggle("is-locked", !isConfigured || !hasExamName);
+      actionStep.classList.toggle("is-locked", !isConfigured || !hasExamName || !hasScores);
       maxScorePrompt.style.display = isConfigured ? "none" : "block";
 
       if (!isConfigured) {
+        examNameInput.value = "";
+        scoreInput.value = "";
+      } else if (!hasExamName) {
         scoreInput.value = "";
       }
     }
