@@ -771,6 +771,20 @@
       font-size: 14px;
     }
 
+    .ap-resource-link {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 8px;
+      color: #fef3c7;
+      font-weight: 900;
+      text-decoration: none;
+    }
+
+    .ap-resource-link:hover {
+      color: var(--gold);
+      text-decoration: underline;
+    }
+
     .ap-field {
       display: none;
     }
@@ -2887,6 +2901,12 @@
       </div>
       <p id="maxScoreHelp" class="setting-copy">
         The analyzer validates scores against this scale and uses 60% of it as the passing line.
+      </p>
+      <p id="apCollegeBoardHelp" class="setting-copy ap-field">
+        Cutoffs vary by exam and practice paper.
+        <a class="ap-resource-link" href="https://apstudents.collegeboard.org/" target="_blank" rel="noopener noreferrer">
+          College Board AP Students →
+        </a>
       </p>
     </div>
     <p id="maxScorePrompt" class="step-prompt">Enter a maximum score to unlock score input.</p>
