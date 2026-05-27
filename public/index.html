@@ -314,6 +314,11 @@
       color: white;
     }
 
+    .hero-visual {
+      display: grid;
+      gap: 20px;
+    }
+
     .eyebrow {
       display: inline-flex;
       align-items: center;
@@ -468,22 +473,28 @@
       line-height: 1.5;
     }
 
-    .hero-mission-cta {
+    .poster-mission-cta {
       display: inline-flex;
       align-items: center;
+      justify-content: space-between;
       gap: 10px;
-      margin: 4px 0 20px;
-      padding: 11px 14px;
+      width: 100%;
+      margin: 28px 0 0;
+      padding: 14px 16px;
       border: 1px solid rgba(240, 190, 34, 0.32);
-      border-radius: 999px;
-      background: rgba(240, 190, 34, 0.1);
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(240, 190, 34, 0.18), rgba(220, 38, 38, 0.1)),
+        rgba(15, 18, 27, 0.72);
       color: #fef3c7;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 900;
-      box-shadow: none;
+      text-align: left;
+      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.24);
+      backdrop-filter: blur(14px);
     }
 
-    .hero-mission-cta::after {
+    .poster-mission-cta::after {
       content: "Read the mission";
       padding: 6px 9px;
       border-radius: 999px;
@@ -492,9 +503,11 @@
       font-size: 12px;
     }
 
-    .hero-mission-cta:hover {
+    .poster-mission-cta:hover {
       border-color: rgba(240, 190, 34, 0.64);
-      background: rgba(240, 190, 34, 0.18);
+      background:
+        linear-gradient(135deg, rgba(240, 190, 34, 0.28), rgba(220, 38, 38, 0.16)),
+        rgba(15, 18, 27, 0.82);
       transform: translateY(-1px);
     }
 
@@ -867,6 +880,82 @@
       margin-bottom: 6px;
       color: #fef3c7;
       font-size: 15px;
+    }
+
+    .mission-back {
+      position: relative;
+      z-index: 1;
+      margin-top: 28px;
+      padding: 12px 16px;
+      border: 1px solid rgba(240, 190, 34, 0.34);
+      border-radius: 999px;
+      background: var(--gold);
+      color: #111827;
+      font-weight: 900;
+      box-shadow: 0 16px 34px rgba(240, 190, 34, 0.18);
+    }
+
+    .auth-prompt {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: none;
+      place-items: center;
+      padding: 22px;
+      background: rgba(3, 7, 18, 0.72);
+      backdrop-filter: blur(16px);
+    }
+
+    .auth-prompt.is-visible {
+      display: grid;
+    }
+
+    .auth-prompt-card {
+      width: min(100%, 480px);
+      padding: 26px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(240, 190, 34, 0.18), transparent 36%),
+        linear-gradient(145deg, rgba(15, 18, 27, 0.96), rgba(31, 41, 55, 0.94));
+      color: white;
+      box-shadow: 0 34px 100px rgba(0, 0, 0, 0.42);
+    }
+
+    .auth-prompt-card h2 {
+      margin: 0 0 10px;
+      color: white;
+      font-size: 30px;
+      line-height: 1.05;
+    }
+
+    .auth-prompt-card p {
+      margin: 0 0 20px;
+      color: rgba(255, 255, 255, 0.68);
+      line-height: 1.6;
+    }
+
+    .auth-prompt-actions {
+      display: grid;
+      gap: 10px;
+    }
+
+    .auth-prompt-google {
+      min-height: 50px;
+      border-radius: 999px;
+      background: var(--gold);
+      color: #111827;
+      font-weight: 900;
+    }
+
+    .auth-prompt-skip {
+      min-height: 46px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.84);
+      font-weight: 900;
+      box-shadow: none;
     }
 
     .mission-page .hero,
@@ -2619,10 +2708,6 @@
             warnings, animated charts, and deploy-ready full-stack architecture.
           </p>
 
-          <button id="missionBtn" class="hero-mission-cta" type="button">
-            Built for the humans behind the numbers
-          </button>
-
           <div class="mode-grid" aria-label="Choose score analyzer mode">
             <button class="mode-card" type="button" data-mode="standard">
               <span>Classic classroom</span>
@@ -2642,6 +2727,7 @@
           </div>
         </div>
 
+        <div class="hero-visual">
         <div class="score-poster" aria-label="Dark comic and number seven football inspired score analysis illustration">
           <svg viewBox="0 0 900 260" role="img" xmlns="http://www.w3.org/2000/svg">
         <rect width="900" height="260" fill="#181716" />
@@ -2722,6 +2808,10 @@
         </g>
           </svg>
         </div>
+        <button id="missionBtn" class="poster-mission-cta" type="button">
+          Built for the humans behind the numbers
+        </button>
+        </div>
       </section>
 
       <section id="missionSection" class="mission-section reveal">
@@ -2753,6 +2843,7 @@
             </article>
           </div>
         </div>
+        <button id="missionBackBtn" class="mission-back" type="button">Back to homepage</button>
       </section>
 
       <section class="analyzer-panel">
@@ -3017,6 +3108,19 @@
     </div>
   </section>
 
+  <section id="authPrompt" class="auth-prompt" aria-hidden="true">
+    <div class="auth-prompt-card" role="dialog" aria-modal="true" aria-labelledby="authPromptTitle">
+      <h2 id="authPromptTitle">Sign in to keep your analysis personal.</h2>
+      <p id="authPromptText">
+        Use Google sign-in to save records, reopen previous reports, and keep each analysis connected to a real account.
+      </p>
+      <div class="auth-prompt-actions">
+        <button id="authPromptGoogleBtn" class="auth-prompt-google" type="button">Continue with Google</button>
+        <button id="authPromptSkipBtn" class="auth-prompt-skip" type="button">Explore first</button>
+      </div>
+    </div>
+  </section>
+
   <section id="recordsDrawer" class="records-drawer" aria-hidden="true">
     <div class="records-drawer-panel">
       <div class="records-drawer-header">
@@ -3083,9 +3187,14 @@
     const recordsDrawer = document.getElementById("recordsDrawer");
     const modeGrid = document.querySelector(".mode-grid");
     const missionBtn = document.getElementById("missionBtn");
+    const missionBackBtn = document.getElementById("missionBackBtn");
     const missionSection = document.getElementById("missionSection");
     const closeRecordsBtn = document.getElementById("closeRecordsBtn");
     const cookieBanner = document.getElementById("cookieBanner");
+    const authPrompt = document.getElementById("authPrompt");
+    const authPromptText = document.getElementById("authPromptText");
+    const authPromptGoogleBtn = document.getElementById("authPromptGoogleBtn");
+    const authPromptSkipBtn = document.getElementById("authPromptSkipBtn");
     const cookieTitle = document.getElementById("cookieTitle");
     const cookieText = document.getElementById("cookieText");
     const acceptCookiesBtn = document.getElementById("acceptCookiesBtn");
@@ -3113,6 +3222,7 @@
     apThreeCutoffInput.addEventListener("input", updateInputFlow);
     scoreInput.addEventListener("input", updateInputFlow);
     missionBtn.addEventListener("click", openMissionPage);
+    missionBackBtn.addEventListener("click", returnToHomePage);
     countryPicker.addEventListener("click", handleCountryChoice);
     countryPicker.addEventListener("input", handleCountrySearch);
     document.addEventListener("click", closeCountryPanelOnOutsideClick);
@@ -3128,6 +3238,8 @@
     signOutBtn.addEventListener("click", signOut);
     googleSignInBtn.addEventListener("click", startGoogleSignIn);
     topGoogleSignInBtn.addEventListener("click", startGoogleSignIn);
+    authPromptGoogleBtn.addEventListener("click", startGoogleSignIn);
+    authPromptSkipBtn.addEventListener("click", dismissAuthPrompt);
     acceptCookiesBtn.addEventListener("click", acceptCookies);
     rejectCookiesBtn.addEventListener("click", rejectCookies);
     downloadReportBtn.addEventListener("click", downloadReport);
@@ -3242,6 +3354,7 @@
       showCookieBannerIfNeeded();
       await loadAuthSession();
       updateAuthUI();
+      showInitialAuthPrompt();
       loadSavedRecords();
       scoreInput.value = "";
       updateInputFlow();
@@ -3346,6 +3459,19 @@
         missionSection.scrollIntoView({
           behavior: "smooth",
           block: "start"
+        });
+      });
+    }
+
+    function returnToHomePage() {
+      analyzerMode = "home";
+      window.history.pushState({}, "", "/");
+      setupAnalyzerMode();
+
+      requestAnimationFrame(function () {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
         });
       });
     }
@@ -3791,6 +3917,23 @@
       localStorage.setItem(cookieChoiceKey, "rejected");
       deleteCookie("scoreAnalyzerCookieChoice");
       cookieBanner.classList.remove("is-visible");
+    }
+
+    function showInitialAuthPrompt() {
+      if (currentUser || sessionStorage.getItem("scoreAnalyzerAuthPromptDismissed") === "true") {
+        return;
+      }
+
+      authPromptGoogleBtn.disabled = !googleConfigured;
+      authPromptGoogleBtn.textContent = googleConfigured ? "Continue with Google" : "Google sign-in needs setup";
+      authPrompt.classList.add("is-visible");
+      authPrompt.setAttribute("aria-hidden", "false");
+    }
+
+    function dismissAuthPrompt() {
+      sessionStorage.setItem("scoreAnalyzerAuthPromptDismissed", "true");
+      authPrompt.classList.remove("is-visible");
+      authPrompt.setAttribute("aria-hidden", "true");
     }
 
     function updatePointerGlow(event) {
@@ -4565,6 +4708,10 @@
 
     function startGoogleSignIn() {
       if (!googleConfigured) {
+        if (authPrompt.classList.contains("is-visible")) {
+          authPromptText.textContent = "Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Render first.";
+        }
+
         showError("Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Render.");
         return;
       }
