@@ -495,7 +495,7 @@
     }
 
     .poster-mission-cta::after {
-      content: "Read the mission";
+      content: "→";
       padding: 6px 9px;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.12);
@@ -2817,29 +2817,29 @@
       <section id="missionSection" class="mission-section reveal">
         <div class="mission-content">
           <div class="mission-lede">
-            <span class="mission-kicker">Our mission</span>
-            <h2>Data should widen care, not narrow it.</h2>
-            <p>
+            <span id="missionKicker" class="mission-kicker">Our mission</span>
+            <h2 id="missionTitle">Data should widen care, not narrow it.</h2>
+            <p id="missionBodyOne">
               Every score belongs to a person: someone with a story, pressure, confidence, fatigue, momentum, and a future that cannot be reduced to a number.
               Score Analyzer exists to make performance data more humane, so classrooms can notice patterns without losing sight of people.
             </p>
-            <p>
+            <p id="missionBodyTwo">
               We believe analysis should help communities respond with fairness: more support where students are unseen, more challenge where students are ready,
               and more context when a single cutoff fails to describe real learning.
             </p>
           </div>
           <div class="mission-points">
             <article class="mission-point">
-              <strong>See the whole room</strong>
-              <p>Statistics should reveal who is thriving, who is drifting, and where the group needs care before small gaps become social gaps.</p>
+              <strong id="missionPointOneTitle">See the whole room</strong>
+              <p id="missionPointOneText">Statistics should reveal who is thriving, who is drifting, and where the group needs care before small gaps become social gaps.</p>
             </article>
             <article class="mission-point">
-              <strong>Respect different systems</strong>
-              <p>Standard scores, curves, and AP bands carry different meanings. A humane tool should adapt instead of forcing one definition of success.</p>
+              <strong id="missionPointTwoTitle">Respect different systems</strong>
+              <p id="missionPointTwoText">Standard scores, curves, and AP bands carry different meanings. A humane tool should adapt instead of forcing one definition of success.</p>
             </article>
             <article class="mission-point">
-              <strong>Turn insight into responsibility</strong>
-              <p>The point is not to rank students faster. The point is to help teachers, tutors, and learners decide what support should happen next.</p>
+              <strong id="missionPointThreeTitle">Turn insight into responsibility</strong>
+              <p id="missionPointThreeText">The point is not to rank students faster. The point is to help teachers, tutors, and learners decide what support should happen next.</p>
             </article>
           </div>
         </div>
@@ -3551,6 +3551,18 @@
       document.getElementById("heroEyebrow").textContent = text.heroEyebrow;
       document.getElementById("heroTitle").textContent = text.heroTitle;
       document.getElementById("heroSubtitle").textContent = text.heroSubtitle;
+      missionBtn.textContent = text.missionCta;
+      document.getElementById("missionKicker").textContent = text.missionKicker;
+      document.getElementById("missionTitle").textContent = text.missionTitle;
+      document.getElementById("missionBodyOne").textContent = text.missionBodyOne;
+      document.getElementById("missionBodyTwo").textContent = text.missionBodyTwo;
+      document.getElementById("missionPointOneTitle").textContent = text.missionPointOneTitle;
+      document.getElementById("missionPointOneText").textContent = text.missionPointOneText;
+      document.getElementById("missionPointTwoTitle").textContent = text.missionPointTwoTitle;
+      document.getElementById("missionPointTwoText").textContent = text.missionPointTwoText;
+      document.getElementById("missionPointThreeTitle").textContent = text.missionPointThreeTitle;
+      document.getElementById("missionPointThreeText").textContent = text.missionPointThreeText;
+      missionBackBtn.textContent = text.missionBack;
       document.getElementById("maxScoreLabel").textContent = text.maxScoreLabel;
       document.getElementById("maxScoreHelp").textContent = text.maxScoreHelp;
       document.getElementById("scoreInputLabel").textContent = text.scoreInputLabel;
@@ -3619,7 +3631,19 @@
           authText: "使用已验证的 Google 账号，让保存的分析记录真正绑定到用户。",
           welcomePrefix: "欢迎回来，",
           savedText: "你的分析会自动保存到这个浏览器中的个人记录。",
-          signOut: "退出登录"
+          signOut: "退出登录",
+          missionCta: "为数字背后的人而建",
+          missionKicker: "我们的使命",
+          missionTitle: "数据应该扩大关怀，而不是缩小人。",
+          missionBodyOne: "每一个分数都属于一个真实的人：他们有故事、压力、信心、疲惫、节奏，也有不能被数字简化的未来。Score Analyzer 希望让成绩数据更有人味，让课堂看见规律，也不丢掉人。",
+          missionBodyTwo: "我们相信分析应该帮助群体更公平地回应：给被忽视的学生更多支持，给准备好的学生更多挑战，也在单一分数线无法说明学习时提供更多语境。",
+          missionPointOneTitle: "看见整个课堂",
+          missionPointOneText: "统计不只是显示谁高谁低，而是帮助看见谁在成长、谁在掉队，以及哪里需要及时关怀。",
+          missionPointTwoTitle: "尊重不同评价体系",
+          missionPointTwoText: "普通分数、curve 和 AP 分档代表不同含义。有人性的工具应该适应体系，而不是强迫所有成功都用同一把尺衡量。",
+          missionPointThreeTitle: "把洞察变成责任",
+          missionPointThreeText: "重点不是更快给学生排名，而是帮助老师、导师和学习者决定下一步应该发生什么支持。",
+          missionBack: "回到主页"
         };
       }
 
@@ -3650,7 +3674,19 @@
           authText: "使用已驗證的 Google 帳號，讓儲存的分析紀錄真正綁定到使用者。",
           welcomePrefix: "歡迎回來，",
           savedText: "你的分析會自動儲存到這個瀏覽器中的個人紀錄。",
-          signOut: "登出"
+          signOut: "登出",
+          missionCta: "為數字背後的人而建",
+          missionKicker: "我們的使命",
+          missionTitle: "數據應該擴大關懷，而不是縮小人。",
+          missionBodyOne: "每一個分數都屬於一個真實的人：他們有故事、壓力、信心、疲憊、節奏，也有不能被數字簡化的未來。Score Analyzer 希望讓成績數據更有人味，讓課堂看見規律，也不丟掉人。",
+          missionBodyTwo: "我們相信分析應該幫助群體更公平地回應：給被忽視的學生更多支持，給準備好的學生更多挑戰，也在單一分數線無法說明學習時提供更多脈絡。",
+          missionPointOneTitle: "看見整個課堂",
+          missionPointOneText: "統計不只是顯示誰高誰低，而是幫助看見誰在成長、誰在掉隊，以及哪裡需要及時關懷。",
+          missionPointTwoTitle: "尊重不同評量體系",
+          missionPointTwoText: "普通分數、curve 和 AP 分級代表不同含義。有人性的工具應該適應體系，而不是強迫所有成功都用同一把尺衡量。",
+          missionPointThreeTitle: "把洞察變成責任",
+          missionPointThreeText: "重點不是更快給學生排名，而是幫助老師、導師和學習者決定下一步應該發生什麼支持。",
+          missionBack: "回到首頁"
         };
       }
 
@@ -3662,7 +3698,19 @@
           metricStats: "Estadisticas", metricScale: "Flexible", metricValidation: "Escala", metricWebApp: "App web",
           maxScoreLabel: "Puntaje maximo", maxScoreHelp: "El analizador valida con esta escala y usa el 60% como linea de aprobacion.", scoreInputLabel: "Entrada de calificaciones", analyze: "Analizar", clear: "Limpiar",
           scoreHint: "Separa calificaciones con comas, espacios o saltos de linea. Cada valor debe estar entre 0 y {max}.",
-          cookieTitle: "Tu experiencia, tu decision", cookieText: "Usamos cookies para iniciar sesion y guardar preferencias.", acceptCookies: "Aceptar cookies", rejectCookies: "Rechazar"
+          cookieTitle: "Tu experiencia, tu decision", cookieText: "Usamos cookies para iniciar sesion y guardar preferencias.", acceptCookies: "Aceptar cookies", rejectCookies: "Rechazar",
+          missionCta: "Creado para las personas detras de los numeros",
+          missionKicker: "Nuestra mision",
+          missionTitle: "Los datos deben ampliar el cuidado, no reducir a las personas.",
+          missionBodyOne: "Cada calificacion pertenece a una persona con historia, presion, confianza, cansancio, impulso y un futuro que no cabe en un numero.",
+          missionBodyTwo: "Creemos que el analisis debe ayudar a responder con justicia: mas apoyo donde alguien no es visto, mas desafio donde alguien esta listo y mas contexto cuando un corte unico no explica el aprendizaje.",
+          missionPointOneTitle: "Ver toda la clase",
+          missionPointOneText: "Las estadisticas deben mostrar quien avanza, quien se esta quedando atras y donde el grupo necesita cuidado antes de que pequenas brechas crezcan.",
+          missionPointTwoTitle: "Respetar sistemas distintos",
+          missionPointTwoText: "Notas estandar, curvas y bandas AP significan cosas distintas. Una herramienta humana debe adaptarse.",
+          missionPointThreeTitle: "Convertir insight en responsabilidad",
+          missionPointThreeText: "El objetivo no es clasificar estudiantes mas rapido, sino decidir que apoyo debe venir despues.",
+          missionBack: "Volver al inicio"
         },
         fr: {
           heroEyebrow: "Analyse de classe en direct",
@@ -3671,7 +3719,19 @@
           metricStats: "Stats", metricScale: "Flexible", metricValidation: "Bareme", metricWebApp: "App web",
           maxScoreLabel: "Note maximale", maxScoreHelp: "L'analyseur valide les notes avec ce bareme et utilise 60% comme seuil de reussite.", scoreInputLabel: "Saisie des notes", analyze: "Analyser", clear: "Effacer",
           scoreHint: "Separez les notes avec des virgules, espaces ou retours a la ligne. Chaque note doit etre entre 0 et {max}.",
-          cookieTitle: "Votre experience, votre choix", cookieText: "Nous utilisons des cookies pour la connexion et les preferences.", acceptCookies: "Tout accepter", rejectCookies: "Refuser"
+          cookieTitle: "Votre experience, votre choix", cookieText: "Nous utilisons des cookies pour la connexion et les preferences.", acceptCookies: "Tout accepter", rejectCookies: "Refuser",
+          missionCta: "Concu pour les humains derriere les chiffres",
+          missionKicker: "Notre mission",
+          missionTitle: "Les donnees doivent elargir l'attention, pas reduire les personnes.",
+          missionBodyOne: "Chaque note appartient a une personne avec une histoire, de la pression, de la confiance, de la fatigue, un elan et un avenir qui ne se reduit pas a un chiffre.",
+          missionBodyTwo: "Nous croyons que l'analyse doit aider les communautes a repondre avec justice: plus de soutien la ou les eleves sont invisibles, plus de defi la ou ils sont prets, et plus de contexte quand un seuil unique ne suffit pas.",
+          missionPointOneTitle: "Voir toute la classe",
+          missionPointOneText: "Les statistiques doivent montrer qui progresse, qui decroche et ou le groupe a besoin d'attention avant que les ecarts ne grandissent.",
+          missionPointTwoTitle: "Respecter les systemes differents",
+          missionPointTwoText: "Notes classiques, courbes et bandes AP portent des sens differents. Un outil humain doit s'adapter.",
+          missionPointThreeTitle: "Transformer l'insight en responsabilite",
+          missionPointThreeText: "Le but n'est pas de classer plus vite, mais d'aider a decider quel soutien doit suivre.",
+          missionBack: "Retour a l'accueil"
         },
         de: {
           heroEyebrow: "Live-Klassenanalyse",
@@ -3680,7 +3740,19 @@
           metricStats: "Statistiken", metricScale: "Flexibel", metricValidation: "Skala", metricWebApp: "Web-App",
           maxScoreLabel: "Maximalpunktzahl", maxScoreHelp: "Der Analyzer prueft diese Skala und nutzt 60% als Bestehensgrenze.", scoreInputLabel: "Punkte eingeben", analyze: "Analysieren", clear: "Leeren",
           scoreHint: "Trenne Punkte mit Kommas, Leerzeichen oder Zeilenumbruechen. Jeder Wert muss zwischen 0 und {max} liegen.",
-          cookieTitle: "Dein Erlebnis, deine Wahl", cookieText: "Wir nutzen Cookies fuer Anmeldung und gespeicherte Einstellungen.", acceptCookies: "Alle akzeptieren", rejectCookies: "Ablehnen"
+          cookieTitle: "Dein Erlebnis, deine Wahl", cookieText: "Wir nutzen Cookies fuer Anmeldung und gespeicherte Einstellungen.", acceptCookies: "Alle akzeptieren", rejectCookies: "Ablehnen",
+          missionCta: "Gebaut fuer die Menschen hinter den Zahlen",
+          missionKicker: "Unsere Mission",
+          missionTitle: "Daten sollen Fuersorge erweitern, nicht Menschen verkleinern.",
+          missionBodyOne: "Jede Punktzahl gehoert zu einem Menschen mit Geschichte, Druck, Vertrauen, Muedigkeit, Schwung und einer Zukunft, die nicht in eine Zahl passt.",
+          missionBodyTwo: "Analyse soll Gemeinschaften helfen, fair zu reagieren: mehr Unterstuetzung, wo Lernende uebersehen werden, mehr Herausforderung, wo sie bereit sind, und mehr Kontext, wenn ein einzelner Grenzwert Lernen nicht erklaert.",
+          missionPointOneTitle: "Den ganzen Raum sehen",
+          missionPointOneText: "Statistiken sollen zeigen, wer aufblueht, wer abrutscht und wo die Gruppe Hilfe braucht, bevor kleine Luecken gross werden.",
+          missionPointTwoTitle: "Unterschiedliche Systeme respektieren",
+          missionPointTwoText: "Standardnoten, Kurven und AP-Baender bedeuten Unterschiedliches. Ein menschliches Tool muss sich anpassen.",
+          missionPointThreeTitle: "Einsicht in Verantwortung verwandeln",
+          missionPointThreeText: "Es geht nicht darum, schneller zu sortieren, sondern darum, die naechste Unterstuetzung zu erkennen.",
+          missionBack: "Zur Startseite"
         },
         pt: {
           heroEyebrow: "Inteligencia da sala em tempo real",
@@ -3689,7 +3761,19 @@
           metricStats: "Estatisticas", metricScale: "Flexivel", metricValidation: "Escala", metricWebApp: "App web",
           maxScoreLabel: "Nota maxima", maxScoreHelp: "O analisador valida por esta escala e usa 60% como linha de aprovacao.", scoreInputLabel: "Entrada de notas", analyze: "Analisar", clear: "Limpar",
           scoreHint: "Separe notas com virgulas, espacos ou quebras de linha. Cada nota deve estar entre 0 e {max}.",
-          cookieTitle: "Sua experiencia, sua escolha", cookieText: "Usamos cookies para login e preferencias salvas.", acceptCookies: "Aceitar tudo", rejectCookies: "Rejeitar"
+          cookieTitle: "Sua experiencia, sua escolha", cookieText: "Usamos cookies para login e preferencias salvas.", acceptCookies: "Aceitar tudo", rejectCookies: "Rejeitar",
+          missionCta: "Criado para as pessoas por tras dos numeros",
+          missionKicker: "Nossa missao",
+          missionTitle: "Dados devem ampliar o cuidado, nao reduzir pessoas.",
+          missionBodyOne: "Cada nota pertence a uma pessoa com historia, pressao, confianca, cansaco, ritmo e um futuro que nao cabe em um numero.",
+          missionBodyTwo: "Acreditamos que analise deve ajudar comunidades a responder com justica: mais apoio onde alunos nao sao vistos, mais desafio onde estao prontos e mais contexto quando um corte unico nao explica a aprendizagem.",
+          missionPointOneTitle: "Ver a sala inteira",
+          missionPointOneText: "Estatisticas devem revelar quem esta crescendo, quem esta ficando para tras e onde o grupo precisa de cuidado.",
+          missionPointTwoTitle: "Respeitar sistemas diferentes",
+          missionPointTwoText: "Notas padrao, curvas e faixas AP carregam significados diferentes. Uma ferramenta humana deve se adaptar.",
+          missionPointThreeTitle: "Transformar insight em responsabilidade",
+          missionPointThreeText: "O objetivo nao e ranquear mais rapido, mas decidir qual apoio deve vir depois.",
+          missionBack: "Voltar ao inicio"
         },
         ja: {
           heroEyebrow: "リアルタイム授業インテリジェンス",
@@ -3698,7 +3782,19 @@
           metricStats: "統計", metricScale: "柔軟", metricValidation: "スケール", metricWebApp: "Webアプリ",
           maxScoreLabel: "満点", maxScoreHelp: "この満点で点数を検証し、60%を合格ラインとして使います。", scoreInputLabel: "点数入力", analyze: "分析する", clear: "クリア",
           scoreHint: "点数はカンマ、空白、改行で区切れます。各点数は0から{max}の間で入力してください。",
-          cookieTitle: "体験はあなたが選べます", cookieText: "ログインと設定保存のためにCookieを使用します。", acceptCookies: "すべて許可", rejectCookies: "拒否"
+          cookieTitle: "体験はあなたが選べます", cookieText: "ログインと設定保存のためにCookieを使用します。", acceptCookies: "すべて許可", rejectCookies: "拒否",
+          missionCta: "数字の向こうにいる人のために",
+          missionKicker: "私たちの使命",
+          missionTitle: "データは人を小さくするのではなく、ケアを広げるべきです。",
+          missionBodyOne: "すべての点数の背後には、物語、プレッシャー、自信、疲れ、勢い、そして数字だけでは表せない未来を持つ人がいます。",
+          missionBodyTwo: "分析は、公平な対応を助けるためのものです。見落とされている学生には支援を、準備ができた学生には挑戦を、単一の基準では説明できない学びには文脈を与えます。",
+          missionPointOneTitle: "教室全体を見る",
+          missionPointOneText: "統計は、誰が伸びているか、誰が離れかけているか、どこに早めのケアが必要かを示すべきです。",
+          missionPointTwoTitle: "異なる評価制度を尊重する",
+          missionPointTwoText: "通常の点数、カーブ、APの区分はそれぞれ意味が違います。人間中心のツールはそれに適応します。",
+          missionPointThreeTitle: "洞察を責任へ変える",
+          missionPointThreeText: "目的はより速く順位をつけることではなく、次に必要な支援を決めることです。",
+          missionBack: "ホームに戻る"
         },
         ko: {
           heroEyebrow: "실시간 교실 인사이트",
@@ -3707,7 +3803,19 @@
           metricStats: "통계", metricScale: "유연함", metricValidation: "점수 기준", metricWebApp: "웹 앱",
           maxScoreLabel: "만점", maxScoreHelp: "이 만점 기준으로 점수를 확인하고 60%를 합격선으로 사용합니다.", scoreInputLabel: "점수 입력", analyze: "분석하기", clear: "지우기",
           scoreHint: "쉼표, 공백 또는 줄바꿈으로 점수를 구분하세요. 각 점수는 0에서 {max} 사이여야 합니다.",
-          cookieTitle: "경험은 사용자가 선택합니다", cookieText: "로그인과 설정 저장을 위해 쿠키를 사용합니다.", acceptCookies: "모두 허용", rejectCookies: "거부"
+          cookieTitle: "경험은 사용자가 선택합니다", cookieText: "로그인과 설정 저장을 위해 쿠키를 사용합니다.", acceptCookies: "모두 허용", rejectCookies: "거부",
+          missionCta: "숫자 뒤의 사람들을 위해",
+          missionKicker: "우리의 미션",
+          missionTitle: "데이터는 사람을 좁히는 것이 아니라 돌봄을 넓혀야 합니다.",
+          missionBodyOne: "모든 점수 뒤에는 이야기, 압박, 자신감, 피로, 흐름, 그리고 숫자로 줄일 수 없는 미래를 가진 사람이 있습니다.",
+          missionBodyTwo: "분석은 더 공정한 대응을 돕기 위한 것입니다. 보이지 않는 학생에게는 지원을, 준비된 학생에게는 도전을, 하나의 기준선으로 설명되지 않는 학습에는 맥락을 제공합니다.",
+          missionPointOneTitle: "교실 전체를 보기",
+          missionPointOneText: "통계는 누가 성장하는지, 누가 뒤처지는지, 어디에 빠른 돌봄이 필요한지 보여줘야 합니다.",
+          missionPointTwoTitle: "다른 평가 체계 존중",
+          missionPointTwoText: "일반 점수, 커브, AP 밴드는 서로 다른 의미를 가집니다. 인간적인 도구는 그 차이에 맞춰야 합니다.",
+          missionPointThreeTitle: "통찰을 책임으로",
+          missionPointThreeText: "목표는 학생을 더 빨리 순위 매기는 것이 아니라 다음 지원을 결정하는 것입니다.",
+          missionBack: "홈으로 돌아가기"
         },
         ar: {
           heroEyebrow: "تحليل الصف مباشرة",
@@ -3716,15 +3824,23 @@
           metricStats: "إحصاءات", metricScale: "مرن", metricValidation: "المقياس", metricWebApp: "تطبيق ويب",
           maxScoreLabel: "الدرجة النهائية", maxScoreHelp: "يتحقق المحلل من الدرجات وفق هذا المقياس ويستخدم 60% كحد للنجاح.", scoreInputLabel: "إدخال الدرجات", analyze: "تحليل", clear: "مسح",
           scoreHint: "افصل الدرجات بفواصل أو مسافات أو أسطر جديدة. يجب أن تكون كل درجة بين 0 و {max}.",
-          cookieTitle: "تجربتك، اختيارك", cookieText: "نستخدم ملفات تعريف الارتباط لتسجيل الدخول وحفظ التفضيلات.", acceptCookies: "قبول الكل", rejectCookies: "رفض"
+          cookieTitle: "تجربتك، اختيارك", cookieText: "نستخدم ملفات تعريف الارتباط لتسجيل الدخول وحفظ التفضيلات.", acceptCookies: "قبول الكل", rejectCookies: "رفض",
+          missionCta: "مصمم للبشر خلف الأرقام",
+          missionKicker: "مهمتنا",
+          missionTitle: "يجب أن توسع البيانات الرعاية، لا أن تختزل الإنسان.",
+          missionBodyOne: "كل درجة تنتمي إلى إنسان له قصة وضغط وثقة وتعب وزخم ومستقبل لا يمكن اختزاله في رقم.",
+          missionBodyTwo: "نؤمن أن التحليل يجب أن يساعد المجتمعات على الاستجابة بعدل: دعم أكثر لمن لا يُرى، وتحد أكبر لمن هو مستعد، وسياق أكثر عندما لا يشرح حد واحد التعلم الحقيقي.",
+          missionPointOneTitle: "رؤية الصف كله",
+          missionPointOneText: "يجب أن تكشف الإحصاءات من يتقدم، ومن يتراجع، وأين تحتاج المجموعة إلى رعاية قبل أن تكبر الفجوات.",
+          missionPointTwoTitle: "احترام أنظمة التقييم المختلفة",
+          missionPointTwoText: "الدرجات العادية والمنحنيات ومستويات AP تحمل معاني مختلفة. الأداة الإنسانية يجب أن تتكيف.",
+          missionPointThreeTitle: "تحويل الفهم إلى مسؤولية",
+          missionPointThreeText: "الهدف ليس ترتيب الطلاب أسرع، بل تحديد الدعم الذي يجب أن يأتي بعد ذلك.",
+          missionBack: "العودة إلى الصفحة الرئيسية"
         }
       };
 
-      if (localizedText[locale]) {
-        return localizedText[locale];
-      }
-
-      return {
+      const defaultText = {
         heroEyebrow: "Live classroom intelligence",
         heroTitle: "Student Score Analyzer",
         heroSubtitle: "Turn raw student scores into a focused performance dashboard with statistics, warnings, animated charts, and deploy-ready full-stack architecture.",
@@ -3750,8 +3866,22 @@
         authText: "Use a verified Google account so saved analyses stay connected to a real user.",
         welcomePrefix: "Welcome back, ",
         savedText: "Your analyses will be saved automatically to your personal records on this browser.",
-        signOut: "Sign out"
+        signOut: "Sign out",
+        missionCta: "Built for the humans behind the numbers",
+        missionKicker: "Our mission",
+        missionTitle: "Data should widen care, not narrow it.",
+        missionBodyOne: "Every score belongs to a person: someone with a story, pressure, confidence, fatigue, momentum, and a future that cannot be reduced to a number. Score Analyzer exists to make performance data more humane, so classrooms can notice patterns without losing sight of people.",
+        missionBodyTwo: "We believe analysis should help communities respond with fairness: more support where students are unseen, more challenge where students are ready, and more context when a single cutoff fails to describe real learning.",
+        missionPointOneTitle: "See the whole room",
+        missionPointOneText: "Statistics should reveal who is thriving, who is drifting, and where the group needs care before small gaps become social gaps.",
+        missionPointTwoTitle: "Respect different systems",
+        missionPointTwoText: "Standard scores, curves, and AP bands carry different meanings. A humane tool should adapt instead of forcing one definition of success.",
+        missionPointThreeTitle: "Turn insight into responsibility",
+        missionPointThreeText: "The point is not to rank students faster. The point is to help teachers, tutors, and learners decide what support should happen next.",
+        missionBack: "Back to homepage"
       };
+
+      return Object.assign({}, defaultText, localizedText[locale] || {});
     }
 
     function renderCountryOptions() {
