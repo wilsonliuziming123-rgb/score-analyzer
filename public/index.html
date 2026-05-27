@@ -771,6 +771,110 @@
       font-size: 14px;
     }
 
+    .exam-meta {
+      display: grid;
+      gap: 9px;
+      margin: 18px 0;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(240, 190, 34, 0.16), transparent 34%),
+        rgba(10, 16, 27, 0.76);
+    }
+
+    .exam-meta label {
+      margin: 0;
+      color: #f8fafc;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .exam-meta input {
+      width: 100%;
+      padding: 14px 15px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 14px;
+      background: rgba(2, 6, 23, 0.72);
+      color: #f8fafc;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .exam-meta input:focus {
+      border-color: rgba(240, 190, 34, 0.72);
+      box-shadow: 0 0 0 4px rgba(240, 190, 34, 0.16);
+    }
+
+    .input-tools,
+    .records-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .tool-button {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .tool-button:hover {
+      transform: translateY(-2px);
+      border-color: rgba(240, 190, 34, 0.75);
+      background: rgba(240, 190, 34, 0.14);
+    }
+
+    .records-tools .tool-button {
+      border-color: #d8dce6;
+      background: #111827;
+      color: #ffffff;
+    }
+
+    .sensitivity-section {
+      display: none;
+      gap: 14px;
+      padding: 22px;
+      border: 1px solid rgba(240, 190, 34, 0.35);
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(240, 190, 34, 0.16), transparent 34%),
+        rgba(15, 23, 42, 0.78);
+    }
+
+    .sensitivity-section.is-visible {
+      display: grid;
+    }
+
+    .sensitivity-control {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .sensitivity-control input {
+      width: 100%;
+      accent-color: var(--gold);
+    }
+
+    .sensitivity-value {
+      min-width: 84px;
+      padding: 8px 12px;
+      border: 1px solid rgba(240, 190, 34, 0.4);
+      border-radius: 999px;
+      color: #fef3c7;
+      font-weight: 900;
+      text-align: center;
+    }
+
     .ap-resource-link {
       display: inline-flex;
       align-items: center;
@@ -2911,15 +3015,27 @@
     </div>
     <p id="maxScorePrompt" class="step-prompt">Enter a maximum score to unlock score input.</p>
 
+    <div id="examMetaStep" class="exam-meta flow-step is-locked">
+      <label for="examNameInput">Class / exam name</label>
+      <input id="examNameInput" type="text" placeholder="Example: AP Statistics Unit 4 practice" />
+      <p class="setting-copy">Optional, but helpful when you reopen saved records later.</p>
+    </div>
+
     <div id="scoreEntryStep" class="flow-step is-locked">
       <label id="scoreInputLabel" for="scoreInput">Score input</label>
       <textarea 
         id="scoreInput" 
-        placeholder="Example: 87, 92, 76, 100, 65, 88, 91"
+        placeholder="Example: 87, 92, 76, 100, 65, 88, 91&#10;Optional: Alex 87, Mia 92, Jordan 76"
       ></textarea>
 
+      <div class="input-tools" aria-label="Input helpers">
+        <button id="sampleDataBtn" class="tool-button" type="button">Use sample data</button>
+        <button id="uploadCsvBtn" class="tool-button" type="button">Upload CSV</button>
+        <input id="csvFileInput" type="file" accept=".csv,text/csv" hidden>
+      </div>
+
       <p id="scoreHint" class="hint">
-        You can separate scores with commas, spaces, or new lines. Scores must be between 0 and 100.
+        You can separate scores with commas, spaces, or new lines. Optional names are supported, like Alex 87.
       </p>
     </div>
 
@@ -2992,6 +3108,17 @@
         <div class="card">
           <div class="card-title">Below AP 3</div>
           <div class="card-value" id="apBelowResult"></div>
+        </div>
+      </div>
+
+      <div id="apSensitivitySection" class="sensitivity-section result-block">
+        <div>
+          <h3>AP Cutoff Sensitivity</h3>
+          <p id="apSensitivityText" class="distribution-note">Move the AP 3 cutoff to preview how many students remain AP 3+.</p>
+        </div>
+        <div class="sensitivity-control">
+          <input id="apSensitivitySlider" type="range" min="0" max="100" step="1" value="40">
+          <span id="apSensitivityValue" class="sensitivity-value">40</span>
         </div>
       </div>
 
@@ -3160,7 +3287,12 @@
             <h3>All Records</h3>
             <p>Analyses are saved automatically after each run.</p>
           </div>
-          <button id="clearRecordsBtn" class="text-button" type="button">Clear Records</button>
+          <div class="records-tools">
+            <button id="exportRecordsBtn" class="tool-button" type="button">Export</button>
+            <button id="importRecordsBtn" class="tool-button" type="button">Import</button>
+            <button id="clearRecordsBtn" class="text-button" type="button">Clear Records</button>
+            <input id="recordsImportInput" type="file" accept="application/json,.json" hidden>
+          </div>
         </div>
         <div id="recordList" class="record-list"></div>
       </section>
@@ -3175,6 +3307,11 @@
     const apFiveCutoffInput = document.getElementById("apFiveCutoffInput");
     const apFourCutoffInput = document.getElementById("apFourCutoffInput");
     const apThreeCutoffInput = document.getElementById("apThreeCutoffInput");
+    const examMetaStep = document.getElementById("examMetaStep");
+    const examNameInput = document.getElementById("examNameInput");
+    const sampleDataBtn = document.getElementById("sampleDataBtn");
+    const uploadCsvBtn = document.getElementById("uploadCsvBtn");
+    const csvFileInput = document.getElementById("csvFileInput");
     const analyzeBtn = document.getElementById("analyzeBtn");
     const clearBtn = document.getElementById("clearBtn");
     const scoreEntryStep = document.getElementById("scoreEntryStep");
@@ -3190,8 +3327,15 @@
     const distributionDetail = document.getElementById("distributionDetail");
     const aiAdviceList = document.getElementById("aiAdviceList");
     const warningsList = document.getElementById("warningsList");
+    const apSensitivitySection = document.getElementById("apSensitivitySection");
+    const apSensitivitySlider = document.getElementById("apSensitivitySlider");
+    const apSensitivityText = document.getElementById("apSensitivityText");
+    const apSensitivityValue = document.getElementById("apSensitivityValue");
     const recordList = document.getElementById("recordList");
     const clearRecordsBtn = document.getElementById("clearRecordsBtn");
+    const exportRecordsBtn = document.getElementById("exportRecordsBtn");
+    const importRecordsBtn = document.getElementById("importRecordsBtn");
+    const recordsImportInput = document.getElementById("recordsImportInput");
     const contactForm = document.getElementById("contactForm");
     const contactStatus = document.getElementById("contactStatus");
     const authStatus = document.getElementById("authStatus");
@@ -3244,6 +3388,12 @@
     apFourCutoffInput.addEventListener("input", updateInputFlow);
     apThreeCutoffInput.addEventListener("input", updateInputFlow);
     scoreInput.addEventListener("input", updateInputFlow);
+    sampleDataBtn.addEventListener("click", useSampleData);
+    uploadCsvBtn.addEventListener("click", function () {
+      csvFileInput.click();
+    });
+    csvFileInput.addEventListener("change", handleCsvUpload);
+    apSensitivitySlider.addEventListener("input", updateApSensitivityPreview);
     missionBtn.addEventListener("click", openMissionPage);
     missionBackBtn.addEventListener("click", returnToHomePage);
     countryPicker.addEventListener("click", handleCountryChoice);
@@ -3269,6 +3419,11 @@
     contactForm.addEventListener("submit", handleContactSubmit);
     document.addEventListener("pointermove", updatePointerGlow);
     clearRecordsBtn.addEventListener("click", clearRecords);
+    exportRecordsBtn.addEventListener("click", exportRecords);
+    importRecordsBtn.addEventListener("click", function () {
+      recordsImportInput.click();
+    });
+    recordsImportInput.addEventListener("change", importRecords);
     recordList.addEventListener("click", handleRecordAction);
     window.addEventListener("load", initializePage);
 
@@ -3289,7 +3444,8 @@
         return;
       }
 
-      const input = scoreInput.value.trim();
+      const preparedInput = prepareScoreSubmission(scoreInput.value.trim());
+      const input = preparedInput.scoresInput;
       const maxScore = getSelectedMaxScore();
       const passingScore = getSelectedPassingScore();
       const apCutoffs = getApCutoffs();
@@ -3301,6 +3457,11 @@
 
       if (passingScore === null) {
         showError("Passing score must be a number between 0 and the maximum score.");
+        return;
+      }
+
+      if (!input) {
+        showError("Please enter at least one valid score.");
         return;
       }
 
@@ -3328,7 +3489,9 @@
         }
 
         if (currentUser) {
-          saveRecord(input, result.data);
+          result.data.examName = getExamName();
+          result.data.studentScores = preparedInput.studentScores;
+          saveRecord(scoreInput.value.trim(), result.data);
         } else {
           renderRecords();
         }
@@ -3360,6 +3523,7 @@
 
       drawStatisticsChart(statistics);
       drawDistributionCurve(statistics);
+      setupApSensitivity(statistics);
       displayWarnings(statistics);
       displayAdvice(statistics);
       results.style.display = "block";
@@ -3368,6 +3532,136 @@
         behavior: "smooth",
         block: "start"
       });
+    }
+
+    function getExamName() {
+      const name = examNameInput.value.trim();
+      return name || "Untitled analysis";
+    }
+
+    function prepareScoreSubmission(rawInput) {
+      const lines = rawInput.split(/\n+/).map(function (line) {
+        return line.trim();
+      }).filter(Boolean);
+      const numberPattern = /-?\d+(?:\.\d+)?/g;
+      const studentScores = [];
+      const extractedScores = [];
+
+      if (lines.length > 1) {
+        lines.forEach(function (line) {
+          const matches = line.match(numberPattern) || [];
+
+          if (matches.length === 0) {
+            return;
+          }
+
+          const scoreText = matches[matches.length - 1];
+          const score = Number(scoreText);
+          const name = line
+            .replace(scoreText, "")
+            .replace(/[,，:：;-]+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+          if (Number.isFinite(score)) {
+            extractedScores.push(score);
+            studentScores.push({
+              name: name || "Student " + (studentScores.length + 1),
+              score: score
+            });
+          }
+        });
+      }
+
+      if (extractedScores.length === 0) {
+        const matches = rawInput.match(numberPattern) || [];
+        matches.forEach(function (item, index) {
+          const score = Number(item);
+
+          if (Number.isFinite(score)) {
+            extractedScores.push(score);
+            studentScores.push({
+              name: "Student " + (index + 1),
+              score: score
+            });
+          }
+        });
+      }
+
+      return {
+        scoresInput: extractedScores.join(", "),
+        studentScores: studentScores
+      };
+    }
+
+    function useSampleData() {
+      examNameInput.value = analyzerMode === "ap"
+        ? "AP Practice Score Check"
+        : "Period 2 Score Review";
+
+      scoreInput.value = analyzerMode === "ap"
+        ? "Alex 78\nMia 62\nJordan 48\nSofia 71\nLeo 39\nNora 55\nKai 84\nEmma 67"
+        : "Alex 87\nMia 92\nJordan 76\nSofia 100\nLeo 65\nNora 88\nKai 91\nEmma 58";
+
+      updateInputFlow();
+      scoreInput.focus();
+    }
+
+    function handleCsvUpload(event) {
+      const file = event.target.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = function () {
+        const text = String(reader.result || "");
+        const parsedLines = parseCsvText(text);
+
+        if (parsedLines.length === 0) {
+          showError("No numeric scores were found in that CSV file.");
+          return;
+        }
+
+        scoreInput.value = parsedLines.join("\n");
+        if (!examNameInput.value.trim()) {
+          examNameInput.value = file.name.replace(/\.[^.]+$/, "");
+        }
+
+        hideError();
+        updateInputFlow();
+      };
+
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    function parseCsvText(text) {
+      return text.split(/\n+/).map(function (line) {
+        const cells = line.split(/,|，|\t/).map(function (cell) {
+          return cell.trim();
+        }).filter(Boolean);
+
+        if (cells.length === 0) {
+          return "";
+        }
+
+        const numericCell = cells.find(function (cell) {
+          return Number.isFinite(Number(cell));
+        });
+
+        if (!numericCell) {
+          return "";
+        }
+
+        const nameCell = cells.find(function (cell) {
+          return cell !== numericCell && !Number.isFinite(Number(cell));
+        });
+
+        return nameCell ? nameCell + " " + numericCell : numericCell;
+      }).filter(Boolean);
     }
 
     async function initializePage() {
@@ -4045,6 +4339,7 @@
       const hasScores = scoreInput.value.trim().length > 0;
 
       updateScaleText();
+      examMetaStep.classList.toggle("is-locked", !isConfigured);
       scoreEntryStep.classList.toggle("is-locked", !isConfigured);
       actionStep.classList.toggle("is-locked", !isConfigured || !hasScores);
       maxScorePrompt.style.display = isConfigured ? "none" : "block";
@@ -4156,9 +4451,39 @@
       apThreeCutoffInput.value = "40";
     }
 
+    function setupApSensitivity(statistics) {
+      if (statistics.passingRule !== "ap" || !statistics.apCutoffs) {
+        apSensitivitySection.classList.remove("is-visible");
+        return;
+      }
+
+      const maxScore = statistics.maxScore || getSelectedMaxScore() || 100;
+      apSensitivitySlider.min = "0";
+      apSensitivitySlider.max = String(maxScore);
+      apSensitivitySlider.step = maxScore > 20 ? "1" : "0.5";
+      apSensitivitySlider.value = String(statistics.apCutoffs.three);
+      apSensitivitySection.classList.add("is-visible");
+      updateApSensitivityPreview();
+    }
+
+    function updateApSensitivityPreview() {
+      if (!latestStatistics || latestStatistics.passingRule !== "ap") {
+        return;
+      }
+
+      const cutoff = Number(apSensitivitySlider.value);
+      const count = latestStatistics.sortedScores.filter(function (score) {
+        return score >= cutoff;
+      }).length;
+      const percent = latestStatistics.count ? Math.round((count / latestStatistics.count) * 100) : 0;
+
+      apSensitivityValue.textContent = formatNumber(cutoff);
+      apSensitivityText.textContent = "If AP 3 starts at " + formatNumber(cutoff) + ", " + count + " students (" + percent + "%) are AP 3 or higher.";
+    }
+
     function setupScrollReveal() {
       const revealElements = document.querySelectorAll(
-        ".topbar, .hero-copy, .score-poster, .mission-section, .analyzer-panel, label, textarea, .hint, .button-group, .warnings-section, .ai-advice-section, .chart-section, .distribution-section, .key-grid .card, .advanced-details"
+        ".topbar, .hero-copy, .score-poster, .mission-section, .analyzer-panel, .exam-meta, label, textarea, .hint, .button-group, .warnings-section, .ai-advice-section, .chart-section, .distribution-section, .sensitivity-section, .key-grid .card, .advanced-details"
       );
 
       if (!("IntersectionObserver" in window)) {
@@ -4942,19 +5267,21 @@
       const records = getRecords();
       const normalizedInput = input.replace(/\s+/g, " ").trim();
       const existingIndex = records.findIndex(function (record) {
+        const recordInput = String(record.scoresInput || "").replace(/\s+/g, " ").trim();
         const recordMaxScore = record.statistics && record.statistics.maxScore ? record.statistics.maxScore : 100;
         const recordPassingScore = record.statistics && Number.isFinite(record.statistics.passingScore)
           ? record.statistics.passingScore
           : recordMaxScore * 0.6;
 
-        return record.scoresInput === normalizedInput
+        return recordInput === normalizedInput
           && recordMaxScore === statistics.maxScore
           && recordPassingScore === statistics.passingScore;
       });
       const record = {
         id: Date.now().toString(),
+        title: statistics.examName || getExamName(),
         createdAt: new Date().toISOString(),
-        scoresInput: normalizedInput,
+        scoresInput: input.trim(),
         statistics: statistics
       };
 
@@ -5012,12 +5339,13 @@
         const scorePreview = record.scoresInput.length > 74
           ? record.scoresInput.slice(0, 74) + "..."
           : record.scoresInput;
+        const title = record.title || (stats.examName || "Untitled analysis");
 
         return `
           <article class="record-item">
             <div>
-              <p class="record-title">Mean ${formatNumber(stats.mean)} · ${stats.count} students</p>
-              <p class="record-meta">${date}<br>Scale 0-${formatNumber(stats.maxScore || 100)} · Pass ${formatNumber(Number.isFinite(stats.passingScore) ? stats.passingScore : (stats.maxScore || 100) * 0.6)} · ${scorePreview}</p>
+              <p class="record-title">${escapeHtml(title)}</p>
+              <p class="record-meta">${date}<br>Scale 0-${formatNumber(stats.maxScore || 100)} · Pass ${formatNumber(Number.isFinite(stats.passingScore) ? stats.passingScore : (stats.maxScore || 100) * 0.6)} · ${escapeHtml(scorePreview)}</p>
             </div>
             <div class="record-actions">
               <button class="record-open" type="button" data-id="${record.id}">Open</button>
@@ -5056,6 +5384,7 @@
       analyzerMode = record.statistics.passingRule || "standard";
       window.history.pushState({}, "", "/" + analyzerMode);
       setupAnalyzerMode();
+      examNameInput.value = record.title || record.statistics.examName || "";
       scoreInput.value = record.scoresInput;
       maxScoreInput.value = record.statistics.maxScore || 100;
       passingScoreInput.value = Number.isFinite(record.statistics.passingScore)
@@ -5087,6 +5416,89 @@
 
       localStorage.setItem(recordsKey, JSON.stringify(records));
       renderRecords();
+    }
+
+    function exportRecords() {
+      if (!currentUser) {
+        showError("Sign in before exporting records.");
+        return;
+      }
+
+      const records = getRecords();
+
+      if (!records.length) {
+        showError("There are no saved records to export yet.");
+        return;
+      }
+
+      const blob = new Blob([JSON.stringify(records, null, 2)], {
+        type: "application/json"
+      });
+      const link = document.createElement("a");
+
+      link.href = URL.createObjectURL(blob);
+      link.download = "score-analyzer-records.json";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    }
+
+    function importRecords(event) {
+      if (!currentUser) {
+        showError("Sign in before importing records.");
+        event.target.value = "";
+        return;
+      }
+
+      const file = event.target.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = function () {
+        try {
+          const imported = JSON.parse(String(reader.result || "[]"));
+
+          if (!Array.isArray(imported)) {
+            throw new Error("Records file must contain an array.");
+          }
+
+          const current = getRecords();
+          const merged = imported.filter(isValidRecord).concat(current);
+          const unique = [];
+          const seen = new Set();
+
+          merged.forEach(function (record) {
+            const key = record.id || record.createdAt + record.scoresInput;
+
+            if (!seen.has(key)) {
+              seen.add(key);
+              unique.push(record);
+            }
+          });
+
+          localStorage.setItem(getRecordStorageKey(), JSON.stringify(unique.slice(0, 24)));
+          hideError();
+          renderRecords();
+        } catch (error) {
+          showError("That records file could not be imported. Please use a JSON export from this app.");
+        }
+      };
+
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    function isValidRecord(record) {
+      return record
+        && typeof record === "object"
+        && typeof record.scoresInput === "string"
+        && record.statistics
+        && Array.isArray(record.statistics.sortedScores);
     }
 
     function clearRecords() {
@@ -5334,6 +5746,10 @@
 
       drawText("Student Score Analyzer Report", margin, y, 24, "F2", "#111827");
       y -= 22;
+      if (statistics.examName) {
+        drawText("Analysis: " + statistics.examName, margin, y, 11, "F2", "#111827");
+        y -= 16;
+      }
       drawText("Generated: " + new Date().toISOString().slice(0, 19).replace("T", " "), margin, y, 10, "F1", "#667085");
       y -= 26;
       const cutoffLine = statistics.passingRule === "ap" && statistics.apCutoffs
@@ -5354,6 +5770,13 @@
       });
       drawSectionTitle("Sorted Scores");
       drawWrappedText(statistics.sortedScores.join(", "), margin, 10, "F1", "#111827", 96, 8);
+
+      if (Array.isArray(statistics.studentScores) && statistics.studentScores.length > 0) {
+        drawSectionTitle("Student Signals");
+        statistics.studentScores.slice(0, 40).forEach(function (student) {
+          drawWrappedText(student.name + ": " + formatNumber(student.score), margin, 10, "F1", "#111827", 92, 2);
+        });
+      }
 
       if (content.length > 0) {
         finishPage();
@@ -5479,6 +5902,7 @@
 
     function clearAll() {
       scoreInput.value = "";
+      examNameInput.value = "";
       setupAnalyzerMode();
       hideError();
       results.style.display = "none";
@@ -5489,6 +5913,7 @@
       distributionNote.textContent = "Run an analysis to see the score distribution shape.";
       warningsList.innerHTML = "";
       aiAdviceList.innerHTML = "";
+      apSensitivitySection.classList.remove("is-visible");
       latestStatistics = null;
       updateInputFlow();
     }
