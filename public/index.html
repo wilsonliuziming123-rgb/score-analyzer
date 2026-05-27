@@ -138,22 +138,6 @@
       gap: 10px;
     }
 
-    .mission-link {
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      color: rgba(255, 255, 255, 0.86);
-      font-size: 14px;
-      font-weight: 900;
-      box-shadow: none;
-    }
-
-    .mission-link:hover {
-      border-color: rgba(240, 190, 34, 0.48);
-      background: rgba(240, 190, 34, 0.14);
-      color: white;
-    }
-
     .auth-status {
       padding: 9px 14px;
       border: 1px solid rgba(255, 255, 255, 0.16);
@@ -482,6 +466,36 @@
       color: rgba(255, 255, 255, 0.68);
       font-size: 14px;
       line-height: 1.5;
+    }
+
+    .hero-mission-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 4px 0 20px;
+      padding: 11px 14px;
+      border: 1px solid rgba(240, 190, 34, 0.32);
+      border-radius: 999px;
+      background: rgba(240, 190, 34, 0.1);
+      color: #fef3c7;
+      font-size: 14px;
+      font-weight: 900;
+      box-shadow: none;
+    }
+
+    .hero-mission-cta::after {
+      content: "Read the mission";
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      color: white;
+      font-size: 12px;
+    }
+
+    .hero-mission-cta:hover {
+      border-color: rgba(240, 190, 34, 0.64);
+      background: rgba(240, 190, 34, 0.18);
+      transform: translateY(-1px);
     }
 
     .hero-metric {
@@ -815,6 +829,24 @@
       color: rgba(255, 255, 255, 0.72);
       line-height: 1.7;
       font-size: 17px;
+    }
+
+    .mission-lede {
+      display: grid;
+      gap: 16px;
+    }
+
+    .mission-kicker {
+      display: inline-flex;
+      width: fit-content;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(240, 190, 34, 0.15);
+      color: #fef3c7;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
     .mission-points {
@@ -2571,7 +2603,6 @@
             </button>
             <div id="countryPanel" class="country-panel"></div>
           </div>
-          <button id="missionBtn" class="mission-link" type="button">Our mission</button>
           <div id="authStatus" class="auth-status" style="display: none;"></div>
           <button id="recordsShortcutBtn" class="auth-toggle records-shortcut" type="button">Records</button>
           <button id="topGoogleSignInBtn" class="auth-toggle" type="button">Google sign in</button>
@@ -2587,6 +2618,10 @@
             Turn raw student scores into a focused performance dashboard with statistics,
             warnings, animated charts, and deploy-ready full-stack architecture.
           </p>
+
+          <button id="missionBtn" class="hero-mission-cta" type="button">
+            Built for the humans behind the numbers
+          </button>
 
           <div class="mode-grid" aria-label="Choose score analyzer mode">
             <button class="mode-card" type="button" data-mode="standard">
@@ -2691,26 +2726,30 @@
 
       <section id="missionSection" class="mission-section reveal">
         <div class="mission-content">
-          <div>
-            <p class="eyebrow">Our mission</p>
-            <h2>Make score data feel human.</h2>
+          <div class="mission-lede">
+            <span class="mission-kicker">Our mission</span>
+            <h2>Data should widen care, not narrow it.</h2>
             <p>
-              Score Analyzer is built to turn raw numbers into decisions teachers, tutors, and students can actually use.
-              The goal is not just to calculate stats, but to reveal who needs support, who is ready for challenge, and what the next move should be.
+              Every score belongs to a person: someone with a story, pressure, confidence, fatigue, momentum, and a future that cannot be reduced to a number.
+              Score Analyzer exists to make performance data more humane, so classrooms can notice patterns without losing sight of people.
+            </p>
+            <p>
+              We believe analysis should help communities respond with fairness: more support where students are unseen, more challenge where students are ready,
+              and more context when a single cutoff fails to describe real learning.
             </p>
           </div>
           <div class="mission-points">
             <article class="mission-point">
-              <strong>Flexible grading</strong>
-              <p>Use standard scoring, custom curves, or AP-style cutoffs without forcing every class into one 60% rule.</p>
+              <strong>See the whole room</strong>
+              <p>Statistics should reveal who is thriving, who is drifting, and where the group needs care before small gaps become social gaps.</p>
             </article>
             <article class="mission-point">
-              <strong>Readable insight</strong>
-              <p>Charts, warnings, and recommendations are organized so the story appears after the evidence.</p>
+              <strong>Respect different systems</strong>
+              <p>Standard scores, curves, and AP bands carry different meanings. A humane tool should adapt instead of forcing one definition of success.</p>
             </article>
             <article class="mission-point">
-              <strong>Built for action</strong>
-              <p>Every result should help you decide whether to reteach, regroup, stretch, or celebrate.</p>
+              <strong>Turn insight into responsibility</strong>
+              <p>The point is not to rank students faster. The point is to help teachers, tutors, and learners decide what support should happen next.</p>
             </article>
           </div>
         </div>
