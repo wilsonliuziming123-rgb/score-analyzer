@@ -108,17 +108,18 @@ app.post("/auth/logout", function (req, res) {
     });
 });
 
-app.get(["/standard", "/custom", "/ap"], function (req, res) {
+app.get(["/standard", "/custom", "/ap", "/mission"], function (req, res) {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 app.post("/api/analyze-scores", function (req, res) {
     const scoresInput = req.body.scoresInput;
     const maxScore = Number(req.body.maxScore || 100);
-    const passingScore = req.body.passingScore === undefined || req.body.passingScore === ""
-        ? maxScore * 0.6
-        : Number(req.body.passingScore);
     const passingRule = req.body.passingRule || "raw";
+    const apCutoffs = normalizeApCutoffs(req.body.apCutoffs, maxScore);
+    const passingScore = req.body.passingScore === undefined || req.body.passingScore === ""
+        ? passingRule === "ap" && apCutoffs ? apCutoffs.three : maxScore * 0.6
+        : Number(req.body.passingScore);
 
     // Stop early if the user submitted an empty textarea.
     if (!scoresInput || scoresInput.trim() === "") {
@@ -142,6 +143,13 @@ app.post("/api/analyze-scores", function (req, res) {
         });
     }
 
+    if (passingRule === "ap" && !apCutoffs) {
+        return res.status(400).json({
+            success: false,
+            error: "AP cutoffs must be valid numbers in this order: 5 cutoff >= 4 cutoff >= 3 cutoff."
+        });
+    }
+
     const scores = parseScores(scoresInput);
 
     if (scores.length === 0) {
@@ -158,7 +166,7 @@ app.post("/api/analyze-scores", function (req, res) {
         });
     }
 
-    const statistics = calculateStatistics(scores, maxScore, passingScore, passingRule);
+    const statistics = calculateStatistics(scores, maxScore, passingScore, passingRule, apCutoffs);
 
     return res.json({
         success: true,
@@ -180,6 +188,34 @@ function parseScores(input) {
         });
 }
 
+function normalizeApCutoffs(input, maxScore) {
+    if (!input) {
+        return null;
+    }
+
+    const five = Number(input.five);
+    const four = Number(input.four);
+    const three = Number(input.three);
+
+    if (
+        !Number.isFinite(five) ||
+        !Number.isFinite(four) ||
+        !Number.isFinite(three) ||
+        three < 0 ||
+        five > maxScore ||
+        five < four ||
+        four < three
+    ) {
+        return null;
+    }
+
+    return {
+        five: five,
+        four: four,
+        three: three
+    };
+}
+
 function validateScores(scores, maxScore) {
     for (let i = 0; i < scores.length; i++) {
         if (
@@ -194,7 +230,7 @@ function validateScores(scores, maxScore) {
     return true;
 }
 
-function calculateStatistics(scores, maxScore, passingScore, passingRule) {
+function calculateStatistics(scores, maxScore, passingScore, passingRule, apCutoffs) {
     // Sorting first makes min, max, median, and quartiles easier to calculate.
     const sortedScores = [...scores].sort(function (a, b) {
         return a - b;
@@ -206,6 +242,12 @@ function calculateStatistics(scores, maxScore, passingScore, passingRule) {
     let sum = 0;
     let passingCount = 0;
     let failingCount = 0;
+    const apCounts = {
+        five: 0,
+        four: 0,
+        three: 0,
+        belowThree: 0
+    };
 
     for (let i = 0; i < sortedScores.length; i++) {
         sum = sum + sortedScores[i];
@@ -214,6 +256,18 @@ function calculateStatistics(scores, maxScore, passingScore, passingRule) {
             passingCount++;
         } else {
             failingCount++;
+        }
+
+        if (passingRule === "ap" && apCutoffs) {
+            if (sortedScores[i] >= apCutoffs.five) {
+                apCounts.five++;
+            } else if (sortedScores[i] >= apCutoffs.four) {
+                apCounts.four++;
+            } else if (sortedScores[i] >= apCutoffs.three) {
+                apCounts.three++;
+            } else {
+                apCounts.belowThree++;
+            }
         }
     }
 
@@ -234,6 +288,12 @@ function calculateStatistics(scores, maxScore, passingScore, passingRule) {
         maxScore: roundToTwo(maxScore),
         passingScore: roundToTwo(passingScore),
         passingRule: passingRule,
+        apCutoffs: apCutoffs ? {
+            five: roundToTwo(apCutoffs.five),
+            four: roundToTwo(apCutoffs.four),
+            three: roundToTwo(apCutoffs.three)
+        } : null,
+        apCounts: passingRule === "ap" ? apCounts : null,
         max: max,
         min: min,
         mean: roundToTwo(mean),

@@ -138,6 +138,22 @@
       gap: 10px;
     }
 
+    .mission-link {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.86);
+      font-size: 14px;
+      font-weight: 900;
+      box-shadow: none;
+    }
+
+    .mission-link:hover {
+      border-color: rgba(240, 190, 34, 0.48);
+      background: rgba(240, 190, 34, 0.14);
+      color: white;
+    }
+
     .auth-status {
       padding: 9px 14px;
       border: 1px solid rgba(255, 255, 255, 0.16);
@@ -646,6 +662,10 @@
       background: #f8fafc;
     }
 
+    .ap-mode .score-settings {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
     .flow-step {
       overflow: hidden;
       max-height: 520px;
@@ -732,6 +752,10 @@
       display: grid;
     }
 
+    .ap-mode .passing-field {
+      display: none;
+    }
+
     .standard-mode .score-settings {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -741,6 +765,81 @@
     }
 
     .home-mode .analyzer-panel {
+      display: none;
+    }
+
+    .mission-section {
+      position: relative;
+      margin: 14px 0 52px;
+      padding: 34px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 22% 18%, rgba(240, 190, 34, 0.16), transparent 38%),
+        linear-gradient(145deg, rgba(15, 18, 27, 0.92), rgba(31, 41, 55, 0.72));
+      box-shadow: 0 28px 90px rgba(0, 0, 0, 0.32);
+      color: white;
+      overflow: hidden;
+    }
+
+    .mission-section::after {
+      content: "";
+      position: absolute;
+      inset: auto -12% -46% auto;
+      width: 360px;
+      height: 360px;
+      border: 1px solid rgba(240, 190, 34, 0.18);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(220, 38, 38, 0.12), transparent 64%);
+      pointer-events: none;
+    }
+
+    .mission-content {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(280px, 1.1fr);
+      gap: 26px;
+      align-items: start;
+    }
+
+    .mission-section h2 {
+      margin: 0 0 14px;
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 0.95;
+      color: white;
+    }
+
+    .mission-section p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.72);
+      line-height: 1.7;
+      font-size: 17px;
+    }
+
+    .mission-points {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+    }
+
+    .mission-point {
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .mission-point strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #fef3c7;
+      font-size: 15px;
+    }
+
+    .mission-page .hero,
+    .mission-page .analyzer-panel,
+    .mission-page .contact-section {
       display: none;
     }
 
@@ -2259,6 +2358,10 @@
         grid-template-columns: 1fr;
       }
 
+      .mission-content {
+        grid-template-columns: 1fr;
+      }
+
       .panel-header {
         align-items: flex-start;
         flex-direction: column;
@@ -2468,6 +2571,7 @@
             </button>
             <div id="countryPanel" class="country-panel"></div>
           </div>
+          <button id="missionBtn" class="mission-link" type="button">Our mission</button>
           <div id="authStatus" class="auth-status" style="display: none;"></div>
           <button id="recordsShortcutBtn" class="auth-toggle records-shortcut" type="button">Records</button>
           <button id="topGoogleSignInBtn" class="auth-toggle" type="button">Google sign in</button>
@@ -2585,6 +2689,33 @@
         </div>
       </section>
 
+      <section id="missionSection" class="mission-section reveal">
+        <div class="mission-content">
+          <div>
+            <p class="eyebrow">Our mission</p>
+            <h2>Make score data feel human.</h2>
+            <p>
+              Score Analyzer is built to turn raw numbers into decisions teachers, tutors, and students can actually use.
+              The goal is not just to calculate stats, but to reveal who needs support, who is ready for challenge, and what the next move should be.
+            </p>
+          </div>
+          <div class="mission-points">
+            <article class="mission-point">
+              <strong>Flexible grading</strong>
+              <p>Use standard scoring, custom curves, or AP-style cutoffs without forcing every class into one 60% rule.</p>
+            </article>
+            <article class="mission-point">
+              <strong>Readable insight</strong>
+              <p>Charts, warnings, and recommendations are organized so the story appears after the evidence.</p>
+            </article>
+            <article class="mission-point">
+              <strong>Built for action</strong>
+              <p>Every result should help you decide whether to reteach, regroup, stretch, or celebrate.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section class="analyzer-panel">
         <div class="panel-header">
           <div>
@@ -2605,18 +2736,22 @@
 
     <div class="score-settings">
       <div class="setting-field ap-field">
-        <label for="apTargetSelect">AP target</label>
-        <select id="apTargetSelect">
-          <option value="3">AP 3+ target</option>
-          <option value="4">AP 4+ target</option>
-          <option value="5" selected>AP 5 target</option>
-        </select>
+        <label for="apFiveCutoffInput">5 cutoff</label>
+        <input id="apFiveCutoffInput" type="number" min="0" step="0.01" placeholder="60" />
+      </div>
+      <div class="setting-field ap-field">
+        <label for="apFourCutoffInput">4 cutoff</label>
+        <input id="apFourCutoffInput" type="number" min="0" step="0.01" placeholder="50" />
+      </div>
+      <div class="setting-field ap-field">
+        <label for="apThreeCutoffInput">3 cutoff</label>
+        <input id="apThreeCutoffInput" type="number" min="0" step="0.01" placeholder="40" />
       </div>
       <div class="setting-field">
         <label id="maxScoreLabel" for="maxScoreInput">Maximum score</label>
         <input id="maxScoreInput" type="number" min="1" step="0.01" placeholder="100" />
       </div>
-      <div class="setting-field">
+      <div class="setting-field passing-field">
         <label id="passingScoreLabel" for="passingScoreInput">Passing score</label>
         <input id="passingScoreInput" type="number" min="0" step="0.01" placeholder="60" />
       </div>
@@ -2681,13 +2816,32 @@
         </div>
 
         <div class="card">
-          <div class="card-title">Passing Count</div>
+          <div id="passingTitle" class="card-title">Passing Count</div>
           <div class="card-value" id="passingResult"></div>
         </div>
 
         <div class="card">
-          <div class="card-title">Failing Count</div>
+          <div id="failingTitle" class="card-title">Failing Count</div>
           <div class="card-value" id="failingResult"></div>
+        </div>
+      </div>
+
+      <div id="apBreakdown" class="grid key-grid result-block" style="display: none;">
+        <div class="card">
+          <div class="card-title">AP 5 Count</div>
+          <div class="card-value" id="apFiveResult"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">AP 4 Count</div>
+          <div class="card-value" id="apFourResult"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">AP 3 Count</div>
+          <div class="card-value" id="apThreeResult"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Below AP 3</div>
+          <div class="card-value" id="apBelowResult"></div>
         </div>
       </div>
 
@@ -2852,7 +3006,9 @@
     const maxScoreInput = document.getElementById("maxScoreInput");
     const passingScoreInput = document.getElementById("passingScoreInput");
     const passingScoreLabel = document.getElementById("passingScoreLabel");
-    const apTargetSelect = document.getElementById("apTargetSelect");
+    const apFiveCutoffInput = document.getElementById("apFiveCutoffInput");
+    const apFourCutoffInput = document.getElementById("apFourCutoffInput");
+    const apThreeCutoffInput = document.getElementById("apThreeCutoffInput");
     const analyzeBtn = document.getElementById("analyzeBtn");
     const clearBtn = document.getElementById("clearBtn");
     const scoreEntryStep = document.getElementById("scoreEntryStep");
@@ -2887,6 +3043,8 @@
     const countryPanel = document.getElementById("countryPanel");
     const recordsDrawer = document.getElementById("recordsDrawer");
     const modeGrid = document.querySelector(".mode-grid");
+    const missionBtn = document.getElementById("missionBtn");
+    const missionSection = document.getElementById("missionSection");
     const closeRecordsBtn = document.getElementById("closeRecordsBtn");
     const cookieBanner = document.getElementById("cookieBanner");
     const cookieTitle = document.getElementById("cookieTitle");
@@ -2911,8 +3069,11 @@
     clearBtn.addEventListener("click", clearAll);
     maxScoreInput.addEventListener("input", updateInputFlow);
     passingScoreInput.addEventListener("input", updateInputFlow);
-    apTargetSelect.addEventListener("change", updateApTargetDefaults);
+    apFiveCutoffInput.addEventListener("input", updateInputFlow);
+    apFourCutoffInput.addEventListener("input", updateInputFlow);
+    apThreeCutoffInput.addEventListener("input", updateInputFlow);
     scoreInput.addEventListener("input", updateInputFlow);
+    missionBtn.addEventListener("click", openMissionPage);
     countryPicker.addEventListener("click", handleCountryChoice);
     countryPicker.addEventListener("input", handleCountrySearch);
     document.addEventListener("click", closeCountryPanelOnOutsideClick);
@@ -2957,6 +3118,7 @@
       const input = scoreInput.value.trim();
       const maxScore = getSelectedMaxScore();
       const passingScore = getSelectedPassingScore();
+      const apCutoffs = getApCutoffs();
 
       if (!maxScore) {
         showError("Maximum score must be a number greater than 0.");
@@ -2979,7 +3141,8 @@
             scoresInput: input,
             maxScore: maxScore,
             passingScore: passingScore,
-            passingRule: analyzerMode
+            passingRule: analyzerMode,
+            apCutoffs: analyzerMode === "ap" ? apCutoffs : null
           })
         });
 
@@ -3018,8 +3181,7 @@
       document.getElementById("q3Result").textContent = formatNumber(statistics.q3);
       document.getElementById("iqrResult").textContent = formatNumber(statistics.iqr);
       document.getElementById("rangeResult").textContent = formatNumber(statistics.range);
-      document.getElementById("passingResult").textContent = statistics.passingCount;
-      document.getElementById("failingResult").textContent = statistics.failingCount;
+      updatePassingCards(statistics);
       document.getElementById("sortedResult").textContent = statistics.sortedScores.join(", ");
 
       drawStatisticsChart(statistics);
@@ -3060,11 +3222,21 @@
         return "ap";
       }
 
+      if (window.location.pathname === "/mission") {
+        return "mission";
+      }
+
       return "home";
     }
 
     function setupAnalyzerMode() {
-      document.body.classList.remove("home-mode", "standard-mode", "custom-mode", "ap-mode");
+      document.body.classList.remove("home-mode", "standard-mode", "custom-mode", "ap-mode", "mission-page");
+      if (analyzerMode === "mission") {
+        document.body.classList.add("mission-page");
+        updateModeButtonState();
+        return;
+      }
+
       document.body.classList.add(analyzerMode + "-mode");
       updateModeButtonState();
 
@@ -3088,12 +3260,12 @@
         document.querySelector(".panel-tag").textContent = "Custom cutoff";
       } else {
         maxScoreInput.value = "100";
-        passingScoreInput.value = "60";
-        passingScoreLabel.textContent = "Target cutoff";
+        setDefaultApCutoffs();
+        passingScoreInput.value = "40";
+        passingScoreLabel.textContent = "3 cutoff";
         document.querySelector(".panel-header h2").textContent = "AP-Style Analyzer";
-        document.querySelector(".panel-header p").textContent = "Use an editable AP-style target cutoff for curved raw scores and AP score goals.";
-        document.querySelector(".panel-tag").textContent = "AP-style";
-        updateApTargetDefaults();
+        document.querySelector(".panel-header p").textContent = "Set AP 5, 4, and 3 cutoffs, then see how many students land in each score band.";
+        document.querySelector(".panel-tag").textContent = "AP cutoffs";
       }
     }
 
@@ -3123,6 +3295,19 @@
 
         button.classList.toggle("is-selected", isSelected);
         button.setAttribute("aria-pressed", isSelected ? "true" : "false");
+      });
+    }
+
+    function openMissionPage() {
+      analyzerMode = "mission";
+      window.history.pushState({}, "", "/mission");
+      setupAnalyzerMode();
+
+      requestAnimationFrame(function () {
+        missionSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
       });
     }
 
@@ -3515,13 +3700,17 @@
         return;
       }
 
+      if (analyzerMode === "mission") {
+        return;
+      }
+
       if (analyzerMode === "standard") {
         maxScoreHelp.textContent = "Classic mode: scores are checked from 0 to 100, and 60 is the passing line.";
         maxScorePrompt.textContent = "";
       } else if (analyzerMode === "ap") {
-        maxScoreHelp.textContent = "AP-style mode: use an editable target cutoff. These are flexible classroom targets, not official College Board cut scores.";
+        maxScoreHelp.textContent = "AP-style mode: enter 5, 4, and 3 cutoffs. Scores at or above the 3 cutoff count as AP 3+.";
         maxScorePrompt.textContent = passingScore === null
-          ? "Choose an AP target and confirm the cutoff to unlock score input."
+          ? "Enter valid AP cutoffs in descending order: 5 cutoff >= 4 cutoff >= 3 cutoff."
           : "";
       } else {
         maxScoreHelp.textContent = "Custom mode: set both the full score and the raw passing score. The passing line does not have to be 60%.";
@@ -3584,6 +3773,12 @@
     }
 
     function getSelectedPassingScore() {
+      if (analyzerMode === "ap") {
+        const cutoffs = getApCutoffs();
+
+        return cutoffs ? cutoffs.three : null;
+      }
+
       const maxScore = getSelectedMaxScore();
       const passingScore = Number(passingScoreInput.value);
 
@@ -3594,23 +3789,41 @@
       return passingScore;
     }
 
-    function updateApTargetDefaults() {
-      const targetCutoffs = {
-        3: 45,
-        4: 55,
-        5: 60
-      };
-      const cutoff = targetCutoffs[apTargetSelect.value] || 60;
+    function getApCutoffs() {
+      const maxScore = getSelectedMaxScore();
+      const five = Number(apFiveCutoffInput.value);
+      const four = Number(apFourCutoffInput.value);
+      const three = Number(apThreeCutoffInput.value);
 
-      maxScoreInput.value = maxScoreInput.value || "100";
-      passingScoreInput.value = cutoff;
-      passingScoreLabel.textContent = "Target cutoff";
-      updateInputFlow();
+      if (
+        !maxScore ||
+        !Number.isFinite(five) ||
+        !Number.isFinite(four) ||
+        !Number.isFinite(three) ||
+        three < 0 ||
+        five > maxScore ||
+        five < four ||
+        four < three
+      ) {
+        return null;
+      }
+
+      return {
+        five: five,
+        four: four,
+        three: three
+      };
+    }
+
+    function setDefaultApCutoffs() {
+      apFiveCutoffInput.value = "60";
+      apFourCutoffInput.value = "50";
+      apThreeCutoffInput.value = "40";
     }
 
     function setupScrollReveal() {
       const revealElements = document.querySelectorAll(
-        ".topbar, .hero-copy, .score-poster, .analyzer-panel, label, textarea, .hint, .button-group, .warnings-section, .ai-advice-section, .chart-section, .distribution-section, .key-grid .card, .advanced-details"
+        ".topbar, .hero-copy, .score-poster, .mission-section, .analyzer-panel, label, textarea, .hint, .button-group, .warnings-section, .ai-advice-section, .chart-section, .distribution-section, .key-grid .card, .advanced-details"
       );
 
       if (!("IntersectionObserver" in window)) {
@@ -3685,7 +3898,38 @@
       }).join("");
     }
 
+    function updatePassingCards(statistics) {
+      const passingTitle = document.getElementById("passingTitle");
+      const failingTitle = document.getElementById("failingTitle");
+      const passingValue = document.getElementById("passingResult");
+      const failingValue = document.getElementById("failingResult");
+      const apBreakdown = document.getElementById("apBreakdown");
+
+      if (statistics.passingRule === "ap" && statistics.apCounts) {
+        passingTitle.textContent = "AP 3+ Count";
+        passingValue.textContent = statistics.passingCount;
+        failingTitle.textContent = "Below AP 3";
+        failingValue.textContent = statistics.apCounts.belowThree;
+        apBreakdown.style.display = "grid";
+        document.getElementById("apFiveResult").textContent = statistics.apCounts.five;
+        document.getElementById("apFourResult").textContent = statistics.apCounts.four;
+        document.getElementById("apThreeResult").textContent = statistics.apCounts.three;
+        document.getElementById("apBelowResult").textContent = statistics.apCounts.belowThree;
+        return;
+      }
+
+      apBreakdown.style.display = "none";
+      passingTitle.textContent = "Passing Count";
+      passingValue.textContent = statistics.passingCount;
+      failingTitle.textContent = "Failing Count";
+      failingValue.textContent = statistics.failingCount;
+    }
+
     function buildAdvice(statistics) {
+      if (statistics.passingRule === "ap" && statistics.apCounts) {
+        return buildApAdvice(statistics);
+      }
+
       const maxScore = statistics.maxScore || getSelectedMaxScore() || 100;
       const passingScore = Number.isFinite(statistics.passingScore) ? statistics.passingScore : maxScore * 0.6;
       const meanRate = statistics.mean / maxScore;
@@ -3751,6 +3995,53 @@
       return advice.slice(0, 4);
     }
 
+    function buildApAdvice(statistics) {
+      const counts = statistics.apCounts;
+      const threePlus = counts.five + counts.four + counts.three;
+      const strongCount = counts.five + counts.four;
+      const threePlusRate = threePlus / statistics.count;
+      const strongRate = strongCount / statistics.count;
+      const advice = [];
+
+      if (strongRate >= 0.5) {
+        advice.push({
+          title: "AP strength",
+          message: "A large share of students are already in the AP 4/5 zone. Push with timed FRQs, mixed concepts, and precision review instead of basic reteaching."
+        });
+      } else if (threePlusRate >= 0.7) {
+        advice.push({
+          title: "Solid AP readiness",
+          message: "Most students are at AP 3 or higher. Focus on converting AP 3 students into AP 4s by targeting high-value mistakes."
+        });
+      } else {
+        advice.push({
+          title: "Foundation first",
+          message: "Too many students are below the AP 3 cutoff. Review core units and use short checkpoint quizzes before increasing exam pace."
+        });
+      }
+
+      if (counts.five > 0) {
+        advice.push({
+          title: "Protect the top band",
+          message: `${counts.five} student${counts.five === 1 ? "" : "s"} are in the AP 5 band. Give them challenge work while the rest of the class receives targeted practice.`
+        });
+      }
+
+      if (counts.belowThree > 0) {
+        advice.push({
+          title: "Rescue below-3 scores",
+          message: `${counts.belowThree} student${counts.belowThree === 1 ? " is" : "s are"} below the AP 3 cutoff. They need a clear recovery path, not just more full-length practice.`
+        });
+      }
+
+      advice.push({
+        title: "Cutoff context",
+        message: "Because AP cutoffs are curved targets, treat AP 4/5 as strong even if the raw percentage looks lower than a normal classroom grade."
+      });
+
+      return advice.slice(0, 4);
+    }
+
     function describeStandardDeviation(statistics) {
       const maxScore = statistics.maxScore || getSelectedMaxScore() || 100;
       const rate = statistics.standardDeviation / maxScore;
@@ -3767,6 +4058,10 @@
     }
 
     function buildWarnings(statistics) {
+      if (statistics.passingRule === "ap" && statistics.apCounts) {
+        return buildApWarnings(statistics);
+      }
+
       const warnings = [];
       const failingRate = statistics.failingCount / statistics.count;
       const maxScore = statistics.maxScore || getSelectedMaxScore() || 100;
@@ -3854,6 +4149,51 @@
           type: "good",
           label: "Steady:",
           message: "No major warnings. The score distribution looks steady."
+        });
+      }
+
+      return warnings.slice(0, 3);
+    }
+
+    function buildApWarnings(statistics) {
+      const counts = statistics.apCounts;
+      const warnings = [];
+      const belowRate = counts.belowThree / statistics.count;
+      const strongRate = (counts.five + counts.four) / statistics.count;
+
+      if (belowRate >= 0.3) {
+        warnings.push({
+          type: "danger",
+          label: "AP risk:",
+          message: "30% or more of students are below the AP 3 cutoff. This group needs targeted recovery before more full exams."
+        });
+      } else if (counts.belowThree > 0) {
+        warnings.push({
+          type: "caution",
+          label: "Below AP 3:",
+          message: "Some students are below the AP 3 cutoff. Check whether the issue is content gaps, timing, or question type."
+        });
+      }
+
+      if (strongRate >= 0.5) {
+        warnings.push({
+          type: "good",
+          label: "Strong AP band:",
+          message: "At least half of the class is in the AP 4/5 zone. This is strong AP-level performance."
+        });
+      } else if (counts.five === 0) {
+        warnings.push({
+          type: "caution",
+          label: "No AP 5 yet:",
+          message: "No students are currently above the AP 5 cutoff. Add precision practice for top-band conversion."
+        });
+      }
+
+      if (warnings.length === 0) {
+        warnings.push({
+          type: "good",
+          label: "AP steady:",
+          message: "The AP score bands look balanced with no major warning."
         });
       }
 
@@ -4374,11 +4714,21 @@
         return;
       }
 
+      analyzerMode = record.statistics.passingRule || "standard";
+      window.history.pushState({}, "", "/" + analyzerMode);
+      setupAnalyzerMode();
       scoreInput.value = record.scoresInput;
       maxScoreInput.value = record.statistics.maxScore || 100;
       passingScoreInput.value = Number.isFinite(record.statistics.passingScore)
         ? record.statistics.passingScore
         : (record.statistics.maxScore || 100) * 0.6;
+
+      if (analyzerMode === "ap" && record.statistics.apCutoffs) {
+        apFiveCutoffInput.value = record.statistics.apCutoffs.five;
+        apFourCutoffInput.value = record.statistics.apCutoffs.four;
+        apThreeCutoffInput.value = record.statistics.apCutoffs.three;
+      }
+
       updateInputFlow();
       hideError();
       closeRecordsDrawer();
@@ -4537,13 +4887,21 @@
 
         y = firstY - 16;
         const secondY = y - height;
+        const secondRowCards = statistics.passingRule === "ap" && statistics.apCounts
+          ? [
+            ["AP 5", String(statistics.apCounts.five), "#2563EB"],
+            ["AP 4", String(statistics.apCounts.four), "#16A34A"],
+            ["AP 3", String(statistics.apCounts.three), "#D7A514"],
+            ["Below 3", String(statistics.apCounts.belowThree), "#B61F26"]
+          ]
+          : [
+            ["Highest", formatNumber(statistics.max), "#2563EB"],
+            ["Lowest", formatNumber(statistics.min), "#B61F26"],
+            ["Passing", String(statistics.passingCount), "#16A34A"],
+            ["Failing", String(statistics.failingCount), "#B61F26"]
+          ];
 
-        [
-          ["Highest", formatNumber(statistics.max), "#2563EB"],
-          ["Lowest", formatNumber(statistics.min), "#B61F26"],
-          ["Passing", String(statistics.passingCount), "#16A34A"],
-          ["Failing", String(statistics.failingCount), "#B61F26"]
-        ].forEach(function (card, index) {
+        secondRowCards.forEach(function (card, index) {
           drawCard(margin + index * (width + gap), secondY, width, height, card[0], card[1], card[2]);
         });
 
@@ -4639,7 +4997,10 @@
       y -= 22;
       drawText("Generated: " + new Date().toISOString().slice(0, 19).replace("T", " "), margin, y, 10, "F1", "#667085");
       y -= 26;
-      drawWrappedText("Scale: 0-" + formatNumber(maxScore) + " | Passing line: " + formatNumber(Number.isFinite(statistics.passingScore) ? statistics.passingScore : maxScore * 0.6) + " | " + describeStandardDeviation(statistics), margin, 10, "F1", "#475467", 92, 10);
+      const cutoffLine = statistics.passingRule === "ap" && statistics.apCutoffs
+        ? "AP cutoffs: 5=" + formatNumber(statistics.apCutoffs.five) + ", 4=" + formatNumber(statistics.apCutoffs.four) + ", 3=" + formatNumber(statistics.apCutoffs.three)
+        : "Passing line: " + formatNumber(Number.isFinite(statistics.passingScore) ? statistics.passingScore : maxScore * 0.6);
+      drawWrappedText("Scale: 0-" + formatNumber(maxScore) + " | " + cutoffLine + " | " + describeStandardDeviation(statistics), margin, 10, "F1", "#475467", 92, 10);
       drawSectionTitle("Summary");
       drawSummaryCards();
       drawStatsChart();
