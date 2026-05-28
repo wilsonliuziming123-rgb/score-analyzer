@@ -1083,8 +1083,11 @@
       display: none;
       place-items: center;
       padding: 22px;
-      background: rgba(3, 7, 18, 0.78);
-      backdrop-filter: blur(18px);
+      background:
+        radial-gradient(circle at 24% 18%, rgba(240, 190, 34, 0.12), transparent 28%),
+        radial-gradient(circle at 78% 74%, rgba(185, 28, 28, 0.18), transparent 34%),
+        rgba(3, 7, 18, 0.82);
+      backdrop-filter: blur(22px) saturate(1.1);
     }
 
     .recaptcha-prompt.is-visible {
@@ -1092,39 +1095,74 @@
     }
 
     .recaptcha-card {
-      width: min(100%, 500px);
-      padding: 28px;
-      border: 1px solid rgba(240, 190, 34, 0.42);
-      border-radius: 28px;
+      position: relative;
+      width: min(100%, 520px);
+      padding: 26px;
+      border: 1px solid rgba(240, 190, 34, 0.5);
+      border-radius: 30px;
       background:
-        radial-gradient(circle at 16% 0%, rgba(240, 190, 34, 0.22), transparent 35%),
-        linear-gradient(145deg, rgba(13, 17, 23, 0.98), rgba(31, 41, 55, 0.96));
+        linear-gradient(90deg, rgba(240, 190, 34, 0.16), transparent 34%),
+        radial-gradient(circle at 18% 0%, rgba(240, 190, 34, 0.22), transparent 38%),
+        linear-gradient(145deg, rgba(15, 18, 27, 0.98), rgba(17, 24, 39, 0.96));
       color: white;
-      box-shadow: 0 34px 110px rgba(0, 0, 0, 0.48);
+      box-shadow:
+        0 34px 110px rgba(0, 0, 0, 0.52),
+        0 0 0 8px rgba(240, 190, 34, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .recaptcha-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gold), #ef4444, #2563eb);
+    }
+
+    .recaptcha-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 7px 11px;
+      border: 1px solid rgba(240, 190, 34, 0.35);
+      border-radius: 999px;
+      background: rgba(240, 190, 34, 0.12);
+      color: #fef3c7;
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
     .recaptcha-card h2 {
-      margin: 0 0 9px;
-      font-size: 28px;
+      margin: 0 0 10px;
+      font-size: 31px;
       line-height: 1.08;
     }
 
     .recaptcha-card p {
       margin: 0 0 18px;
-      color: rgba(255, 255, 255, 0.72);
+      color: rgba(255, 255, 255, 0.76);
       line-height: 1.55;
     }
 
     .recaptcha-widget {
       display: flex;
-      min-height: 78px;
+      min-height: 118px;
       align-items: center;
       justify-content: center;
-      margin: 16px 0;
-      padding: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.08);
+      margin: 18px 0 10px;
+      padding: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 22px;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06)),
+        rgba(255, 255, 255, 0.08);
+      box-shadow:
+        inset 0 1px 18px rgba(255, 255, 255, 0.06),
+        inset 0 -16px 32px rgba(0, 0, 0, 0.18);
       overflow: hidden;
     }
 
@@ -1138,7 +1176,7 @@
     .recaptcha-actions {
       display: flex;
       gap: 10px;
-      margin-top: 14px;
+      margin-top: 18px;
     }
 
     .recaptcha-continue {
@@ -1148,9 +1186,11 @@
       background: var(--gold);
       color: #111827;
       font-weight: 950;
+      box-shadow: 0 18px 36px rgba(240, 190, 34, 0.2);
     }
 
     .recaptcha-cancel {
+      min-width: 108px;
       min-height: 48px;
       border: 1px solid rgba(255, 255, 255, 0.16);
       border-radius: 999px;
@@ -3374,6 +3414,7 @@
 
   <section id="recaptchaPrompt" class="recaptcha-prompt" aria-hidden="true">
     <div class="recaptcha-card" role="dialog" aria-modal="true" aria-labelledby="recaptchaTitle">
+      <div id="recaptchaKicker" class="recaptcha-kicker">Protected step</div>
       <h2 id="recaptchaTitle">Quick human check</h2>
       <p id="recaptchaText">Complete the reCAPTCHA challenge before continuing.</p>
       <div id="recaptchaWidget" class="recaptcha-widget"></div>
@@ -3478,6 +3519,7 @@
     const authPromptGoogleBtn = document.getElementById("authPromptGoogleBtn");
     const authPromptSkipBtn = document.getElementById("authPromptSkipBtn");
     const recaptchaPrompt = document.getElementById("recaptchaPrompt");
+    const recaptchaKicker = document.getElementById("recaptchaKicker");
     const recaptchaTitle = document.getElementById("recaptchaTitle");
     const recaptchaText = document.getElementById("recaptchaText");
     const recaptchaWidget = document.getElementById("recaptchaWidget");
@@ -5358,6 +5400,7 @@
       }
 
       const verified = await requestRecaptchaChallenge({
+        kicker: "Secure sign-in",
         title: "Verify before Google sign-in",
         text: "Complete this quick human check, then we will send you to Google sign-in."
       });
@@ -5401,6 +5444,7 @@
         return false;
       }
 
+      recaptchaKicker.textContent = options.kicker || "Protected step";
       recaptchaTitle.textContent = options.title || "Quick human check";
       recaptchaText.textContent = options.text || "Complete the reCAPTCHA challenge before continuing.";
       recaptchaStatus.textContent = "";
@@ -6154,6 +6198,7 @@
       }
 
       const verified = await requestRecaptchaChallenge({
+        kicker: "Message protection",
         title: "Verify before sending",
         text: "Complete this quick human check before opening your message."
       });
