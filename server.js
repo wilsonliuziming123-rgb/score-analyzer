@@ -18,8 +18,48 @@ app.get("/api/me", function (req, res) {
     return res.json({
         authenticated: Boolean(user),
         user: user,
-        googleConfigured: isGoogleConfigured()
+        googleConfigured: isGoogleConfigured(),
+        recaptchaConfigured: isRecaptchaConfigured(),
+        recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || ""
     });
+});
+
+app.post("/api/verify-recaptcha", async function (req, res) {
+    const token = req.body && req.body.token;
+
+    if (!isRecaptchaConfigured()) {
+        return res.status(400).json({
+            success: false,
+            error: "reCAPTCHA is not configured yet."
+        });
+    }
+
+    if (!token) {
+        return res.status(400).json({
+            success: false,
+            error: "Please complete the reCAPTCHA challenge."
+        });
+    }
+
+    try {
+        const verification = await verifyRecaptchaToken(token, req.ip);
+
+        if (!verification.success) {
+            return res.status(400).json({
+                success: false,
+                error: "reCAPTCHA verification failed. Please try again."
+            });
+        }
+
+        return res.json({
+            success: true
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: "Unable to verify reCAPTCHA right now."
+        });
+    }
 });
 
 app.get("/auth/google", function (req, res) {
@@ -355,6 +395,37 @@ function roundToTwo(num) {
 
 function isGoogleConfigured() {
     return Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+}
+
+function isRecaptchaConfigured() {
+    return Boolean(process.env.RECAPTCHA_SITE_KEY && process.env.RECAPTCHA_SECRET_KEY);
+}
+
+async function verifyRecaptchaToken(token, remoteIp) {
+    const params = new URLSearchParams({
+        secret: process.env.RECAPTCHA_SECRET_KEY,
+        response: token
+    });
+
+    if (remoteIp) {
+        params.append("remoteip", remoteIp);
+    }
+
+    const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: params
+    });
+
+    if (!response.ok) {
+        return {
+            success: false
+        };
+    }
+
+    return response.json();
 }
 
 function getGoogleRedirectUri(req) {

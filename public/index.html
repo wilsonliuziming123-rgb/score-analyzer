@@ -1076,6 +1076,90 @@
       box-shadow: none;
     }
 
+    .recaptcha-prompt {
+      position: fixed;
+      inset: 0;
+      z-index: 85;
+      display: none;
+      place-items: center;
+      padding: 22px;
+      background: rgba(3, 7, 18, 0.78);
+      backdrop-filter: blur(18px);
+    }
+
+    .recaptcha-prompt.is-visible {
+      display: grid;
+    }
+
+    .recaptcha-card {
+      width: min(100%, 500px);
+      padding: 28px;
+      border: 1px solid rgba(240, 190, 34, 0.42);
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 16% 0%, rgba(240, 190, 34, 0.22), transparent 35%),
+        linear-gradient(145deg, rgba(13, 17, 23, 0.98), rgba(31, 41, 55, 0.96));
+      color: white;
+      box-shadow: 0 34px 110px rgba(0, 0, 0, 0.48);
+    }
+
+    .recaptcha-card h2 {
+      margin: 0 0 9px;
+      font-size: 28px;
+      line-height: 1.08;
+    }
+
+    .recaptcha-card p {
+      margin: 0 0 18px;
+      color: rgba(255, 255, 255, 0.72);
+      line-height: 1.55;
+    }
+
+    .recaptcha-widget {
+      display: flex;
+      min-height: 78px;
+      align-items: center;
+      justify-content: center;
+      margin: 16px 0;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .recaptcha-status {
+      min-height: 20px;
+      margin: 6px 0 0;
+      color: #fecaca;
+      font-size: 14px;
+    }
+
+    .recaptcha-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .recaptcha-continue {
+      flex: 1;
+      min-height: 48px;
+      border-radius: 999px;
+      background: var(--gold);
+      color: #111827;
+      font-weight: 950;
+    }
+
+    .recaptcha-cancel {
+      min-height: 48px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      font-weight: 900;
+      box-shadow: none;
+    }
+
     .mission-page .hero,
     .mission-page .analyzer-panel,
     .mission-page .contact-section {
@@ -3288,6 +3372,19 @@
     </div>
   </section>
 
+  <section id="recaptchaPrompt" class="recaptcha-prompt" aria-hidden="true">
+    <div class="recaptcha-card" role="dialog" aria-modal="true" aria-labelledby="recaptchaTitle">
+      <h2 id="recaptchaTitle">Quick human check</h2>
+      <p id="recaptchaText">Complete the reCAPTCHA challenge before continuing.</p>
+      <div id="recaptchaWidget" class="recaptcha-widget"></div>
+      <p id="recaptchaStatus" class="recaptcha-status" aria-live="polite"></p>
+      <div class="recaptcha-actions">
+        <button id="recaptchaContinueBtn" class="recaptcha-continue" type="button">Continue</button>
+        <button id="recaptchaCancelBtn" class="recaptcha-cancel" type="button">Cancel</button>
+      </div>
+    </div>
+  </section>
+
   <section id="recordsDrawer" class="records-drawer" aria-hidden="true">
     <div class="records-drawer-panel">
       <div class="records-drawer-header">
@@ -3316,6 +3413,7 @@
     </div>
   </section>
 
+  <script src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
   <script>
     const scoreInput = document.getElementById("scoreInput");
     const maxScoreInput = document.getElementById("maxScoreInput");
@@ -3379,6 +3477,13 @@
     const authPromptText = document.getElementById("authPromptText");
     const authPromptGoogleBtn = document.getElementById("authPromptGoogleBtn");
     const authPromptSkipBtn = document.getElementById("authPromptSkipBtn");
+    const recaptchaPrompt = document.getElementById("recaptchaPrompt");
+    const recaptchaTitle = document.getElementById("recaptchaTitle");
+    const recaptchaText = document.getElementById("recaptchaText");
+    const recaptchaWidget = document.getElementById("recaptchaWidget");
+    const recaptchaStatus = document.getElementById("recaptchaStatus");
+    const recaptchaContinueBtn = document.getElementById("recaptchaContinueBtn");
+    const recaptchaCancelBtn = document.getElementById("recaptchaCancelBtn");
     const cookieTitle = document.getElementById("cookieTitle");
     const cookieText = document.getElementById("cookieText");
     const acceptCookiesBtn = document.getElementById("acceptCookiesBtn");
@@ -3390,6 +3495,10 @@
     let currentUser = "";
     let currentUserLabel = "";
     let googleConfigured = false;
+    let recaptchaConfigured = false;
+    let recaptchaSiteKey = "";
+    let recaptchaWidgetId = null;
+    let recaptchaResolver = null;
     let revealObserver;
     let selectedCountry = "US";
     let countrySearchTerm = "";
@@ -3431,6 +3540,8 @@
     topGoogleSignInBtn.addEventListener("click", startGoogleSignIn);
     authPromptGoogleBtn.addEventListener("click", startGoogleSignIn);
     authPromptSkipBtn.addEventListener("click", dismissAuthPrompt);
+    recaptchaContinueBtn.addEventListener("click", completeRecaptchaChallenge);
+    recaptchaCancelBtn.addEventListener("click", cancelRecaptchaChallenge);
     acceptCookiesBtn.addEventListener("click", acceptCookies);
     rejectCookiesBtn.addEventListener("click", rejectCookies);
     downloadReportBtn.addEventListener("click", downloadReport);
@@ -5218,6 +5329,8 @@
         const data = await response.json();
 
         googleConfigured = data.googleConfigured;
+        recaptchaConfigured = data.recaptchaConfigured;
+        recaptchaSiteKey = data.recaptchaSiteKey || "";
 
         if (data.authenticated && data.user) {
           currentUser = data.user.provider + ":" + (data.user.email || data.user.id);
@@ -5226,13 +5339,15 @@
         }
       } catch (error) {
         googleConfigured = false;
+        recaptchaConfigured = false;
+        recaptchaSiteKey = "";
       }
 
       currentUser = "";
       currentUserLabel = "";
     }
 
-    function startGoogleSignIn() {
+    async function startGoogleSignIn() {
       if (!googleConfigured) {
         if (authPrompt.classList.contains("is-visible")) {
           authPromptText.textContent = "Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Render first.";
@@ -5242,7 +5357,125 @@
         return;
       }
 
+      const verified = await requestRecaptchaChallenge({
+        title: "Verify before Google sign-in",
+        text: "Complete this quick human check, then we will send you to Google sign-in."
+      });
+
+      if (!verified) {
+        return;
+      }
+
       window.location.href = "/auth/google";
+    }
+
+    function waitForRecaptchaApi() {
+      return new Promise(function (resolve, reject) {
+        let attempts = 0;
+        const timer = setInterval(function () {
+          attempts++;
+
+          if (window.grecaptcha && typeof window.grecaptcha.render === "function") {
+            clearInterval(timer);
+            resolve();
+          }
+
+          if (attempts > 60) {
+            clearInterval(timer);
+            reject(new Error("reCAPTCHA did not load."));
+          }
+        }, 100);
+      });
+    }
+
+    async function requestRecaptchaChallenge(options) {
+      if (!recaptchaConfigured || !recaptchaSiteKey) {
+        showError("reCAPTCHA is not configured yet. Add RECAPTCHA_SITE_KEY and RECAPTCHA_SECRET_KEY in Render.");
+        return false;
+      }
+
+      try {
+        await waitForRecaptchaApi();
+      } catch (error) {
+        showError("reCAPTCHA did not load. Please refresh and try again.");
+        return false;
+      }
+
+      recaptchaTitle.textContent = options.title || "Quick human check";
+      recaptchaText.textContent = options.text || "Complete the reCAPTCHA challenge before continuing.";
+      recaptchaStatus.textContent = "";
+      recaptchaPrompt.classList.add("is-visible");
+      recaptchaPrompt.setAttribute("aria-hidden", "false");
+
+      if (recaptchaWidgetId === null) {
+        recaptchaWidgetId = window.grecaptcha.render(recaptchaWidget, {
+          sitekey: recaptchaSiteKey
+        });
+      } else {
+        window.grecaptcha.reset(recaptchaWidgetId);
+      }
+
+      return new Promise(function (resolve) {
+        recaptchaResolver = resolve;
+      });
+    }
+
+    async function completeRecaptchaChallenge() {
+      if (recaptchaWidgetId === null || !window.grecaptcha) {
+        recaptchaStatus.textContent = "reCAPTCHA is still loading. Please wait a moment.";
+        return;
+      }
+
+      const token = window.grecaptcha.getResponse(recaptchaWidgetId);
+
+      if (!token) {
+        recaptchaStatus.textContent = "Please complete the checkbox challenge first.";
+        return;
+      }
+
+      recaptchaContinueBtn.disabled = true;
+      recaptchaStatus.textContent = "Verifying...";
+
+      try {
+        const response = await fetch("/api/verify-recaptcha", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            token: token
+          })
+        });
+        const result = await response.json();
+
+        if (!result.success) {
+          recaptchaStatus.textContent = result.error || "Verification failed. Please try again.";
+          window.grecaptcha.reset(recaptchaWidgetId);
+          return;
+        }
+
+        closeRecaptchaPrompt(true);
+      } catch (error) {
+        recaptchaStatus.textContent = "Unable to verify right now. Please try again.";
+        window.grecaptcha.reset(recaptchaWidgetId);
+      } finally {
+        recaptchaContinueBtn.disabled = false;
+      }
+    }
+
+    function cancelRecaptchaChallenge() {
+      closeRecaptchaPrompt(false);
+    }
+
+    function closeRecaptchaPrompt(result) {
+      recaptchaPrompt.classList.remove("is-visible");
+      recaptchaPrompt.setAttribute("aria-hidden", "true");
+      recaptchaStatus.textContent = "";
+
+      if (recaptchaResolver) {
+        recaptchaResolver(result);
+        recaptchaResolver = null;
+      }
     }
 
     async function signOut() {
@@ -5908,7 +6141,7 @@
         .replace(/\)/g, "\\)");
     }
 
-    function handleContactSubmit(event) {
+    async function handleContactSubmit(event) {
       event.preventDefault();
 
       const name = document.getElementById("contactName").value.trim();
@@ -5917,6 +6150,16 @@
 
       if (!name || !email || !message) {
         contactStatus.textContent = "Please fill in every field before sending.";
+        return;
+      }
+
+      const verified = await requestRecaptchaChallenge({
+        title: "Verify before sending",
+        text: "Complete this quick human check before opening your message."
+      });
+
+      if (!verified) {
+        contactStatus.textContent = "Message was not sent because verification was cancelled.";
         return;
       }
 
