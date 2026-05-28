@@ -3683,6 +3683,7 @@
     }
 
     async function initializePage() {
+      resetToDefaultOnBrowserReload();
       setupScrollReveal();
       setupAnalyzerMode();
       loadCountryPreference();
@@ -3694,6 +3695,31 @@
       scoreInput.value = "";
       updateInputFlow();
       document.body.classList.remove("loading-reveal");
+    }
+
+    function resetToDefaultOnBrowserReload() {
+      const navigationEntry = performance.getEntriesByType
+        ? performance.getEntriesByType("navigation")[0]
+        : null;
+      const isReload = navigationEntry
+        ? navigationEntry.type === "reload"
+        : performance.navigation && performance.navigation.type === 1;
+
+      if (!isReload) {
+        return;
+      }
+
+      analyzerMode = "home";
+      window.history.replaceState({}, "", "/");
+      examNameInput.value = "";
+      scoreInput.value = "";
+      maxScoreInput.value = "";
+      passingScoreInput.value = "";
+      apFiveCutoffInput.value = "";
+      apFourCutoffInput.value = "";
+      apThreeCutoffInput.value = "";
+      results.style.display = "none";
+      latestStatistics = null;
     }
 
     function getAnalyzerMode() {
