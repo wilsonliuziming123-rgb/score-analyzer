@@ -689,6 +689,10 @@
       background: #f8fafc;
     }
 
+    .analyzer-panel .auth-panel {
+      display: none;
+    }
+
     .auth-panel.signed-in {
       background: #ecfdf5;
       border-color: #bbf7d0;
@@ -2421,25 +2425,69 @@
 
     .record-actions {
       display: flex;
+      align-items: center;
       gap: 8px;
       margin-top: auto;
     }
 
-    .record-actions button {
+    .record-open {
       flex: 1;
       padding: 8px 10px;
       font-size: 13px;
       box-shadow: none;
-    }
-
-    .record-open {
       background: #111827;
       color: white;
     }
 
+    .record-menu {
+      position: relative;
+    }
+
+    .record-menu summary {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border: 1px solid rgba(17, 24, 39, 0.14);
+      border-radius: 999px;
+      background: white;
+      color: #111827;
+      cursor: pointer;
+      font-weight: 900;
+      list-style: none;
+    }
+
+    .record-menu summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .record-menu[open] summary {
+      border-color: rgba(240, 190, 34, 0.75);
+      box-shadow: 0 0 0 4px rgba(240, 190, 34, 0.16);
+    }
+
+    .record-menu-panel {
+      position: absolute;
+      right: 0;
+      bottom: 44px;
+      z-index: 10;
+      min-width: 120px;
+      padding: 8px;
+      border: 1px solid rgba(17, 24, 39, 0.12);
+      border-radius: 12px;
+      background: white;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+    }
+
     .record-delete {
+      width: 100%;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 8px;
       background: #fee2e2;
       color: #991b1b;
+      box-shadow: none;
+      font-size: 13px;
     }
 
     .results {
@@ -3843,6 +3891,7 @@
     const baseRecordsKey = "studentScoreAnalyzerRecords";
     const countryStorageKey = "studentScoreAnalyzerCountry";
     const cookieChoiceKey = "studentScoreAnalyzerCookieChoice";
+    const pendingDraftKey = "studentScoreAnalyzerPendingDraft";
     let currentUser = "";
     let currentUserLabel = "";
     let googleConfigured = false;
@@ -3866,6 +3915,9 @@
     apThreeCutoffInput.addEventListener("input", updateInputFlow);
     examNameInput.addEventListener("input", updateInputFlow);
     scoreInput.addEventListener("input", updateInputFlow);
+    [maxScoreInput, passingScoreInput, apFiveCutoffInput, apFourCutoffInput, apThreeCutoffInput, examNameInput, scoreInput].forEach(function (input) {
+      input.addEventListener("input", requireSignInForEditing);
+    });
     sampleDataBtn.addEventListener("click", useSampleData);
     uploadCsvBtn.addEventListener("click", function () {
       csvFileInput.click();
@@ -3913,13 +3965,16 @@
       hideError();
 
       if (!currentUser) {
+        savePendingDraft();
         if (googleConfigured) {
           startGoogleSignIn();
         } else {
-          showError("Please sign in before analyzing scores. Google sign-in is not configured yet.");
-          authPanel.scrollIntoView({
+          const text = getLocaleText(getActiveLocale());
+          showError(text.googleConfigMissing || "Please sign in before analyzing scores. Google sign-in is not configured yet.");
+          accountMenu.open = true;
+          document.querySelector(".topbar").scrollIntoView({
             behavior: "smooth",
-            block: "center"
+            block: "start"
           });
         }
 
@@ -4156,7 +4211,7 @@
       updateAuthUI();
       showInitialAuthPrompt();
       loadSavedRecords();
-      scoreInput.value = "";
+      restorePendingDraft();
       updateInputFlow();
       document.body.classList.remove("loading-reveal");
     }
@@ -4397,9 +4452,66 @@
       cookieText.textContent = text.cookieText;
       acceptCookiesBtn.textContent = text.acceptCookies;
       rejectCookiesBtn.textContent = text.rejectCookies;
+      document.getElementById("authPromptTitle").textContent = text.authPromptTitle || "Sign in to keep your analysis personal.";
+      authPromptText.textContent = text.authPromptText || "Use Google sign-in to save records, reopen previous reports, and keep each analysis connected to a real account.";
+      authPromptSkipBtn.textContent = text.exploreFirst || "Explore first";
+      updateProductCopy(text);
       updateInputFlow();
       updateAuthUI();
       renderRecords();
+    }
+
+    function updateProductCopy(text) {
+      analyzeNavBtn.textContent = text.navAnalyze || "Analyze";
+      missionNavBtn.textContent = text.navMission || "Mission";
+      recordsShortcutBtn.textContent = text.records || "Records";
+      document.querySelectorAll(".mode-start").forEach(function (element) {
+        element.textContent = text.startAnalysis || "Start analysis";
+      });
+
+      const modeCopies = [
+        ["standard", text.standardModeEyebrow, text.standardModeTitle, text.standardModeText],
+        ["custom", text.customModeEyebrow, text.customModeTitle, text.customModeText],
+        ["ap", text.apModeEyebrow, text.apModeTitle, text.apModeText]
+      ];
+
+      modeCopies.forEach(function (copy) {
+        const card = modeGrid.querySelector('[data-mode="' + copy[0] + '"]');
+
+        if (!card) {
+          return;
+        }
+
+        card.querySelector("span").textContent = copy[1];
+        card.querySelector("strong").textContent = copy[2];
+        card.querySelector("p").textContent = copy[3];
+      });
+
+      stepScale.querySelector("span").textContent = text.stepOne || "Step 1";
+      stepScale.querySelector("strong").textContent = text.stepScale || "Choose scale";
+      stepName.querySelector("span").textContent = text.stepTwo || "Step 2";
+      stepName.querySelector("strong").textContent = text.stepName || "Name analysis";
+      stepScores.querySelector("span").textContent = text.stepThree || "Step 3";
+      stepScores.querySelector("strong").textContent = text.stepScores || "Enter scores";
+      stepReview.querySelector("span").textContent = text.stepFour || "Step 4";
+      stepReview.querySelector("strong").textContent = text.stepReview || "Review results";
+
+      document.querySelector(".input-tools .more-menu summary").textContent = text.more || "More";
+      sampleDataBtn.textContent = text.sampleData || "Use sample data";
+      uploadCsvBtn.textContent = text.uploadCsv || "Upload CSV";
+      document.querySelector(".records-tools .more-menu summary").textContent = text.manage || "Manage";
+      exportRecordsBtn.textContent = text.exportRecords || "Export";
+      importRecordsBtn.textContent = text.importRecords || "Import";
+      clearRecordsBtn.textContent = text.clearRecords || "Clear Records";
+      downloadReportBtn.textContent = text.downloadReport || "Download PDF Report";
+      document.querySelector(".results-header h2").textContent = text.resultsTitle || "Results";
+      document.querySelector(".results-header p").textContent = text.resultsIntro || "Read the evidence first, then use warnings and recommendations to decide the next teaching move.";
+      document.querySelector(".chart-section h3").textContent = text.chartTitle || "Statistics Chart";
+      document.querySelector(".chart-note").textContent = text.chartNote || "Visual comparison of all score statistics.";
+      document.querySelector(".distribution-section h3").textContent = text.distributionTitle || "Score Distribution";
+      document.querySelector(".warnings-section h3").textContent = text.warningsTitle || "Warnings";
+      document.querySelector(".ai-advice-header h3").textContent = text.adviceTitle || "AI Recommendations";
+      document.querySelector(".ai-badge").textContent = text.adviceBadge || "Smart analysis";
     }
 
     function getActiveLocale() {
@@ -4452,10 +4564,22 @@
           googleSignIn: "Google 登录",
           googleSetupRequired: "需要配置 Google",
           continueWithGoogle: "使用 Google 继续",
+          authPromptTitle: "登录后继续分析",
+          authPromptText: "使用 Google 登录后，你刚刚输入的内容会被保留，并且分析记录会自动保存。",
+          exploreFirst: "先浏览",
+          googleConfigMissing: "Google 登录还没有配置完成，请先在 Render 添加 GOOGLE_CLIENT_ID 和 GOOGLE_CLIENT_SECRET。",
+          recaptchaSignInKicker: "安全登录",
+          recaptchaSignInTitle: "登录前验证",
+          recaptchaSignInText: "先完成一次人机验证，然后我们会带你进入 Google 登录。",
+          contactCaptchaKicker: "消息保护",
+          contactCaptchaTitle: "发送前验证",
+          contactCaptchaText: "发送消息前，请先完成一次人机验证。",
           authTitle: "使用 Google 登录",
           authText: "使用已验证的 Google 账号，让保存的分析记录真正绑定到用户。",
           welcomePrefix: "欢迎回来，",
           savedText: "你的分析会自动保存到这个浏览器中的个人记录。",
+          signedInAs: "已登录：",
+          account: "账号",
           signOut: "退出登录",
           missionCta: "分数是一种社会信号",
           missionKicker: "我们的使命",
@@ -4468,7 +4592,46 @@
           missionPointTwoText: "数据不是为了更快贴标签，而是帮助人们决定下一步如何支持、挑战和回应。",
           missionPointThreeTitle: "建立更公平的反馈循环",
           missionPointThreeText: "不同评分体系承载不同含义。公平的工具应先理解语境，再给出判断。",
-          missionBack: "回到主页"
+          missionBack: "回到主页",
+          navAnalyze: "分析",
+          navMission: "使命",
+          startAnalysis: "开始分析",
+          standardModeEyebrow: "经典课堂",
+          standardModeTitle: "100 分默认模式",
+          standardModeText: "使用熟悉的 100 分制，并以 60 分作为及格线。",
+          customModeEyebrow: "建立你的曲线",
+          customModeTitle: "自定义评分",
+          customModeText: "为任意评分体系设置自己的满分和原始及格线。",
+          apModeEyebrow: "考试目标模式",
+          apModeTitle: "AP 风格分段",
+          apModeText: "设置 AP 5、4、3 的 cutoff，并按分段分析学生表现。",
+          stepOne: "步骤 1",
+          stepTwo: "步骤 2",
+          stepThree: "步骤 3",
+          stepFour: "步骤 4",
+          stepScale: "选择评分标准",
+          stepName: "命名分析",
+          stepScores: "输入成绩",
+          stepReview: "查看结果",
+          more: "更多",
+          sampleData: "使用示例数据",
+          uploadCsv: "上传 CSV",
+          manage: "管理",
+          exportRecords: "导出",
+          importRecords: "导入",
+          clearRecords: "清空记录",
+          downloadReport: "下载 PDF 报告",
+          recordOpen: "打开",
+          recordOptions: "记录选项",
+          recordDelete: "删除",
+          resultsTitle: "分析结果",
+          resultsIntro: "先看数据证据，再根据预警和建议决定下一步教学动作。",
+          chartTitle: "统计图表",
+          chartNote: "直观比较所有关键成绩统计量。",
+          distributionTitle: "成绩分布",
+          warningsTitle: "预警",
+          adviceTitle: "AI 建议",
+          adviceBadge: "智能分析"
         };
       }
 
@@ -4495,10 +4658,22 @@
           googleSignIn: "Google 登入",
           googleSetupRequired: "需要設定 Google",
           continueWithGoogle: "使用 Google 繼續",
+          authPromptTitle: "登入後繼續分析",
+          authPromptText: "使用 Google 登入後，你剛剛輸入的內容會被保留，並且分析紀錄會自動儲存。",
+          exploreFirst: "先瀏覽",
+          googleConfigMissing: "Google 登入尚未設定完成，請先在 Render 新增 GOOGLE_CLIENT_ID 和 GOOGLE_CLIENT_SECRET。",
+          recaptchaSignInKicker: "安全登入",
+          recaptchaSignInTitle: "登入前驗證",
+          recaptchaSignInText: "先完成一次人機驗證，然後我們會帶你進入 Google 登入。",
+          contactCaptchaKicker: "訊息保護",
+          contactCaptchaTitle: "傳送前驗證",
+          contactCaptchaText: "傳送訊息前，請先完成一次人機驗證。",
           authTitle: "使用 Google 登入",
           authText: "使用已驗證的 Google 帳號，讓儲存的分析紀錄真正綁定到使用者。",
           welcomePrefix: "歡迎回來，",
           savedText: "你的分析會自動儲存到這個瀏覽器中的個人紀錄。",
+          signedInAs: "已登入：",
+          account: "帳號",
           signOut: "登出",
           missionCta: "分數是一種社會信號",
           missionKicker: "我們的使命",
@@ -4511,7 +4686,46 @@
           missionPointTwoText: "數據不是為了更快貼標籤，而是幫助人們決定下一步如何支持、挑戰和回應。",
           missionPointThreeTitle: "建立更公平的回饋循環",
           missionPointThreeText: "不同評分體系承載不同含義。公平的工具應先理解脈絡，再給出判斷。",
-          missionBack: "回到首頁"
+          missionBack: "回到首頁",
+          navAnalyze: "分析",
+          navMission: "使命",
+          startAnalysis: "開始分析",
+          standardModeEyebrow: "經典課堂",
+          standardModeTitle: "100 分預設模式",
+          standardModeText: "使用熟悉的 100 分制，並以 60 分作為及格線。",
+          customModeEyebrow: "建立你的曲線",
+          customModeTitle: "自訂評分",
+          customModeText: "為任意評分體系設定自己的滿分和原始及格線。",
+          apModeEyebrow: "考試目標模式",
+          apModeTitle: "AP 風格分段",
+          apModeText: "設定 AP 5、4、3 的 cutoff，並按分段分析學生表現。",
+          stepOne: "步驟 1",
+          stepTwo: "步驟 2",
+          stepThree: "步驟 3",
+          stepFour: "步驟 4",
+          stepScale: "選擇評分標準",
+          stepName: "命名分析",
+          stepScores: "輸入成績",
+          stepReview: "查看結果",
+          more: "更多",
+          sampleData: "使用範例資料",
+          uploadCsv: "上傳 CSV",
+          manage: "管理",
+          exportRecords: "匯出",
+          importRecords: "匯入",
+          clearRecords: "清空紀錄",
+          downloadReport: "下載 PDF 報告",
+          recordOpen: "開啟",
+          recordOptions: "紀錄選項",
+          recordDelete: "刪除",
+          resultsTitle: "分析結果",
+          resultsIntro: "先看數據證據，再根據預警和建議決定下一步教學動作。",
+          chartTitle: "統計圖表",
+          chartNote: "直觀比較所有關鍵成績統計量。",
+          distributionTitle: "成績分布",
+          warningsTitle: "預警",
+          adviceTitle: "AI 建議",
+          adviceBadge: "智能分析"
         };
       }
 
@@ -4673,6 +4887,45 @@
         metricScale: "Flexible",
         metricValidation: "Score scale",
         metricWebApp: "Web app",
+        navAnalyze: "Analyze",
+        navMission: "Mission",
+        startAnalysis: "Start analysis",
+        standardModeEyebrow: "Classic",
+        standardModeTitle: "Standard grading",
+        standardModeText: "100-point scale with a 60-point passing line.",
+        customModeEyebrow: "Flexible",
+        customModeTitle: "Custom scale",
+        customModeText: "Set your own maximum score and passing score.",
+        apModeEyebrow: "AP style",
+        apModeTitle: "AP cutoffs",
+        apModeText: "Use 5, 4, and 3 score thresholds for AP-style analysis.",
+        stepOne: "Step 1",
+        stepTwo: "Step 2",
+        stepThree: "Step 3",
+        stepFour: "Step 4",
+        stepScale: "Choose scale",
+        stepName: "Name analysis",
+        stepScores: "Enter scores",
+        stepReview: "Review results",
+        more: "More",
+        sampleData: "Use sample data",
+        uploadCsv: "Upload CSV",
+        manage: "Manage",
+        exportRecords: "Export",
+        importRecords: "Import",
+        clearRecords: "Clear records",
+        downloadReport: "Download PDF Report",
+        recordOpen: "Open",
+        recordOptions: "Record options",
+        recordDelete: "Delete",
+        resultsTitle: "Results",
+        resultsIntro: "Read the evidence first, then use warnings and recommendations to decide the next teaching move.",
+        chartTitle: "Statistics Chart",
+        chartNote: "Visual comparison of all score statistics.",
+        distributionTitle: "Score Distribution",
+        warningsTitle: "Warnings",
+        adviceTitle: "AI Recommendations",
+        adviceBadge: "Smart analysis",
         maxScoreLabel: "Maximum score",
         maxScoreHelp: "The analyzer validates scores against this scale and uses 60% of it as the passing line.",
         scoreInputLabel: "Score input",
@@ -4687,10 +4940,22 @@
         googleSignIn: "Google sign in",
         googleSetupRequired: "Google setup required",
         continueWithGoogle: "Continue with Google",
+        authPromptTitle: "Sign in to keep your analysis personal.",
+        authPromptText: "Use Google sign-in to save records, reopen previous reports, and keep each analysis connected to a real account.",
+        exploreFirst: "Explore first",
+        googleConfigMissing: "Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Render.",
+        recaptchaSignInKicker: "Secure sign-in",
+        recaptchaSignInTitle: "Verify before Google sign-in",
+        recaptchaSignInText: "Complete this quick human check, then we will send you to Google sign-in.",
+        contactCaptchaKicker: "Message protection",
+        contactCaptchaTitle: "Verify before sending",
+        contactCaptchaText: "Complete this quick human check before opening your message.",
         authTitle: "Sign in with Google",
         authText: "Use a verified Google account so saved analyses stay connected to a real user.",
         welcomePrefix: "Welcome back, ",
         savedText: "Your analyses will be saved automatically to your personal records on this browser.",
+        signedInAs: "Signed in as ",
+        account: "Account",
         signOut: "Sign out",
         missionCta: "Scores are social signals",
         missionKicker: "Our mission",
@@ -4807,6 +5072,61 @@
       });
     }
 
+    function requireSignInForEditing() {
+      if (currentUser || analyzerMode === "home" || analyzerMode === "mission") {
+        return;
+      }
+
+      savePendingDraft();
+      startGoogleSignIn();
+    }
+
+    function savePendingDraft() {
+      const draft = {
+        mode: analyzerMode,
+        maxScore: maxScoreInput.value,
+        passingScore: passingScoreInput.value,
+        apFive: apFiveCutoffInput.value,
+        apFour: apFourCutoffInput.value,
+        apThree: apThreeCutoffInput.value,
+        examName: examNameInput.value,
+        scoresInput: scoreInput.value
+      };
+
+      sessionStorage.setItem(pendingDraftKey, JSON.stringify(draft));
+    }
+
+    function restorePendingDraft() {
+      const savedDraft = sessionStorage.getItem(pendingDraftKey);
+
+      if (!savedDraft) {
+        scoreInput.value = "";
+        return;
+      }
+
+      try {
+        const draft = JSON.parse(savedDraft);
+
+        if (draft.mode && ["standard", "custom", "ap"].includes(draft.mode)) {
+          analyzerMode = draft.mode;
+          window.history.replaceState({}, "", "/" + analyzerMode);
+          setupAnalyzerMode();
+        }
+
+        maxScoreInput.value = draft.maxScore || maxScoreInput.value;
+        passingScoreInput.value = draft.passingScore || passingScoreInput.value;
+        apFiveCutoffInput.value = draft.apFive || apFiveCutoffInput.value;
+        apFourCutoffInput.value = draft.apFour || apFourCutoffInput.value;
+        apThreeCutoffInput.value = draft.apThree || apThreeCutoffInput.value;
+        examNameInput.value = draft.examName || "";
+        scoreInput.value = draft.scoresInput || "";
+        sessionStorage.removeItem(pendingDraftKey);
+      } catch (error) {
+        sessionStorage.removeItem(pendingDraftKey);
+        scoreInput.value = "";
+      }
+    }
+
     function scrollToAnalyzeEntry() {
       if (analyzerMode === "home" || analyzerMode === "mission") {
         analyzerMode = "standard";
@@ -4914,8 +5234,10 @@
         return;
       }
 
+      const text = getLocaleText(getActiveLocale());
+
       authPromptGoogleBtn.disabled = !googleConfigured;
-      authPromptGoogleBtn.textContent = googleConfigured ? "Continue with Google" : "Google sign-in needs setup";
+      authPromptGoogleBtn.textContent = googleConfigured ? (text.continueWithGoogle || "Continue with Google") : (text.googleSetupRequired || "Google sign-in needs setup");
       authPrompt.classList.add("is-visible");
       authPrompt.setAttribute("aria-hidden", "false");
     }
@@ -5731,19 +6053,25 @@
     }
 
     async function startGoogleSignIn() {
+      const text = getLocaleText(getActiveLocale());
+
+      if (analyzerMode !== "home" && analyzerMode !== "mission") {
+        savePendingDraft();
+      }
+
       if (!googleConfigured) {
         if (authPrompt.classList.contains("is-visible")) {
-          authPromptText.textContent = "Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Render first.";
+          authPromptText.textContent = text.googleConfigMissing || "Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Render first.";
         }
 
-        showError("Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Render.");
+        showError(text.googleConfigMissing || "Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Render.");
         return;
       }
 
       const verified = await requestRecaptchaChallenge({
-        kicker: "Secure sign-in",
-        title: "Verify before Google sign-in",
-        text: "Complete this quick human check, then we will send you to Google sign-in."
+        kicker: text.recaptchaSignInKicker || "Secure sign-in",
+        title: text.recaptchaSignInTitle || "Verify before Google sign-in",
+        text: text.recaptchaSignInText || "Complete this quick human check, then we will send you to Google sign-in."
       });
 
       if (!verified) {
@@ -5886,7 +6214,7 @@
       const recordsLabel = text.records || "Records";
 
       if (currentUser) {
-        authStatus.textContent = "Signed in as " + currentUserLabel;
+        authStatus.textContent = (text.signedInAs || "Signed in as ") + currentUserLabel;
         authStatus.style.display = "inline-block";
         recordsShortcutBtn.style.display = "inline-block";
         signOutBtn.style.display = "inline-block";
@@ -5910,7 +6238,7 @@
       topGoogleSignInBtn.disabled = !googleConfigured;
       topGoogleSignInBtn.textContent = googleConfigured ? (text.googleSignIn || "Google sign in") : (text.googleSetupRequired || "Google setup required");
       accountAvatar.textContent = "A";
-      accountLabel.textContent = "Account";
+      accountLabel.textContent = text.account || "Account";
       authPanel.classList.remove("signed-in");
       authPanelTitle.textContent = text.authTitle || "Sign in with Google";
       authPanelText.textContent = text.authText || "Use a verified Google account so saved analyses stay connected to a real user.";
@@ -6015,6 +6343,7 @@
           ? record.scoresInput.slice(0, 74) + "..."
           : record.scoresInput;
         const title = record.title || (stats.examName || "Untitled analysis");
+        const text = getLocaleText();
 
         return `
           <article class="record-item">
@@ -6023,8 +6352,13 @@
               <p class="record-meta">${date}<br>Scale 0-${formatNumber(stats.maxScore || 100)} · Pass ${formatNumber(Number.isFinite(stats.passingScore) ? stats.passingScore : (stats.maxScore || 100) * 0.6)} · ${escapeHtml(scorePreview)}</p>
             </div>
             <div class="record-actions">
-              <button class="record-open" type="button" data-id="${record.id}">Open</button>
-              <button class="record-delete" type="button" data-id="${record.id}">Delete</button>
+              <button class="record-open" type="button" data-id="${record.id}">${escapeHtml(text.recordOpen || "Open")}</button>
+              <details class="record-menu">
+                <summary aria-label="${escapeHtml(text.recordOptions || "Record options")}">...</summary>
+                <div class="record-menu-panel">
+                  <button class="record-delete" type="button" data-id="${record.id}">${escapeHtml(text.recordDelete || "Delete")}</button>
+                </div>
+              </details>
             </div>
           </article>
         `;
@@ -6541,6 +6875,7 @@
       const name = document.getElementById("contactName").value.trim();
       const email = document.getElementById("contactEmail").value.trim();
       const message = document.getElementById("contactMessage").value.trim();
+      const text = getLocaleText(getActiveLocale());
 
       if (!name || !email || !message) {
         contactStatus.textContent = "Please fill in every field before sending.";
@@ -6548,9 +6883,9 @@
       }
 
       const verified = await requestRecaptchaChallenge({
-        kicker: "Message protection",
-        title: "Verify before sending",
-        text: "Complete this quick human check before opening your message."
+        kicker: text.contactCaptchaKicker || "Message protection",
+        title: text.contactCaptchaTitle || "Verify before sending",
+        text: text.contactCaptchaText || "Complete this quick human check before opening your message."
       });
 
       if (!verified) {
