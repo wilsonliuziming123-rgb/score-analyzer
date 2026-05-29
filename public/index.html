@@ -1001,6 +1001,12 @@
       background: rgba(240, 190, 34, 0.14);
     }
 
+    .tool-button-muted {
+      border-color: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.045);
+      color: rgba(248, 250, 252, 0.78);
+    }
+
     .records-tools .tool-button {
       border-color: #d8dce6;
       background: #111827;
@@ -3508,14 +3514,9 @@
       ></textarea>
 
       <div class="input-tools" aria-label="Input helpers">
-        <details class="more-menu">
-          <summary>More</summary>
-          <div class="more-panel">
-            <button id="sampleDataBtn" class="tool-button" type="button">Use sample data</button>
-            <button id="uploadCsvBtn" class="tool-button" type="button">Upload CSV</button>
-            <button id="clearBtn" type="button">Clear</button>
-          </div>
-        </details>
+        <button id="sampleDataBtn" class="tool-button" type="button">Use sample data</button>
+        <button id="uploadCsvBtn" class="tool-button" type="button">Upload CSV</button>
+        <button id="clearBtn" class="tool-button tool-button-muted" type="button">Clear</button>
         <input id="csvFileInput" type="file" accept=".csv,text/csv" hidden>
       </div>
 
@@ -4496,9 +4497,9 @@
       stepReview.querySelector("span").textContent = text.stepFour || "Step 4";
       stepReview.querySelector("strong").textContent = text.stepReview || "Review results";
 
-      document.querySelector(".input-tools .more-menu summary").textContent = text.more || "More";
       sampleDataBtn.textContent = text.sampleData || "Use sample data";
       uploadCsvBtn.textContent = text.uploadCsv || "Upload CSV";
+      clearBtn.textContent = text.clear || "Clear";
       document.querySelector(".records-tools .more-menu summary").textContent = text.manage || "Manage";
       exportRecordsBtn.textContent = text.exportRecords || "Export";
       importRecordsBtn.textContent = text.importRecords || "Import";
