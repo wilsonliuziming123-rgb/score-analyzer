@@ -122,6 +122,31 @@
       box-shadow: 0 0 0 3px rgba(240, 190, 34, 0.18);
     }
 
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+    }
+
+    .nav-link {
+      padding: 9px 13px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.76);
+      font-size: 14px;
+      font-weight: 850;
+      box-shadow: none;
+    }
+
+    .nav-link:hover {
+      border-color: rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      transform: translateY(-1px);
+    }
+
     .nav-pill {
       padding: 9px 14px;
       border: 1px solid rgba(255, 255, 255, 0.16);
@@ -138,6 +163,68 @@
       gap: 10px;
     }
 
+    .account-menu {
+      position: relative;
+    }
+
+    .account-menu summary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 11px 5px 5px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .account-menu summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .account-avatar {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #111827;
+      font-size: 13px;
+      font-weight: 950;
+      box-shadow: 0 0 0 3px rgba(240, 190, 34, 0.14);
+    }
+
+    .account-label {
+      max-width: 130px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .account-panel {
+      position: absolute;
+      z-index: 26;
+      top: calc(100% + 10px);
+      right: 0;
+      width: min(280px, calc(100vw - 34px));
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(240, 190, 34, 0.18), transparent 36%),
+        rgba(13, 17, 23, 0.96);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+      backdrop-filter: blur(18px);
+    }
+
     .auth-status {
       padding: 9px 14px;
       border: 1px solid rgba(255, 255, 255, 0.16);
@@ -148,6 +235,13 @@
       backdrop-filter: blur(14px);
     }
 
+    .account-panel .auth-status {
+      display: block;
+      border-radius: 14px;
+      white-space: normal;
+      line-height: 1.35;
+    }
+
     .auth-toggle {
       padding: 9px 13px;
       border-radius: 999px;
@@ -155,6 +249,11 @@
       color: #111827;
       font-size: 14px;
       box-shadow: none;
+    }
+
+    .account-panel .auth-toggle {
+      width: 100%;
+      justify-content: center;
     }
 
     .records-shortcut {
@@ -370,6 +469,8 @@
 
     .mode-card {
       position: relative;
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
       min-height: 154px;
       padding: 18px;
@@ -425,26 +526,28 @@
       transform: translateX(115%);
     }
 
-    .mode-card::after {
-      content: "Start analysis";
+    .mode-card strong,
+    .mode-card span,
+    .mode-card p,
+    .mode-start {
       position: relative;
       z-index: 1;
+    }
+
+    .mode-start {
       display: inline-flex;
       align-items: center;
-      margin-top: 16px;
-      padding: 9px 12px;
+      justify-content: center;
+      width: fit-content;
+      margin-top: auto;
+      padding: 9px 13px;
       border-radius: 999px;
       background: var(--gold);
       color: #111827;
       font-size: 13px;
-      font-weight: 900;
-    }
-
-    .mode-card strong,
-    .mode-card span,
-    .mode-card p {
-      position: relative;
-      z-index: 1;
+      font-style: normal;
+      font-weight: 950;
+      box-shadow: 0 14px 30px rgba(240, 190, 34, 0.18);
     }
 
     .mode-card span {
@@ -677,6 +780,68 @@
       font-size: 13px;
     }
 
+    .workflow-steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .workflow-step {
+      position: relative;
+      min-height: 78px;
+      padding: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.07);
+      color: rgba(255, 255, 255, 0.58);
+      overflow: hidden;
+    }
+
+    .workflow-step::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      background: linear-gradient(135deg, rgba(240, 190, 34, 0.16), transparent);
+      transition: opacity 0.25s ease;
+    }
+
+    .workflow-step span,
+    .workflow-step strong {
+      position: relative;
+      z-index: 1;
+      display: block;
+    }
+
+    .workflow-step span {
+      margin-bottom: 8px;
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .workflow-step strong {
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 14px;
+    }
+
+    .workflow-step.is-active {
+      border-color: rgba(240, 190, 34, 0.54);
+      color: #fef3c7;
+    }
+
+    .workflow-step.is-active::before,
+    .workflow-step.is-complete::before {
+      opacity: 1;
+    }
+
+    .workflow-step.is-complete {
+      border-color: rgba(34, 197, 94, 0.35);
+      color: #bbf7d0;
+    }
+
     .score-settings {
       display: grid;
       grid-template-columns: minmax(0, 180px) minmax(0, 180px) minmax(0, 1fr);
@@ -836,6 +1001,64 @@
       border-color: #d8dce6;
       background: #111827;
       color: #ffffff;
+    }
+
+    .more-menu {
+      position: relative;
+      width: fit-content;
+      margin: 12px 0;
+    }
+
+    .more-menu summary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+      font-size: 13px;
+      font-weight: 950;
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .more-menu summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .more-panel {
+      position: absolute;
+      z-index: 12;
+      top: calc(100% + 8px);
+      left: 0;
+      min-width: 190px;
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 16px;
+      background: rgba(13, 17, 23, 0.96);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.32);
+      backdrop-filter: blur(16px);
+    }
+
+    .more-panel .tool-button,
+    .more-panel #clearBtn {
+      width: 100%;
+      justify-content: center;
+      margin: 0;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+      box-shadow: none;
+    }
+
+    .more-panel #clearBtn {
+      border: 1px solid rgba(248, 113, 113, 0.35);
+      color: #fecaca;
     }
 
     .sensitivity-section {
@@ -1467,6 +1690,21 @@
 
     #clearBtn:hover {
       background: #d1d5db;
+    }
+
+    .button-group #analyzeBtn {
+      min-height: 54px;
+      flex: 1;
+      border-radius: 999px;
+      background: var(--gold);
+      color: #111827;
+      font-weight: 950;
+      box-shadow: 0 18px 38px rgba(240, 190, 34, 0.22);
+    }
+
+    .button-group #analyzeBtn:hover {
+      background: #f8c928;
+      transform: translateY(-1px);
     }
 
     .error {
@@ -2717,6 +2955,12 @@
         margin-bottom: 32px;
       }
 
+      .nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+      }
+
       .hero {
         min-height: auto;
         grid-template-columns: 1fr;
@@ -2768,6 +3012,7 @@
       .auth-controls,
       .auth-form,
       .score-settings,
+      .workflow-steps,
       .oauth-row,
       .contact-row {
         width: 100%;
@@ -2779,6 +3024,17 @@
       .country-picker {
         justify-content: center;
         width: 100%;
+      }
+
+      .account-menu,
+      .account-menu summary,
+      .account-panel {
+        width: 100%;
+      }
+
+      .account-panel {
+        position: static;
+        margin-top: 8px;
       }
 
       .country-ball {
@@ -2943,6 +3199,11 @@
           <span class="brand-mark">S</span>
           <span>Score Analyzer</span>
         </div>
+        <div class="nav-links" aria-label="Primary navigation">
+          <button id="analyzeNavBtn" class="nav-link" type="button">Analyze</button>
+          <button id="missionNavBtn" class="nav-link" type="button">Mission</button>
+          <button id="recordsShortcutBtn" class="nav-link" type="button">Records</button>
+        </div>
         <div class="auth-controls">
           <div id="countryPicker" class="country-picker" aria-label="Country and language">
             <button id="activeCountryButton" class="country-ball" type="button" aria-label="Choose country or region" aria-expanded="false">
@@ -2951,10 +3212,17 @@
             </button>
             <div id="countryPanel" class="country-panel"></div>
           </div>
-          <div id="authStatus" class="auth-status" style="display: none;"></div>
-          <button id="recordsShortcutBtn" class="auth-toggle records-shortcut" type="button">Records</button>
-          <button id="topGoogleSignInBtn" class="auth-toggle" type="button">Google sign in</button>
-          <button id="signOutBtn" class="auth-toggle" type="button" style="display: none;">Sign out</button>
+          <details id="accountMenu" class="account-menu">
+            <summary>
+              <span id="accountAvatar" class="account-avatar">A</span>
+              <span id="accountLabel" class="account-label">Account</span>
+            </summary>
+            <div class="account-panel">
+              <div id="authStatus" class="auth-status" style="display: none;"></div>
+              <button id="topGoogleSignInBtn" class="auth-toggle" type="button">Google sign in</button>
+              <button id="signOutBtn" class="auth-toggle" type="button" style="display: none;">Sign out</button>
+            </div>
+          </details>
         </div>
       </nav>
 
@@ -2972,16 +3240,19 @@
               <span>Classic classroom</span>
               <strong>100-point default</strong>
               <p>Use the familiar 100-point scale with 60 as the passing score.</p>
+              <em class="mode-start">Start analysis</em>
             </button>
             <button class="mode-card" type="button" data-mode="custom">
               <span>Build your curve</span>
               <strong>Custom scale</strong>
               <p>Set your own full score and raw passing cutoff for any grading system.</p>
+              <em class="mode-start">Start analysis</em>
             </button>
             <button class="mode-card" type="button" data-mode="ap">
               <span>Exam target mode</span>
               <strong>AP-style cutoff</strong>
               <p>Pick an AP target and analyze scores against an editable curved cutoff.</p>
+              <em class="mode-start">Start analysis</em>
             </button>
           </div>
         </div>
@@ -3123,6 +3394,25 @@
       <div class="auth-note">Google sign-in uses a secure server cookie.</div>
     </section>
 
+    <div class="workflow-steps" aria-label="Analysis workflow">
+      <div id="stepScale" class="workflow-step">
+        <span>Step 1</span>
+        <strong>Choose scale</strong>
+      </div>
+      <div id="stepName" class="workflow-step">
+        <span>Step 2</span>
+        <strong>Name analysis</strong>
+      </div>
+      <div id="stepScores" class="workflow-step">
+        <span>Step 3</span>
+        <strong>Enter scores</strong>
+      </div>
+      <div id="stepReview" class="workflow-step">
+        <span>Step 4</span>
+        <strong>Review results</strong>
+      </div>
+    </div>
+
     <div class="score-settings">
       <div class="setting-field ap-field">
         <label for="apFiveCutoffInput">5 cutoff</label>
@@ -3170,8 +3460,14 @@
       ></textarea>
 
       <div class="input-tools" aria-label="Input helpers">
-        <button id="sampleDataBtn" class="tool-button" type="button">Use sample data</button>
-        <button id="uploadCsvBtn" class="tool-button" type="button">Upload CSV</button>
+        <details class="more-menu">
+          <summary>More</summary>
+          <div class="more-panel">
+            <button id="sampleDataBtn" class="tool-button" type="button">Use sample data</button>
+            <button id="uploadCsvBtn" class="tool-button" type="button">Upload CSV</button>
+            <button id="clearBtn" type="button">Clear</button>
+          </div>
+        </details>
         <input id="csvFileInput" type="file" accept=".csv,text/csv" hidden>
       </div>
 
@@ -3182,7 +3478,6 @@
 
     <div id="actionStep" class="button-group flow-step is-locked">
       <button id="analyzeBtn">Analyze Scores</button>
-      <button id="clearBtn">Clear</button>
     </div>
 
     <div id="errorBox" class="error"></div>
@@ -3443,9 +3738,14 @@
             <p>Analyses are saved automatically after each run.</p>
           </div>
           <div class="records-tools">
-            <button id="exportRecordsBtn" class="tool-button" type="button">Export</button>
-            <button id="importRecordsBtn" class="tool-button" type="button">Import</button>
-            <button id="clearRecordsBtn" class="text-button" type="button">Clear Records</button>
+            <details class="more-menu">
+              <summary>Manage</summary>
+              <div class="more-panel">
+                <button id="exportRecordsBtn" class="tool-button" type="button">Export</button>
+                <button id="importRecordsBtn" class="tool-button" type="button">Import</button>
+                <button id="clearRecordsBtn" class="text-button" type="button">Clear Records</button>
+              </div>
+            </details>
             <input id="recordsImportInput" type="file" accept="application/json,.json" hidden>
           </div>
         </div>
@@ -3495,8 +3795,13 @@
     const contactForm = document.getElementById("contactForm");
     const contactStatus = document.getElementById("contactStatus");
     const authStatus = document.getElementById("authStatus");
+    const analyzeNavBtn = document.getElementById("analyzeNavBtn");
+    const missionNavBtn = document.getElementById("missionNavBtn");
     const recordsShortcutBtn = document.getElementById("recordsShortcutBtn");
     const signOutBtn = document.getElementById("signOutBtn");
+    const accountMenu = document.getElementById("accountMenu");
+    const accountAvatar = document.getElementById("accountAvatar");
+    const accountLabel = document.getElementById("accountLabel");
     const authPanel = document.getElementById("authPanel");
     const authPanelTitle = document.getElementById("authPanelTitle");
     const authPanelText = document.getElementById("authPanelText");
@@ -3530,6 +3835,10 @@
     const cookieText = document.getElementById("cookieText");
     const acceptCookiesBtn = document.getElementById("acceptCookiesBtn");
     const rejectCookiesBtn = document.getElementById("rejectCookiesBtn");
+    const stepScale = document.getElementById("stepScale");
+    const stepName = document.getElementById("stepName");
+    const stepScores = document.getElementById("stepScores");
+    const stepReview = document.getElementById("stepReview");
     const authCookieName = "scoreAnalyzerUser";
     const baseRecordsKey = "studentScoreAnalyzerRecords";
     const countryStorageKey = "studentScoreAnalyzerCountry";
@@ -3564,7 +3873,9 @@
     csvFileInput.addEventListener("change", handleCsvUpload);
     apSensitivitySlider.addEventListener("input", updateApSensitivityPreview);
     missionBtn.addEventListener("click", openMissionPage);
+    missionNavBtn.addEventListener("click", openMissionPage);
     missionBackBtn.addEventListener("click", returnToHomePage);
+    analyzeNavBtn.addEventListener("click", scrollToAnalyzeEntry);
     countryPicker.addEventListener("click", handleCountryChoice);
     countryPicker.addEventListener("input", handleCountrySearch);
     document.addEventListener("click", closeCountryPanelOnOutsideClick);
@@ -4496,6 +4807,22 @@
       });
     }
 
+    function scrollToAnalyzeEntry() {
+      if (analyzerMode === "home" || analyzerMode === "mission") {
+        analyzerMode = "standard";
+        window.history.pushState({}, "", "/standard");
+        setupAnalyzerMode();
+        updateInputFlow();
+      }
+
+      requestAnimationFrame(function () {
+        document.querySelector(".analyzer-panel").scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      });
+    }
+
     function updateScaleText() {
       const maxScore = getSelectedMaxScore() || 100;
       const passingScore = getSelectedPassingScore();
@@ -4537,6 +4864,7 @@
       const hasScores = scoreInput.value.trim().length > 0;
 
       updateScaleText();
+      updateWorkflowSteps(isConfigured, hasExamName, hasScores);
       examMetaStep.classList.toggle("is-locked", !isConfigured);
       scoreEntryStep.classList.toggle("is-locked", !isConfigured || !hasExamName);
       actionStep.classList.toggle("is-locked", !isConfigured || !hasExamName || !hasScores);
@@ -4548,6 +4876,19 @@
       } else if (!hasExamName) {
         scoreInput.value = "";
       }
+    }
+
+    function updateWorkflowSteps(isConfigured, hasExamName, hasScores) {
+      const hasResults = Boolean(latestStatistics);
+      setWorkflowStep(stepScale, !isConfigured, isConfigured);
+      setWorkflowStep(stepName, isConfigured && !hasExamName, isConfigured && hasExamName);
+      setWorkflowStep(stepScores, isConfigured && hasExamName && !hasScores, isConfigured && hasExamName && hasScores);
+      setWorkflowStep(stepReview, isConfigured && hasExamName && hasScores && !hasResults, hasResults);
+    }
+
+    function setWorkflowStep(element, isActive, isComplete) {
+      element.classList.toggle("is-active", Boolean(isActive));
+      element.classList.toggle("is-complete", Boolean(isComplete));
     }
 
     function showCookieBannerIfNeeded() {
@@ -5551,6 +5892,8 @@
         signOutBtn.style.display = "inline-block";
         signOutBtn.textContent = text.signOut || "Sign out";
         topGoogleSignInBtn.style.display = "none";
+        accountAvatar.textContent = getAccountInitial(currentUserLabel);
+        accountLabel.textContent = currentUserLabel;
         authPanel.classList.add("signed-in");
         authPanelTitle.textContent = (text.welcomePrefix || "Welcome back, ") + currentUserLabel;
         authPanelText.textContent = text.savedText || "Your analyses will be saved automatically to your personal records on this browser.";
@@ -5566,12 +5909,19 @@
       topGoogleSignInBtn.style.display = "inline-block";
       topGoogleSignInBtn.disabled = !googleConfigured;
       topGoogleSignInBtn.textContent = googleConfigured ? (text.googleSignIn || "Google sign in") : (text.googleSetupRequired || "Google setup required");
+      accountAvatar.textContent = "A";
+      accountLabel.textContent = "Account";
       authPanel.classList.remove("signed-in");
       authPanelTitle.textContent = text.authTitle || "Sign in with Google";
       authPanelText.textContent = text.authText || "Use a verified Google account so saved analyses stay connected to a real user.";
       googleSignInBtn.style.display = "flex";
       googleSignInBtn.disabled = !googleConfigured;
       googleSignInBtn.textContent = googleConfigured ? (text.continueWithGoogle || "Continue with Google") : (text.googleSetupRequired || "Google setup required");
+    }
+
+    function getAccountInitial(label) {
+      const trimmed = String(label || "A").trim();
+      return trimmed ? trimmed.charAt(0).toUpperCase() : "A";
     }
 
     function getRecordStorageKey() {
