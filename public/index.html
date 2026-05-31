@@ -256,6 +256,23 @@
       justify-content: center;
     }
 
+    .account-link {
+      width: 100%;
+      padding: 9px 13px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.07);
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+      box-shadow: none;
+    }
+
+    .account-link:hover {
+      border-color: rgba(240, 190, 34, 0.5);
+      background: rgba(240, 190, 34, 0.12);
+      transform: translateY(-1px);
+    }
+
     .records-shortcut {
       border: 1px solid rgba(255, 255, 255, 0.16);
       background: rgba(255, 255, 255, 0.08);
@@ -2371,6 +2388,30 @@
       font-size: 14px;
     }
 
+    .records-search-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      margin: 16px 0 14px;
+    }
+
+    .records-search {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid rgba(17, 24, 39, 0.12);
+      border-radius: 999px;
+      background: #f8fafc;
+      color: #111827;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .records-search:focus {
+      border-color: rgba(240, 190, 34, 0.9);
+      box-shadow: 0 0 0 4px rgba(240, 190, 34, 0.16);
+    }
+
     .text-button {
       padding: 8px 10px;
       background: transparent;
@@ -3273,6 +3314,7 @@
             </summary>
             <div class="account-panel">
               <div id="authStatus" class="auth-status" style="display: none;"></div>
+              <button id="accountRecordsBtn" class="account-link" type="button">Records</button>
               <button id="topGoogleSignInBtn" class="auth-toggle" type="button">Google sign in</button>
               <button id="signOutBtn" class="auth-toggle" type="button" style="display: none;">Sign out</button>
             </div>
@@ -3774,8 +3816,8 @@
     <div class="records-drawer-panel">
       <div class="records-drawer-header">
         <div>
-          <h3>Saved Records</h3>
-          <p>Open previous analyses, compare sessions, or delete old runs.</p>
+          <h3 id="recordsDrawerTitle">Saved Records</h3>
+          <p id="recordsDrawerSubtitle">Open previous analyses, compare sessions, or delete old runs.</p>
         </div>
         <button id="closeRecordsBtn" class="drawer-close" type="button" aria-label="Close records">×</button>
       </div>
@@ -3783,8 +3825,8 @@
       <section id="recordsSection" class="records-section">
         <div class="records-header">
           <div>
-            <h3>All Records</h3>
-            <p>Analyses are saved automatically after each run.</p>
+            <h3 id="recordsListTitle">All Records</h3>
+            <p id="recordsListSubtitle">Analyses are saved automatically after each run.</p>
           </div>
           <div class="records-tools">
             <details class="more-menu">
@@ -3797,6 +3839,9 @@
             </details>
             <input id="recordsImportInput" type="file" accept="application/json,.json" hidden>
           </div>
+        </div>
+        <div class="records-search-row">
+          <input id="recordsSearchInput" class="records-search" type="search" placeholder="Search records" aria-label="Search records">
         </div>
         <div id="recordList" class="record-list"></div>
       </section>
@@ -3851,6 +3896,7 @@
     const accountMenu = document.getElementById("accountMenu");
     const accountAvatar = document.getElementById("accountAvatar");
     const accountLabel = document.getElementById("accountLabel");
+    const accountRecordsBtn = document.getElementById("accountRecordsBtn");
     const authPanel = document.getElementById("authPanel");
     const authPanelTitle = document.getElementById("authPanelTitle");
     const authPanelText = document.getElementById("authPanelText");
@@ -3862,6 +3908,7 @@
     const activeCountryCode = document.getElementById("activeCountryCode");
     const countryPanel = document.getElementById("countryPanel");
     const recordsDrawer = document.getElementById("recordsDrawer");
+    const recordsSearchInput = document.getElementById("recordsSearchInput");
     const modeGrid = document.querySelector(".mode-grid");
     const missionBtn = document.getElementById("missionBtn");
     const missionBackBtn = document.getElementById("missionBackBtn");
@@ -3939,8 +3986,13 @@
     distributionCurve.addEventListener("mouseout", hideDistributionDetail);
     distributionCurve.addEventListener("focusout", hideDistributionDetail);
     recordsShortcutBtn.addEventListener("click", openRecordsDrawer);
+    accountRecordsBtn.addEventListener("click", function () {
+      accountMenu.open = false;
+      openRecordsDrawer();
+    });
     closeRecordsBtn.addEventListener("click", closeRecordsDrawer);
     recordsDrawer.addEventListener("click", closeRecordsDrawerOnBackdrop);
+    recordsSearchInput.addEventListener("input", renderRecords);
     signOutBtn.addEventListener("click", signOut);
     googleSignInBtn.addEventListener("click", startGoogleSignIn);
     topGoogleSignInBtn.addEventListener("click", startGoogleSignIn);
@@ -4466,6 +4518,7 @@
       analyzeNavBtn.textContent = text.navAnalyze || "Analyze";
       missionNavBtn.textContent = text.navMission || "Mission";
       recordsShortcutBtn.textContent = text.records || "Records";
+      accountRecordsBtn.textContent = text.records || "Records";
       document.querySelectorAll(".mode-start").forEach(function (element) {
         element.textContent = text.startAnalysis || "Start analysis";
       });
@@ -4500,6 +4553,12 @@
       sampleDataBtn.textContent = text.sampleData || "Use sample data";
       uploadCsvBtn.textContent = text.uploadCsv || "Upload CSV";
       clearBtn.textContent = text.clear || "Clear";
+      document.getElementById("recordsDrawerTitle").textContent = text.recordsDrawerTitle || "Saved Records";
+      document.getElementById("recordsDrawerSubtitle").textContent = text.recordsDrawerSubtitle || "Open previous analyses, compare sessions, or delete old runs.";
+      document.getElementById("recordsListTitle").textContent = text.recordsListTitle || "All Records";
+      document.getElementById("recordsListSubtitle").textContent = text.recordsListSubtitle || "Analyses are saved automatically after each run.";
+      recordsSearchInput.placeholder = text.searchRecords || "Search records";
+      recordsSearchInput.setAttribute("aria-label", text.searchRecords || "Search records");
       document.querySelector(".records-tools .more-menu summary").textContent = text.manage || "Manage";
       exportRecordsBtn.textContent = text.exportRecords || "Export";
       importRecordsBtn.textContent = text.importRecords || "Import";
@@ -4618,6 +4677,16 @@
           sampleData: "使用示例数据",
           uploadCsv: "上传 CSV",
           manage: "管理",
+          recordsDrawerTitle: "保存的记录",
+          recordsDrawerSubtitle: "打开过去的分析，回到之前的输入，或整理旧记录。",
+          recordsListTitle: "所有记录",
+          recordsListSubtitle: "每次分析完成后都会自动保存。",
+          searchRecords: "搜索记录",
+          recordsSignInEmpty: "登录后即可保存、打开和修改你的分析记录。",
+          recordsEmpty: "还没有保存的记录。完成一次分析后，它会出现在这里。",
+          recordsNoMatches: "没有找到匹配的记录。",
+          recordScale: "满分",
+          recordPass: "及格",
           exportRecords: "导出",
           importRecords: "导入",
           clearRecords: "清空记录",
@@ -4712,6 +4781,16 @@
           sampleData: "使用範例資料",
           uploadCsv: "上傳 CSV",
           manage: "管理",
+          recordsDrawerTitle: "儲存的紀錄",
+          recordsDrawerSubtitle: "開啟過去的分析，回到之前的輸入，或整理舊紀錄。",
+          recordsListTitle: "所有紀錄",
+          recordsListSubtitle: "每次分析完成後都會自動儲存。",
+          searchRecords: "搜尋紀錄",
+          recordsSignInEmpty: "登入後即可儲存、開啟和修改你的分析紀錄。",
+          recordsEmpty: "還沒有儲存的紀錄。完成一次分析後，它會出現在這裡。",
+          recordsNoMatches: "沒有找到符合的紀錄。",
+          recordScale: "滿分",
+          recordPass: "及格",
           exportRecords: "匯出",
           importRecords: "匯入",
           clearRecords: "清空紀錄",
@@ -4912,6 +4991,16 @@
         sampleData: "Use sample data",
         uploadCsv: "Upload CSV",
         manage: "Manage",
+        recordsDrawerTitle: "Saved Records",
+        recordsDrawerSubtitle: "Open previous analyses, return to earlier inputs, or clean up old runs.",
+        recordsListTitle: "All Records",
+        recordsListSubtitle: "Analyses are saved automatically after each run.",
+        searchRecords: "Search records",
+        recordsSignInEmpty: "Sign in to save, open, and edit your analysis records.",
+        recordsEmpty: "No saved records yet. Run an analysis and it will appear here.",
+        recordsNoMatches: "No records match that search.",
+        recordScale: "Scale",
+        recordPass: "Pass",
         exportRecords: "Export",
         importRecords: "Import",
         clearRecords: "Clear records",
@@ -6325,7 +6414,7 @@
 
       if (!currentUser) {
         recordsShortcutBtn.textContent = recordsLabel;
-        recordList.innerHTML = `<p class="record-empty">Sign in to save, open, and edit your analysis records.</p>`;
+        recordList.innerHTML = `<p class="record-empty">${escapeHtml(text.recordsSignInEmpty || "Sign in to save, open, and edit your analysis records.")}</p>`;
         return;
       }
 
@@ -6333,11 +6422,34 @@
       recordsShortcutBtn.textContent = records.length > 0 ? recordsLabel + " (" + records.length + ")" : recordsLabel;
 
       if (records.length === 0) {
-        recordList.innerHTML = `<p class="record-empty">No saved records for ${currentUserLabel} yet. Run an analysis and it will appear here.</p>`;
+        recordList.innerHTML = `<p class="record-empty">${escapeHtml(text.recordsEmpty || "No saved records yet. Run an analysis and it will appear here.")}</p>`;
         return;
       }
 
-      recordList.innerHTML = records.map(function (record) {
+      const query = recordsSearchInput.value.trim().toLowerCase();
+      const filteredRecords = query
+        ? records.filter(function (record) {
+          const stats = record.statistics || {};
+          const haystack = [
+            record.title,
+            stats.examName,
+            record.scoresInput,
+            stats.mean,
+            stats.max,
+            stats.min,
+            new Date(record.createdAt).toLocaleString()
+          ].join(" ").toLowerCase();
+
+          return haystack.includes(query);
+        })
+        : records;
+
+      if (filteredRecords.length === 0) {
+        recordList.innerHTML = `<p class="record-empty">${escapeHtml(text.recordsNoMatches || "No records match that search.")}</p>`;
+        return;
+      }
+
+      recordList.innerHTML = filteredRecords.map(function (record) {
         const stats = record.statistics;
         const date = new Date(record.createdAt).toLocaleString();
         const scorePreview = record.scoresInput.length > 74
@@ -6350,7 +6462,7 @@
           <article class="record-item">
             <div>
               <p class="record-title">${escapeHtml(title)}</p>
-              <p class="record-meta">${date}<br>Scale 0-${formatNumber(stats.maxScore || 100)} · Pass ${formatNumber(Number.isFinite(stats.passingScore) ? stats.passingScore : (stats.maxScore || 100) * 0.6)} · ${escapeHtml(scorePreview)}</p>
+              <p class="record-meta">${date}<br>${escapeHtml(text.recordScale || "Scale")} 0-${formatNumber(stats.maxScore || 100)} · ${escapeHtml(text.recordPass || "Pass")} ${formatNumber(Number.isFinite(stats.passingScore) ? stats.passingScore : (stats.maxScore || 100) * 0.6)} · ${escapeHtml(scorePreview)}</p>
             </div>
             <div class="record-actions">
               <button class="record-open" type="button" data-id="${record.id}">${escapeHtml(text.recordOpen || "Open")}</button>
