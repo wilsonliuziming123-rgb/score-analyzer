@@ -251,9 +251,24 @@
       box-shadow: none;
     }
 
+    .auth-toggle[disabled],
+    .auth-prompt-actions button[disabled] {
+      cursor: not-allowed;
+      opacity: 0.56;
+    }
+
     .account-panel .auth-toggle {
       width: 100%;
       justify-content: center;
+    }
+
+    .x-auth {
+      background: #050505;
+      color: #ffffff;
+    }
+
+    .x-auth:hover {
+      background: #111111;
     }
 
     .account-link {
@@ -1313,6 +1328,15 @@
       border-radius: 999px;
       background: var(--gold);
       color: #111827;
+      font-weight: 900;
+    }
+
+    .auth-prompt-x {
+      min-height: 50px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      background: #050505;
+      color: #ffffff;
       font-weight: 900;
     }
 
@@ -3316,6 +3340,7 @@
               <div id="authStatus" class="auth-status" style="display: none;"></div>
               <button id="accountRecordsBtn" class="account-link" type="button">Records</button>
               <button id="topGoogleSignInBtn" class="auth-toggle" type="button">Google sign in</button>
+              <button id="topXSignInBtn" class="auth-toggle x-auth" type="button">Continue with X</button>
               <button id="signOutBtn" class="auth-toggle" type="button" style="display: none;">Sign out</button>
             </div>
           </details>
@@ -3486,6 +3511,7 @@
       <p id="authPanelText">Use a verified Google account so saved analyses stay connected to a real user.</p>
       <div class="oauth-row">
         <button id="googleSignInBtn" class="oauth-button" type="button" disabled>Continue with Google</button>
+        <button id="xSignInBtn" class="oauth-button x-auth" type="button" disabled>Continue with X</button>
       </div>
       <div class="auth-note">Google sign-in uses a secure server cookie.</div>
     </section>
@@ -3793,6 +3819,7 @@
       </p>
       <div class="auth-prompt-actions">
         <button id="authPromptGoogleBtn" class="auth-prompt-google" type="button">Continue with Google</button>
+        <button id="authPromptXBtn" class="auth-prompt-x" type="button">Continue with X</button>
         <button id="authPromptSkipBtn" class="auth-prompt-skip" type="button">Explore first</button>
       </div>
     </div>
@@ -3901,7 +3928,9 @@
     const authPanelTitle = document.getElementById("authPanelTitle");
     const authPanelText = document.getElementById("authPanelText");
     const googleSignInBtn = document.getElementById("googleSignInBtn");
+    const xSignInBtn = document.getElementById("xSignInBtn");
     const topGoogleSignInBtn = document.getElementById("topGoogleSignInBtn");
+    const topXSignInBtn = document.getElementById("topXSignInBtn");
     const countryPicker = document.getElementById("countryPicker");
     const activeCountryButton = document.getElementById("activeCountryButton");
     const activeCountryFlag = document.getElementById("activeCountryFlag");
@@ -3918,6 +3947,7 @@
     const authPrompt = document.getElementById("authPrompt");
     const authPromptText = document.getElementById("authPromptText");
     const authPromptGoogleBtn = document.getElementById("authPromptGoogleBtn");
+    const authPromptXBtn = document.getElementById("authPromptXBtn");
     const authPromptSkipBtn = document.getElementById("authPromptSkipBtn");
     const recaptchaPrompt = document.getElementById("recaptchaPrompt");
     const recaptchaKicker = document.getElementById("recaptchaKicker");
@@ -3943,6 +3973,7 @@
     let currentUser = "";
     let currentUserLabel = "";
     let googleConfigured = false;
+    let xConfigured = false;
     let recaptchaConfigured = false;
     let recaptchaSiteKey = "";
     let recaptchaWidgetId = null;
@@ -3995,8 +4026,11 @@
     recordsSearchInput.addEventListener("input", renderRecords);
     signOutBtn.addEventListener("click", signOut);
     googleSignInBtn.addEventListener("click", startGoogleSignIn);
+    xSignInBtn.addEventListener("click", startXSignIn);
     topGoogleSignInBtn.addEventListener("click", startGoogleSignIn);
+    topXSignInBtn.addEventListener("click", startXSignIn);
     authPromptGoogleBtn.addEventListener("click", startGoogleSignIn);
+    authPromptXBtn.addEventListener("click", startXSignIn);
     authPromptSkipBtn.addEventListener("click", dismissAuthPrompt);
     recaptchaContinueBtn.addEventListener("click", completeRecaptchaChallenge);
     recaptchaCancelBtn.addEventListener("click", cancelRecaptchaChallenge);
@@ -4019,11 +4053,11 @@
 
       if (!currentUser) {
         savePendingDraft();
-        if (googleConfigured) {
-          startGoogleSignIn();
+        if (googleConfigured || xConfigured) {
+          showSignInPrompt(true);
         } else {
           const text = getLocaleText(getActiveLocale());
-          showError(text.googleConfigMissing || "Please sign in before analyzing scores. Google sign-in is not configured yet.");
+          showError(text.signInConfigMissing || "Sign-in is not configured yet. Add an OAuth provider in Render.");
           accountMenu.open = true;
           document.querySelector(".topbar").scrollIntoView({
             behavior: "smooth",
@@ -4507,6 +4541,8 @@
       rejectCookiesBtn.textContent = text.rejectCookies;
       document.getElementById("authPromptTitle").textContent = text.authPromptTitle || "Sign in to keep your analysis personal.";
       authPromptText.textContent = text.authPromptText || "Use Google sign-in to save records, reopen previous reports, and keep each analysis connected to a real account.";
+      authPromptGoogleBtn.textContent = googleConfigured ? (text.continueWithGoogle || "Continue with Google") : (text.googleSetupRequired || "Google setup required");
+      authPromptXBtn.textContent = xConfigured ? (text.continueWithX || "Continue with X") : (text.xSetupRequired || "X setup required");
       authPromptSkipBtn.textContent = text.exploreFirst || "Explore first";
       updateProductCopy(text);
       updateInputFlow();
@@ -4623,19 +4659,26 @@
           records: "记录",
           googleSignIn: "Google 登录",
           googleSetupRequired: "需要配置 Google",
+          continueWithX: "使用 X 继续",
+          xSetupRequired: "需要配置 X",
           continueWithGoogle: "使用 Google 继续",
           authPromptTitle: "登录后继续分析",
-          authPromptText: "使用 Google 登录后，你刚刚输入的内容会被保留，并且分析记录会自动保存。",
+          authPromptText: "使用 Google 或 X 登录后，你刚刚输入的内容会被保留，并且分析记录会自动保存。",
           exploreFirst: "先浏览",
           googleConfigMissing: "Google 登录还没有配置完成，请先在 Render 添加 GOOGLE_CLIENT_ID 和 GOOGLE_CLIENT_SECRET。",
+          xConfigMissing: "X 登录还没有配置完成，请先在 Render 添加 X_CLIENT_ID 和 X_CLIENT_SECRET。",
+          signInConfigMissing: "登录还没有配置完成，请先在 Render 添加至少一个 OAuth 登录方式。",
           recaptchaSignInKicker: "安全登录",
           recaptchaSignInTitle: "登录前验证",
           recaptchaSignInText: "先完成一次人机验证，然后我们会带你进入 Google 登录。",
+          recaptchaXSignInKicker: "安全登录",
+          recaptchaXSignInTitle: "X 登录前验证",
+          recaptchaXSignInText: "先完成一次人机验证，然后我们会带你进入 X 登录。",
           contactCaptchaKicker: "消息保护",
           contactCaptchaTitle: "发送前验证",
           contactCaptchaText: "发送消息前，请先完成一次人机验证。",
-          authTitle: "使用 Google 登录",
-          authText: "使用已验证的 Google 账号，让保存的分析记录真正绑定到用户。",
+          authTitle: "登录账号",
+          authText: "使用已验证的账号，让保存的分析记录真正绑定到用户。",
           welcomePrefix: "欢迎回来，",
           savedText: "你的分析会自动保存到这个浏览器中的个人记录。",
           signedInAs: "已登录：",
@@ -4727,19 +4770,26 @@
           records: "紀錄",
           googleSignIn: "Google 登入",
           googleSetupRequired: "需要設定 Google",
+          continueWithX: "使用 X 繼續",
+          xSetupRequired: "需要設定 X",
           continueWithGoogle: "使用 Google 繼續",
           authPromptTitle: "登入後繼續分析",
-          authPromptText: "使用 Google 登入後，你剛剛輸入的內容會被保留，並且分析紀錄會自動儲存。",
+          authPromptText: "使用 Google 或 X 登入後，你剛剛輸入的內容會被保留，並且分析紀錄會自動儲存。",
           exploreFirst: "先瀏覽",
           googleConfigMissing: "Google 登入尚未設定完成，請先在 Render 新增 GOOGLE_CLIENT_ID 和 GOOGLE_CLIENT_SECRET。",
+          xConfigMissing: "X 登入尚未設定完成，請先在 Render 新增 X_CLIENT_ID 和 X_CLIENT_SECRET。",
+          signInConfigMissing: "登入尚未設定完成，請先在 Render 新增至少一個 OAuth 登入方式。",
           recaptchaSignInKicker: "安全登入",
           recaptchaSignInTitle: "登入前驗證",
           recaptchaSignInText: "先完成一次人機驗證，然後我們會帶你進入 Google 登入。",
+          recaptchaXSignInKicker: "安全登入",
+          recaptchaXSignInTitle: "X 登入前驗證",
+          recaptchaXSignInText: "先完成一次人機驗證，然後我們會帶你進入 X 登入。",
           contactCaptchaKicker: "訊息保護",
           contactCaptchaTitle: "傳送前驗證",
           contactCaptchaText: "傳送訊息前，請先完成一次人機驗證。",
-          authTitle: "使用 Google 登入",
-          authText: "使用已驗證的 Google 帳號，讓儲存的分析紀錄真正綁定到使用者。",
+          authTitle: "登入帳號",
+          authText: "使用已驗證的帳號，讓儲存的分析紀錄真正綁定到使用者。",
           welcomePrefix: "歡迎回來，",
           savedText: "你的分析會自動儲存到這個瀏覽器中的個人紀錄。",
           signedInAs: "已登入：",
@@ -5029,19 +5079,26 @@
         records: "Records",
         googleSignIn: "Google sign in",
         googleSetupRequired: "Google setup required",
+        continueWithX: "Continue with X",
+        xSetupRequired: "X setup required",
         continueWithGoogle: "Continue with Google",
         authPromptTitle: "Sign in to keep your analysis personal.",
-        authPromptText: "Use Google sign-in to save records, reopen previous reports, and keep each analysis connected to a real account.",
+        authPromptText: "Use Google or X sign-in to save records, reopen previous reports, and keep each analysis connected to a real account.",
         exploreFirst: "Explore first",
         googleConfigMissing: "Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Render.",
+        xConfigMissing: "X sign-in is not configured yet. Add X_CLIENT_ID and X_CLIENT_SECRET in Render.",
+        signInConfigMissing: "Sign-in is not configured yet. Add at least one OAuth provider in Render.",
         recaptchaSignInKicker: "Secure sign-in",
         recaptchaSignInTitle: "Verify before Google sign-in",
         recaptchaSignInText: "Complete this quick human check, then we will send you to Google sign-in.",
+        recaptchaXSignInKicker: "Secure sign-in",
+        recaptchaXSignInTitle: "Verify before X sign-in",
+        recaptchaXSignInText: "Complete this quick human check, then we will send you to X sign-in.",
         contactCaptchaKicker: "Message protection",
         contactCaptchaTitle: "Verify before sending",
         contactCaptchaText: "Complete this quick human check before opening your message.",
-        authTitle: "Sign in with Google",
-        authText: "Use a verified Google account so saved analyses stay connected to a real user.",
+        authTitle: "Sign in",
+        authText: "Use a verified account so saved analyses stay connected to a real user.",
         welcomePrefix: "Welcome back, ",
         savedText: "Your analyses will be saved automatically to your personal records on this browser.",
         signedInAs: "Signed in as ",
@@ -5168,7 +5225,7 @@
       }
 
       savePendingDraft();
-      startGoogleSignIn();
+      showSignInPrompt(true);
     }
 
     function savePendingDraft() {
@@ -5324,10 +5381,20 @@
         return;
       }
 
+      showSignInPrompt(false);
+    }
+
+    function showSignInPrompt(force) {
+      if (currentUser || (!force && sessionStorage.getItem("scoreAnalyzerAuthPromptDismissed") === "true")) {
+        return;
+      }
+
       const text = getLocaleText(getActiveLocale());
 
       authPromptGoogleBtn.disabled = !googleConfigured;
       authPromptGoogleBtn.textContent = googleConfigured ? (text.continueWithGoogle || "Continue with Google") : (text.googleSetupRequired || "Google sign-in needs setup");
+      authPromptXBtn.disabled = !xConfigured;
+      authPromptXBtn.textContent = xConfigured ? (text.continueWithX || "Continue with X") : (text.xSetupRequired || "X setup required");
       authPrompt.classList.add("is-visible");
       authPrompt.setAttribute("aria-hidden", "false");
     }
@@ -6124,6 +6191,7 @@
         const data = await response.json();
 
         googleConfigured = data.googleConfigured;
+        xConfigured = data.xConfigured;
         recaptchaConfigured = data.recaptchaConfigured;
         recaptchaSiteKey = data.recaptchaSiteKey || "";
 
@@ -6134,6 +6202,7 @@
         }
       } catch (error) {
         googleConfigured = false;
+        xConfigured = false;
         recaptchaConfigured = false;
         recaptchaSiteKey = "";
       }
@@ -6143,32 +6212,64 @@
     }
 
     async function startGoogleSignIn() {
+      return startOAuthSignIn({
+        provider: "google",
+        configured: googleConfigured,
+        missingMessageKey: "googleConfigMissing",
+        defaultMissingMessage: "Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Render.",
+        recaptchaKickerKey: "recaptchaSignInKicker",
+        recaptchaTitleKey: "recaptchaSignInTitle",
+        recaptchaTextKey: "recaptchaSignInText",
+        defaultRecaptchaKicker: "Secure sign-in",
+        defaultRecaptchaTitle: "Verify before Google sign-in",
+        defaultRecaptchaText: "Complete this quick human check, then we will send you to Google sign-in.",
+        authPath: "/auth/google"
+      });
+    }
+
+    async function startXSignIn() {
+      return startOAuthSignIn({
+        provider: "x",
+        configured: xConfigured,
+        missingMessageKey: "xConfigMissing",
+        defaultMissingMessage: "X sign-in is not configured yet. Add X_CLIENT_ID and X_CLIENT_SECRET in Render.",
+        recaptchaKickerKey: "recaptchaXSignInKicker",
+        recaptchaTitleKey: "recaptchaXSignInTitle",
+        recaptchaTextKey: "recaptchaXSignInText",
+        defaultRecaptchaKicker: "Secure X sign-in",
+        defaultRecaptchaTitle: "Verify before X sign-in",
+        defaultRecaptchaText: "Complete this quick human check, then we will send you to X sign-in.",
+        authPath: "/auth/x"
+      });
+    }
+
+    async function startOAuthSignIn(options) {
       const text = getLocaleText(getActiveLocale());
 
       if (analyzerMode !== "home" && analyzerMode !== "mission") {
         savePendingDraft();
       }
 
-      if (!googleConfigured) {
+      if (!options.configured) {
         if (authPrompt.classList.contains("is-visible")) {
-          authPromptText.textContent = text.googleConfigMissing || "Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Render first.";
+          authPromptText.textContent = text[options.missingMessageKey] || options.defaultMissingMessage;
         }
 
-        showError(text.googleConfigMissing || "Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Render.");
+        showError(text[options.missingMessageKey] || options.defaultMissingMessage);
         return;
       }
 
       const verified = await requestRecaptchaChallenge({
-        kicker: text.recaptchaSignInKicker || "Secure sign-in",
-        title: text.recaptchaSignInTitle || "Verify before Google sign-in",
-        text: text.recaptchaSignInText || "Complete this quick human check, then we will send you to Google sign-in."
+        kicker: text[options.recaptchaKickerKey] || options.defaultRecaptchaKicker,
+        title: text[options.recaptchaTitleKey] || options.defaultRecaptchaTitle,
+        text: text[options.recaptchaTextKey] || options.defaultRecaptchaText
       });
 
       if (!verified) {
         return;
       }
 
-      window.location.href = "/auth/google";
+      window.location.href = options.authPath;
     }
 
     function waitForRecaptchaApi() {
@@ -6310,12 +6411,14 @@
         signOutBtn.style.display = "inline-block";
         signOutBtn.textContent = text.signOut || "Sign out";
         topGoogleSignInBtn.style.display = "none";
+        topXSignInBtn.style.display = "none";
         accountAvatar.textContent = getAccountInitial(currentUserLabel);
         accountLabel.textContent = currentUserLabel;
         authPanel.classList.add("signed-in");
         authPanelTitle.textContent = (text.welcomePrefix || "Welcome back, ") + currentUserLabel;
         authPanelText.textContent = text.savedText || "Your analyses will be saved automatically to your personal records on this browser.";
         googleSignInBtn.style.display = "none";
+        xSignInBtn.style.display = "none";
         return;
       }
 
@@ -6327,6 +6430,9 @@
       topGoogleSignInBtn.style.display = "inline-block";
       topGoogleSignInBtn.disabled = !googleConfigured;
       topGoogleSignInBtn.textContent = googleConfigured ? (text.googleSignIn || "Google sign in") : (text.googleSetupRequired || "Google setup required");
+      topXSignInBtn.style.display = "inline-block";
+      topXSignInBtn.disabled = !xConfigured;
+      topXSignInBtn.textContent = xConfigured ? (text.continueWithX || "Continue with X") : (text.xSetupRequired || "X setup required");
       accountAvatar.textContent = "A";
       accountLabel.textContent = text.account || "Account";
       authPanel.classList.remove("signed-in");
@@ -6335,6 +6441,9 @@
       googleSignInBtn.style.display = "flex";
       googleSignInBtn.disabled = !googleConfigured;
       googleSignInBtn.textContent = googleConfigured ? (text.continueWithGoogle || "Continue with Google") : (text.googleSetupRequired || "Google setup required");
+      xSignInBtn.style.display = "flex";
+      xSignInBtn.disabled = !xConfigured;
+      xSignInBtn.textContent = xConfigured ? (text.continueWithX || "Continue with X") : (text.xSetupRequired || "X setup required");
     }
 
     function getAccountInitial(label) {

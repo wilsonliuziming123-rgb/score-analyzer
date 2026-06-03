@@ -6,6 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const AUTH_COOKIE_NAME = "scoreAnalyzerAuth";
 const googleAuthStates = new Map();
+const xAuthStates = new Map();
 
 app.set("trust proxy", 1);
 app.use(express.json());
@@ -19,6 +20,7 @@ app.get("/api/me", function (req, res) {
         authenticated: Boolean(user),
         user: user,
         googleConfigured: isGoogleConfigured(),
+        xConfigured: isXConfigured(),
         recaptchaConfigured: isRecaptchaConfigured(),
         recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || ""
     });
@@ -137,6 +139,92 @@ app.get("/auth/google/callback", async function (req, res) {
         return res.redirect("/");
     } catch (error) {
         return res.redirect("/?authError=google-server");
+    }
+});
+
+app.get("/auth/x", function (req, res) {
+    if (!isXConfigured()) {
+        return res.redirect("/?authError=x-not-configured");
+    }
+
+    const state = crypto.randomBytes(16).toString("hex");
+    const codeVerifier = crypto.randomBytes(32).toString("base64url");
+    const codeChallenge = createCodeChallenge(codeVerifier);
+
+    xAuthStates.set(state, {
+        codeVerifier: codeVerifier,
+        createdAt: Date.now()
+    });
+
+    const params = new URLSearchParams({
+        response_type: "code",
+        client_id: process.env.X_CLIENT_ID,
+        redirect_uri: getXRedirectUri(req),
+        scope: "tweet.read users.read offline.access",
+        state: state,
+        code_challenge: codeChallenge,
+        code_challenge_method: "S256"
+    });
+
+    return res.redirect("https://x.com/i/oauth2/authorize?" + params.toString());
+});
+
+app.get("/auth/x/callback", async function (req, res) {
+    const code = req.query.code;
+    const state = req.query.state;
+    const stateEntry = xAuthStates.get(state);
+
+    if (!code || !state || !stateEntry) {
+        return res.redirect("/?authError=x-state");
+    }
+
+    xAuthStates.delete(state);
+
+    try {
+        const tokenResponse = await fetch("https://api.x.com/2/oauth2/token", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                Authorization: "Basic " + Buffer.from(process.env.X_CLIENT_ID + ":" + process.env.X_CLIENT_SECRET).toString("base64")
+            },
+            body: new URLSearchParams({
+                code: code,
+                grant_type: "authorization_code",
+                client_id: process.env.X_CLIENT_ID,
+                redirect_uri: getXRedirectUri(req),
+                code_verifier: stateEntry.codeVerifier
+            })
+        });
+
+        if (!tokenResponse.ok) {
+            return res.redirect("/?authError=x-token");
+        }
+
+        const tokenData = await tokenResponse.json();
+        const profileResponse = await fetch("https://api.x.com/2/users/me?user.fields=profile_image_url,verified", {
+            headers: {
+                Authorization: "Bearer " + tokenData.access_token
+            }
+        });
+
+        if (!profileResponse.ok) {
+            return res.redirect("/?authError=x-profile");
+        }
+
+        const profile = await profileResponse.json();
+        const user = profile.data || {};
+
+        setAuthCookie(res, {
+            provider: "x",
+            id: user.id,
+            name: user.name || (user.username ? "@" + user.username : "X user"),
+            username: user.username,
+            picture: user.profile_image_url
+        });
+
+        return res.redirect("/");
+    } catch (error) {
+        return res.redirect("/?authError=x-server");
     }
 });
 
@@ -397,6 +485,10 @@ function isGoogleConfigured() {
     return Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 }
 
+function isXConfigured() {
+    return Boolean(process.env.X_CLIENT_ID && process.env.X_CLIENT_SECRET);
+}
+
 function isRecaptchaConfigured() {
     return Boolean(process.env.RECAPTCHA_SITE_KEY && process.env.RECAPTCHA_SECRET_KEY);
 }
@@ -430,6 +522,17 @@ async function verifyRecaptchaToken(token, remoteIp) {
 
 function getGoogleRedirectUri(req) {
     return process.env.GOOGLE_CALLBACK_URL || getBaseUrl(req) + "/auth/google/callback";
+}
+
+function getXRedirectUri(req) {
+    return process.env.X_CALLBACK_URL || getBaseUrl(req) + "/auth/x/callback";
+}
+
+function createCodeChallenge(codeVerifier) {
+    return crypto
+        .createHash("sha256")
+        .update(codeVerifier)
+        .digest("base64url");
 }
 
 function getBaseUrl(req) {
