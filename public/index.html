@@ -474,6 +474,11 @@
       background: rgba(240, 190, 34, 0.2);
     }
 
+    .country-option.is-pinned {
+      border-color: rgba(240, 190, 34, 0.36);
+      background: rgba(240, 190, 34, 0.12);
+    }
+
     .country-name {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1442,6 +1447,21 @@
       justify-content: center;
     }
 
+    .cooked-prompt.is-scanning {
+      padding: 0;
+      background: #000000;
+      backdrop-filter: none;
+      align-items: stretch;
+      justify-content: flex-start;
+    }
+
+    .cooked-prompt.is-scanning::before,
+    .cooked-prompt.is-scanning::after,
+    .cooked-prompt.is-scanning .cooked-bg-word,
+    .cooked-prompt.is-scanning .confetti-stage {
+      display: none;
+    }
+
     .cooked-bg-word {
       position: absolute;
       inset: auto -6vw 5vh auto;
@@ -1508,18 +1528,21 @@
 
     .cooked-prompt.is-scanning .cooked-scan {
       display: grid;
-      gap: 16px;
-      animation: cookedScanIn 0.35s ease-out both;
+      align-content: center;
+      justify-items: start;
+      gap: 22px;
+      width: 100%;
+      min-height: 100vh;
+      padding: clamp(28px, 8vw, 120px);
+      border: 0;
+      border-radius: 0;
+      background: #000000;
+      box-shadow: none;
+      animation: cookedScanIn 0.3s ease-out both;
     }
 
-    .cooked-scan::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, transparent, rgba(250, 204, 21, 0.16), transparent);
-      transform: translateY(-100%);
-      animation: cookedScanBeam 1.15s linear infinite;
-      pointer-events: none;
+    .cooked-prompt.is-scanning .cooked-scan::before {
+      display: none;
     }
 
     .cooked-scan-kicker {
@@ -1533,6 +1556,11 @@
       font-size: 13px;
       font-weight: 950;
       text-transform: uppercase;
+    }
+
+    .cooked-prompt.is-scanning .cooked-scan-kicker,
+    .cooked-prompt.is-scanning .cooked-scan h3 {
+      display: none;
     }
 
     .cooked-scan h3 {
@@ -1579,6 +1607,52 @@
       box-shadow: 0 0 18px rgba(250, 204, 21, 0.7);
     }
 
+    .cooked-prompt.is-scanning .cooked-scan-line {
+      display: flex;
+      align-items: baseline;
+      width: min(980px, 100%);
+      min-height: clamp(30px, 4vw, 48px);
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #f8fafc;
+      font-family: "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
+      font-size: clamp(18px, 2.1vw, 32px);
+      font-weight: 800;
+      line-height: 1.35;
+      letter-spacing: 0;
+      opacity: 1;
+      transform: none;
+      animation: none;
+      text-shadow: 0 0 18px rgba(255, 255, 255, 0.18);
+    }
+
+    .cooked-prompt.is-scanning .cooked-scan-line::before {
+      content: ">";
+      margin-right: 14px;
+      color: #facc15;
+    }
+
+    .cooked-prompt.is-scanning .cooked-scan-dot {
+      display: none;
+    }
+
+    .cooked-scan-text {
+      white-space: pre-wrap;
+    }
+
+    .cooked-scan-text.is-typing::after {
+      content: "";
+      display: inline-block;
+      width: 0.58em;
+      height: 1em;
+      margin-left: 4px;
+      background: #f8fafc;
+      vertical-align: -0.12em;
+      animation: cookedCursorBlink 0.72s steps(1) infinite;
+    }
+
     .cooked-card {
       position: relative;
       z-index: 2;
@@ -1604,6 +1678,7 @@
       opacity: 0;
       pointer-events: none;
       transform: translateY(24px) scale(0.92);
+      display: none;
     }
 
     .cooked-card::before {
@@ -1760,20 +1835,22 @@
       }
     }
 
-    @keyframes cookedScanBeam {
-      from {
-        transform: translateY(-100%);
-      }
-
-      to {
-        transform: translateY(100%);
-      }
-    }
-
     @keyframes cookedScanLine {
       to {
         opacity: 1;
         transform: translateY(0);
+      }
+    }
+
+    @keyframes cookedCursorBlink {
+      0%,
+      49% {
+        opacity: 1;
+      }
+
+      50%,
+      100% {
+        opacity: 0;
       }
     }
 
@@ -4396,17 +4473,17 @@
     <div id="confettiStage" class="confetti-stage" aria-hidden="true"></div>
     <div class="cooked-bg-word" aria-hidden="true">COOKED</div>
     <div class="cooked-scan" aria-hidden="true">
-      <div class="cooked-scan-kicker">Secure sign-in review</div>
-      <h3>Checking score distribution...</h3>
-      <div class="cooked-scan-line"><span class="cooked-scan-dot" aria-hidden="true"></span>Reviewing academic risk profile</div>
-      <div class="cooked-scan-line"><span class="cooked-scan-dot" aria-hidden="true"></span>Contacting suspicious provider council</div>
-      <div class="cooked-scan-line"><span class="cooked-scan-dot" aria-hidden="true"></span>Final decision: account cooked</div>
+      <div id="cookedScanKicker" class="cooked-scan-kicker">Secure sign-in review</div>
+      <h3 id="cookedScanTitle">Checking score distribution...</h3>
+      <div id="cookedScanLineOne" class="cooked-scan-line"><span class="cooked-scan-dot" aria-hidden="true"></span>Reviewing academic risk profile</div>
+      <div id="cookedScanLineTwo" class="cooked-scan-line"><span class="cooked-scan-dot" aria-hidden="true"></span>Contacting suspicious provider council</div>
+      <div id="cookedScanLineThree" class="cooked-scan-line"><span class="cooked-scan-dot" aria-hidden="true"></span>Final decision: account cooked</div>
     </div>
     <div class="cooked-card" role="dialog" aria-modal="true" aria-labelledby="cookedTitle">
       <div id="cookedProvider" class="cooked-kicker">Fake provider detected</div>
       <div id="cookedProviderLogo" class="cooked-provider-logo"></div>
       <h2 id="cookedTitle">YOU COOKED</h2>
-      <div class="cooked-status-badge">Account status: cooked</div>
+      <div id="cookedStatusBadge" class="cooked-status-badge">Account status: cooked</div>
       <p id="cookedText">This login provider has rejected your GPA. Please return to Google or X like a responsible scholar.</p>
       <button id="cookedCloseBtn" class="cooked-close" type="button">Return to reality</button>
     </div>
@@ -4545,6 +4622,12 @@
     const cookedPrompt = document.getElementById("cookedPrompt");
     const cookedProvider = document.getElementById("cookedProvider");
     const cookedProviderLogo = document.getElementById("cookedProviderLogo");
+    const cookedScanKicker = document.getElementById("cookedScanKicker");
+    const cookedScanTitle = document.getElementById("cookedScanTitle");
+    const cookedScanLineOne = document.getElementById("cookedScanLineOne");
+    const cookedScanLineTwo = document.getElementById("cookedScanLineTwo");
+    const cookedScanLineThree = document.getElementById("cookedScanLineThree");
+    const cookedStatusBadge = document.getElementById("cookedStatusBadge");
     const cookedText = document.getElementById("cookedText");
     const cookedCloseBtn = document.getElementById("cookedCloseBtn");
     const confettiStage = document.getElementById("confettiStage");
@@ -4578,6 +4661,7 @@
     let recaptchaWidgetId = null;
     let recaptchaResolver = null;
     let cookedRevealTimer = null;
+    let cookedScanTimers = [];
     let revealObserver;
     let selectedCountry = "US";
     let countrySearchTerm = "";
@@ -5310,6 +5394,13 @@
           contactCaptchaText: "发送消息前，请先完成一次人机验证。",
           fakeCookedKicker: "{provider} 账号已封锁",
           fakeCookedMessage: "{provider} 看了你 poor 的成绩分布后，决定封锁你的账号。想认真登录的话还是用 Google 或 X 吧。",
+          cookedScanKicker: "安全登录审查",
+          cookedScanTitle: "正在检查成绩分布...",
+          cookedScanLineOne: "正在评估学术风险画像",
+          cookedScanLineTwo: "正在联系 {provider} 封号委员会",
+          cookedScanLineThree: "最终判定：账号 cooked",
+          cookedStatus: "账号状态：已 cooked",
+          cookedBack: "返回现实世界",
           authTitle: "登录账号",
           authText: "使用已验证的账号，让保存的分析记录真正绑定到用户。",
           welcomePrefix: "欢迎回来，",
@@ -5423,6 +5514,13 @@
           contactCaptchaText: "傳送訊息前，請先完成一次人機驗證。",
           fakeCookedKicker: "{provider} 帳號已封鎖",
           fakeCookedMessage: "{provider} 看了你 poor 的成績分布後，決定封鎖你的帳號。想認真登入的話還是用 Google 或 X 吧。",
+          cookedScanKicker: "安全登入審查",
+          cookedScanTitle: "正在檢查成績分布...",
+          cookedScanLineOne: "正在評估學術風險輪廓",
+          cookedScanLineTwo: "正在聯絡 {provider} 封鎖委員會",
+          cookedScanLineThree: "最終判定：帳號 cooked",
+          cookedStatus: "帳號狀態：已 cooked",
+          cookedBack: "回到現實世界",
           authTitle: "登入帳號",
           authText: "使用已驗證的帳號，讓儲存的分析紀錄真正綁定到使用者。",
           welcomePrefix: "歡迎回來，",
@@ -5514,7 +5612,16 @@
           missionPointTwoText: "Data should help people decide how to support, challenge, and respond, not simply how to label faster.",
           missionPointThreeTitle: "Build fairer feedback loops",
           missionPointThreeText: "Different grading systems carry different meanings. Fair tools understand context before making judgment.",
-          missionBack: "Volver al inicio"
+          missionBack: "Volver al inicio",
+          fakeCookedKicker: "Cuenta de {provider} bloqueada",
+          fakeCookedMessage: "{provider} reviso tu pobre distribucion de notas y decidio bloquear tu cuenta. Usa Google o X si quieres un inicio real.",
+          cookedScanKicker: "Revision segura",
+          cookedScanTitle: "Revisando distribucion de notas...",
+          cookedScanLineOne: "Evaluando el perfil de riesgo academico",
+          cookedScanLineTwo: "Contactando al consejo de bloqueo de {provider}",
+          cookedScanLineThree: "Decision final: cuenta cooked",
+          cookedStatus: "Estado de cuenta: cooked",
+          cookedBack: "Volver a la realidad"
         },
         fr: {
           heroEyebrow: "Analyse de classe en direct",
@@ -5535,7 +5642,16 @@
           missionPointTwoText: "Data should help people decide how to support, challenge, and respond, not simply how to label faster.",
           missionPointThreeTitle: "Build fairer feedback loops",
           missionPointThreeText: "Different grading systems carry different meanings. Fair tools understand context before making judgment.",
-          missionBack: "Retour a l'accueil"
+          missionBack: "Retour a l'accueil",
+          fakeCookedKicker: "Compte {provider} bloque",
+          fakeCookedMessage: "{provider} a vu ta mauvaise distribution de notes et a decide de bloquer ton compte. Utilise Google ou X pour une vraie connexion.",
+          cookedScanKicker: "Verification securisee",
+          cookedScanTitle: "Verification de la distribution...",
+          cookedScanLineOne: "Analyse du profil de risque academique",
+          cookedScanLineTwo: "Contact du conseil de blocage {provider}",
+          cookedScanLineThree: "Decision finale : compte cooked",
+          cookedStatus: "Statut du compte : cooked",
+          cookedBack: "Retour a la realite"
         },
         de: {
           heroEyebrow: "Live-Klassenanalyse",
@@ -5556,7 +5672,16 @@
           missionPointTwoText: "Data should help people decide how to support, challenge, and respond, not simply how to label faster.",
           missionPointThreeTitle: "Build fairer feedback loops",
           missionPointThreeText: "Different grading systems carry different meanings. Fair tools understand context before making judgment.",
-          missionBack: "Zur Startseite"
+          missionBack: "Zur Startseite",
+          fakeCookedKicker: "{provider}-Konto gesperrt",
+          fakeCookedMessage: "{provider} hat deine schwache Punkteverteilung gesehen und dein Konto gesperrt. Nutze Google oder X fuer einen echten Login.",
+          cookedScanKicker: "Sichere Login-Pruefung",
+          cookedScanTitle: "Punkteverteilung wird geprueft...",
+          cookedScanLineOne: "Akademisches Risikoprofil wird bewertet",
+          cookedScanLineTwo: "{provider}-Sperrkomitee wird kontaktiert",
+          cookedScanLineThree: "Endentscheidung: Konto cooked",
+          cookedStatus: "Kontostatus: cooked",
+          cookedBack: "Zurueck in die Realitaet"
         },
         pt: {
           heroEyebrow: "Inteligencia da sala em tempo real",
@@ -5577,7 +5702,16 @@
           missionPointTwoText: "Data should help people decide how to support, challenge, and respond, not simply how to label faster.",
           missionPointThreeTitle: "Build fairer feedback loops",
           missionPointThreeText: "Different grading systems carry different meanings. Fair tools understand context before making judgment.",
-          missionBack: "Voltar ao inicio"
+          missionBack: "Voltar ao inicio",
+          fakeCookedKicker: "Conta {provider} bloqueada",
+          fakeCookedMessage: "{provider} viu sua distribuicao ruim de notas e decidiu bloquear sua conta. Use Google ou X se quiser um login real.",
+          cookedScanKicker: "Revisao segura",
+          cookedScanTitle: "Verificando distribuicao de notas...",
+          cookedScanLineOne: "Avaliando perfil de risco academico",
+          cookedScanLineTwo: "Contatando o conselho de bloqueio da {provider}",
+          cookedScanLineThree: "Decisao final: conta cooked",
+          cookedStatus: "Status da conta: cooked",
+          cookedBack: "Voltar para a realidade"
         },
         ja: {
           heroEyebrow: "リアルタイム授業インテリジェンス",
@@ -5598,7 +5732,16 @@
           missionPointTwoText: "Data should help people decide how to support, challenge, and respond, not simply how to label faster.",
           missionPointThreeTitle: "Build fairer feedback loops",
           missionPointThreeText: "Different grading systems carry different meanings. Fair tools understand context before making judgment.",
-          missionBack: "ホームに戻る"
+          missionBack: "ホームに戻る",
+          fakeCookedKicker: "{provider} アカウントがロックされました",
+          fakeCookedMessage: "{provider} はあなたの poor な成績分布を見て、アカウントをロックしました。本気でログインするなら Google か X を使ってください。",
+          cookedScanKicker: "安全ログイン審査",
+          cookedScanTitle: "成績分布を確認中...",
+          cookedScanLineOne: "学業リスクプロファイルを評価中",
+          cookedScanLineTwo: "{provider} ロック委員会に連絡中",
+          cookedScanLineThree: "最終判定：アカウント cooked",
+          cookedStatus: "アカウント状態：cooked",
+          cookedBack: "現実に戻る"
         },
         ko: {
           heroEyebrow: "실시간 교실 인사이트",
@@ -5619,7 +5762,16 @@
           missionPointTwoText: "Data should help people decide how to support, challenge, and respond, not simply how to label faster.",
           missionPointThreeTitle: "Build fairer feedback loops",
           missionPointThreeText: "Different grading systems carry different meanings. Fair tools understand context before making judgment.",
-          missionBack: "홈으로 돌아가기"
+          missionBack: "홈으로 돌아가기",
+          fakeCookedKicker: "{provider} 계정 잠김",
+          fakeCookedMessage: "{provider}가 당신의 poor한 점수 분포를 보고 계정을 잠그기로 했습니다. 진짜 로그인은 Google 또는 X를 사용하세요.",
+          cookedScanKicker: "보안 로그인 검토",
+          cookedScanTitle: "점수 분포 확인 중...",
+          cookedScanLineOne: "학업 위험 프로필 평가 중",
+          cookedScanLineTwo: "{provider} 차단 위원회 연락 중",
+          cookedScanLineThree: "최종 결정: 계정 cooked",
+          cookedStatus: "계정 상태: cooked",
+          cookedBack: "현실로 돌아가기"
         },
         ar: {
           heroEyebrow: "تحليل الصف مباشرة",
@@ -5640,7 +5792,16 @@
           missionPointTwoText: "Data should help people decide how to support, challenge, and respond, not simply how to label faster.",
           missionPointThreeTitle: "Build fairer feedback loops",
           missionPointThreeText: "Different grading systems carry different meanings. Fair tools understand context before making judgment.",
-          missionBack: "العودة إلى الصفحة الرئيسية"
+          missionBack: "العودة إلى الصفحة الرئيسية",
+          fakeCookedKicker: "تم قفل حساب {provider}",
+          fakeCookedMessage: "راجع {provider} توزيع درجاتك الضعيف وقرر قفل حسابك. استخدم Google أو X إذا أردت تسجيل دخول حقيقيا.",
+          cookedScanKicker: "مراجعة تسجيل دخول آمنة",
+          cookedScanTitle: "جار فحص توزيع الدرجات...",
+          cookedScanLineOne: "جار تقييم ملف الخطر الأكاديمي",
+          cookedScanLineTwo: "جار التواصل مع لجنة قفل {provider}",
+          cookedScanLineThree: "القرار النهائي: الحساب cooked",
+          cookedStatus: "حالة الحساب: cooked",
+          cookedBack: "العودة إلى الواقع"
         }
       };
 
@@ -5734,6 +5895,13 @@
         contactCaptchaText: "Complete this quick human check before opening your message.",
         fakeCookedKicker: "{provider} account locked",
         fakeCookedMessage: "{provider} reviewed your poor score distribution and decided to lock your account. Try Google or X if you want a real login.",
+        cookedScanKicker: "Secure sign-in review",
+        cookedScanTitle: "Checking score distribution...",
+        cookedScanLineOne: "Reviewing academic risk profile",
+        cookedScanLineTwo: "Contacting {provider} lockout council",
+        cookedScanLineThree: "Final decision: account cooked",
+        cookedStatus: "Account status: cooked",
+        cookedBack: "Return to reality",
         authTitle: "Sign in",
         authText: "Use a verified account so saved analyses stay connected to a real user.",
         welcomePrefix: "Welcome back, ",
@@ -5761,6 +5929,7 @@
     function renderCountryOptions() {
       const regionCodes = getRegionCodes();
       const names = getRegionDisplayNames();
+      const pinnedCountries = ["US", "CN", "TW", "HK"];
       const sortedRegions = regionCodes.map(function (code) {
         let name = code;
 
@@ -5775,6 +5944,21 @@
           name: name
         };
       }).sort(function (a, b) {
+        const pinnedA = pinnedCountries.indexOf(a.code);
+        const pinnedB = pinnedCountries.indexOf(b.code);
+
+        if (pinnedA !== -1 || pinnedB !== -1) {
+          if (pinnedA === -1) {
+            return 1;
+          }
+
+          if (pinnedB === -1) {
+            return -1;
+          }
+
+          return pinnedA - pinnedB;
+        }
+
         return a.name.localeCompare(b.name);
       });
 
@@ -5782,8 +5966,10 @@
         <input id="countrySearchInput" class="country-search" type="search" placeholder="Search country..." value="${escapeHtml(countrySearchTerm)}" autocomplete="off">
         <p id="countryEmptyMessage" class="country-empty" style="display: none;">No covered language found.</p>
       ` + sortedRegions.map(function (region) {
+        const isPinned = pinnedCountries.includes(region.code);
+
         return `
-          <button class="country-option" type="button" data-country="${region.code}" data-country-name="${escapeHtml((region.name + " " + region.code).toLowerCase())}" aria-pressed="false">
+          <button class="country-option ${isPinned ? "is-pinned" : ""}" type="button" data-country="${region.code}" data-country-name="${escapeHtml((region.name + " " + region.code).toLowerCase())}" aria-pressed="false">
             <span class="country-flag">${getFlagEmoji(region.code)}</span>
             <span class="country-name">${escapeHtml(region.name)}</span>
           </button>
@@ -6934,29 +7120,104 @@
       cookedProvider.textContent = formatProviderText(text.fakeCookedKicker || "{provider} account locked", provider);
       cookedProviderLogo.innerHTML = getFakeProviderLogo(provider);
       cookedText.textContent = formatProviderText(text.fakeCookedMessage || "{provider} reviewed your poor score distribution and decided to lock your account. Try Google or X if you want a real login.", provider);
+      cookedScanKicker.textContent = text.cookedScanKicker || "Secure sign-in review";
+      cookedScanTitle.textContent = text.cookedScanTitle || "Checking score distribution...";
+      cookedStatusBadge.textContent = text.cookedStatus || "Account status: cooked";
+      cookedCloseBtn.textContent = text.cookedBack || "Return to reality";
       clearTimeout(cookedRevealTimer);
+      clearCookedScanTimers();
       confettiStage.innerHTML = "";
       cookedPrompt.classList.add("is-visible");
       cookedPrompt.setAttribute("aria-hidden", "false");
       cookedPrompt.classList.add("is-scanning");
       cookedPrompt.classList.remove("is-celebrating");
 
-      cookedRevealTimer = setTimeout(function () {
-        cookedPrompt.classList.remove("is-scanning");
-        void cookedPrompt.offsetWidth;
-        cookedPrompt.classList.add("is-celebrating");
-        launchCookedConfetti(provider);
-        cookedCloseBtn.focus();
-      }, 1850);
+      await playCookedScan([
+        formatProviderText(text.cookedScanLineOne || "Reviewing academic risk profile", provider),
+        formatProviderText(text.cookedScanLineTwo || "Contacting {provider} lockout council", provider),
+        formatProviderText(text.cookedScanLineThree || "Final decision: account cooked", provider)
+      ]);
+
+      if (!cookedPrompt.classList.contains("is-visible") || !cookedPrompt.classList.contains("is-scanning")) {
+        return;
+      }
+
+      cookedPrompt.classList.remove("is-scanning");
+      void cookedPrompt.offsetWidth;
+      cookedPrompt.classList.add("is-celebrating");
+      launchCookedConfetti(provider);
+      cookedCloseBtn.focus();
     }
 
     function formatProviderText(template, provider) {
       return String(template).replace(/\{provider\}/g, provider);
     }
 
+    async function playCookedScan(lines) {
+      const lineElements = [cookedScanLineOne, cookedScanLineTwo, cookedScanLineThree];
+
+      lineElements.forEach(function (element) {
+        element.innerHTML = '<span class="cooked-scan-dot" aria-hidden="true"></span><span class="cooked-scan-text"></span>';
+      });
+
+      await waitForCookedScan(260);
+
+      for (let lineIndex = 0; lineIndex < lineElements.length; lineIndex++) {
+        const textSpan = lineElements[lineIndex].querySelector(".cooked-scan-text");
+
+        if (!textSpan) {
+          continue;
+        }
+
+        await typeCookedScanLine(textSpan, lines[lineIndex] || "");
+        await waitForCookedScan(280);
+      }
+
+      await waitForCookedScan(520);
+    }
+
+    async function typeCookedScanLine(element, text) {
+      element.textContent = "";
+      element.classList.add("is-typing");
+
+      for (let i = 0; i < text.length; i++) {
+        element.textContent += text[i];
+        await waitForCookedScan(getCookedTypingDelay(text[i]));
+      }
+
+      element.classList.remove("is-typing");
+    }
+
+    function getCookedTypingDelay(character) {
+      if (character === " " || character === "　") {
+        return 16;
+      }
+
+      if (/[.,:;!?，。；：！？]/.test(character)) {
+        return 90;
+      }
+
+      return 34;
+    }
+
+    function waitForCookedScan(delay) {
+      return new Promise(function (resolve) {
+        const timer = setTimeout(resolve, delay);
+        cookedScanTimers.push(timer);
+      });
+    }
+
+    function clearCookedScanTimers() {
+      cookedScanTimers.forEach(function (timer) {
+        clearTimeout(timer);
+      });
+      cookedScanTimers = [];
+    }
+
     function closeCookedPrompt() {
       clearTimeout(cookedRevealTimer);
       cookedRevealTimer = null;
+      clearCookedScanTimers();
       cookedPrompt.classList.remove("is-visible");
       cookedPrompt.classList.remove("is-celebrating");
       cookedPrompt.classList.remove("is-scanning");
