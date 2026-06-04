@@ -1442,6 +1442,38 @@
       justify-content: center;
     }
 
+    .cooked-prompt::before,
+    .cooked-prompt::after {
+      content: "";
+      position: absolute;
+      width: 46vmin;
+      height: 46vmin;
+      border: 1px solid rgba(240, 190, 34, 0.24);
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .cooked-prompt::before {
+      left: 7vw;
+      top: 16vh;
+    }
+
+    .cooked-prompt::after {
+      right: 8vw;
+      bottom: 12vh;
+      border-color: rgba(0, 174, 239, 0.24);
+    }
+
+    .cooked-prompt.is-celebrating::before,
+    .cooked-prompt.is-celebrating::after {
+      animation: cookedRing 1.8s ease-out 0.08s both;
+    }
+
+    .cooked-prompt.is-celebrating::after {
+      animation-delay: 0.2s;
+    }
+
     .cooked-card {
       position: relative;
       z-index: 2;
@@ -1459,10 +1491,26 @@
       color: white;
       text-align: center;
       box-shadow: 0 44px 160px rgba(0, 0, 0, 0.56);
-      animation: cookedPop 0.38s cubic-bezier(.2, 1.5, .3, 1) both;
+      overflow: hidden;
+      animation: cookedPop 0.5s cubic-bezier(.2, 1.5, .3, 1) both;
+    }
+
+    .cooked-card::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      background: linear-gradient(105deg, transparent 0 34%, rgba(255, 255, 255, 0.16) 44%, transparent 54% 100%);
+      transform: translateX(-120%);
+      pointer-events: none;
+    }
+
+    .cooked-prompt.is-celebrating .cooked-card::before {
+      animation: cookedSweep 1.4s ease-out 0.35s both;
     }
 
     .cooked-kicker {
+      position: relative;
+      z-index: 2;
       display: inline-flex;
       margin: 0 0 14px;
       padding: 8px 13px;
@@ -1474,9 +1522,12 @@
       font-weight: 950;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+      animation: cookedSlideDown 0.55s ease-out 0.08s both;
     }
 
     .cooked-card h2 {
+      position: relative;
+      z-index: 2;
       margin: 0;
       color: #ffffff;
       font-size: clamp(72px, 17vw, 190px);
@@ -1485,7 +1536,13 @@
       text-shadow: 0 12px 40px rgba(240, 190, 34, 0.34);
     }
 
+    .cooked-prompt.is-celebrating .cooked-card h2 {
+      animation: cookedTitlePulse 1.18s ease-in-out 0.1s both;
+    }
+
     .cooked-card p {
+      position: relative;
+      z-index: 2;
       max-width: 560px;
       margin: 18px auto 26px;
       color: rgba(255, 255, 255, 0.74);
@@ -1494,17 +1551,23 @@
     }
 
     .cooked-provider-logo {
+      position: relative;
+      z-index: 2;
       margin-bottom: 18px;
       transform: scale(1.35);
+      animation: cookedLogoPop 0.55s cubic-bezier(.2, 1.6, .3, 1) 0.18s both;
     }
 
     .cooked-close {
+      position: relative;
+      z-index: 2;
       min-height: 50px;
       padding: 0 28px;
       border-radius: 999px;
       background: var(--gold);
       color: #111827;
       font-weight: 950;
+      animation: cookedButtonIn 0.55s ease-out 0.46s both;
     }
 
     .confetti-stage {
@@ -1526,6 +1589,21 @@
       transform: rotate(var(--start-rotation, 0deg));
     }
 
+    .confetti-piece.is-burst-left,
+    .confetti-piece.is-burst-right {
+      top: var(--burst-top, 46%);
+      animation: confettiBurst var(--fall-duration, 1.9s) cubic-bezier(.12, .78, .24, 1) forwards;
+    }
+
+    .confetti-piece.is-burst-left {
+      left: -24px;
+    }
+
+    .confetti-piece.is-burst-right {
+      right: -24px;
+      left: auto;
+    }
+
     @keyframes cookedPop {
       from {
         opacity: 0;
@@ -1538,6 +1616,84 @@
       }
     }
 
+    @keyframes cookedTitlePulse {
+      0% {
+        transform: scale(0.86) rotate(-1deg);
+        filter: blur(2px);
+      }
+
+      42% {
+        transform: scale(1.06) rotate(0.7deg);
+        filter: blur(0);
+      }
+
+      70% {
+        transform: scale(0.98);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes cookedLogoPop {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.8);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1.35);
+      }
+    }
+
+    @keyframes cookedSlideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes cookedButtonIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.96);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes cookedSweep {
+      from {
+        transform: translateX(-120%);
+      }
+
+      to {
+        transform: translateX(120%);
+      }
+    }
+
+    @keyframes cookedRing {
+      0% {
+        opacity: 0.72;
+        transform: scale(0.38);
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(1.8);
+      }
+    }
+
     @keyframes confettiFall {
       0% {
         transform: translate3d(0, -30px, 0) rotate(var(--start-rotation, 0deg));
@@ -1545,6 +1701,18 @@
 
       100% {
         transform: translate3d(var(--drift, 0px), calc(100vh + 80px), 0) rotate(var(--end-rotation, 360deg));
+      }
+    }
+
+    @keyframes confettiBurst {
+      0% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) rotate(var(--start-rotation, 0deg));
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate3d(var(--burst-x, 280px), var(--burst-y, 180px), 0) rotate(var(--end-rotation, 720deg));
       }
     }
 
@@ -6580,6 +6748,9 @@
       cookedText.textContent = formatProviderText(text.fakeCookedMessage || "{provider} reviewed your poor score distribution and decided to lock your account. Try Google or X if you want a real login.", provider);
       cookedPrompt.classList.add("is-visible");
       cookedPrompt.setAttribute("aria-hidden", "false");
+      cookedPrompt.classList.remove("is-celebrating");
+      void cookedPrompt.offsetWidth;
+      cookedPrompt.classList.add("is-celebrating");
       launchCookedConfetti(provider);
       cookedCloseBtn.focus();
     }
@@ -6590,6 +6761,7 @@
 
     function closeCookedPrompt() {
       cookedPrompt.classList.remove("is-visible");
+      cookedPrompt.classList.remove("is-celebrating");
       cookedPrompt.setAttribute("aria-hidden", "true");
       confettiStage.innerHTML = "";
     }
@@ -6609,7 +6781,7 @@
 
       confettiStage.innerHTML = "";
 
-      for (let i = 0; i < 92; i++) {
+      for (let i = 0; i < 120; i++) {
         const piece = document.createElement("span");
         const color = colors[i % colors.length];
         const left = Math.random() * 100;
@@ -6630,6 +6802,34 @@
 
         if (i % 3 === 0) {
           piece.style.width = "18px";
+          piece.style.height = "10px";
+        }
+
+        confettiStage.appendChild(piece);
+      }
+
+      for (let i = 0; i < 64; i++) {
+        const piece = document.createElement("span");
+        const isLeft = i % 2 === 0;
+        const color = colors[(i + 2) % colors.length];
+        const duration = (1.2 + Math.random() * 1.1).toFixed(2);
+        const startRotation = Math.round(Math.random() * 360);
+        const endRotation = startRotation + 540 + Math.round(Math.random() * 720);
+        const burstX = Math.round((isLeft ? 1 : -1) * (180 + Math.random() * 520));
+        const burstY = Math.round(-260 + Math.random() * 620);
+
+        piece.className = "confetti-piece " + (isLeft ? "is-burst-left" : "is-burst-right");
+        piece.style.background = color;
+        piece.style.setProperty("--fall-duration", duration + "s");
+        piece.style.setProperty("--burst-top", (22 + Math.random() * 52) + "%");
+        piece.style.setProperty("--burst-x", burstX + "px");
+        piece.style.setProperty("--burst-y", burstY + "px");
+        piece.style.setProperty("--start-rotation", startRotation + "deg");
+        piece.style.setProperty("--end-rotation", endRotation + "deg");
+
+        if (i % 4 === 0) {
+          piece.style.borderRadius = "999px";
+          piece.style.width = "10px";
           piece.style.height = "10px";
         }
 
