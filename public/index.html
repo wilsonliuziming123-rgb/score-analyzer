@@ -1622,11 +1622,18 @@
       font-weight: 400;
       line-height: 1.75;
       letter-spacing: 0.012em;
-      opacity: 1;
-      transform: none;
+      opacity: 0;
+      transform: translateY(-8px);
       animation: none;
       text-shadow: none;
       font-variant-ligatures: none;
+    }
+
+    .cooked-prompt.is-scanning .cooked-scan-line.is-active,
+    .cooked-prompt.is-scanning .cooked-scan-line.is-complete {
+      opacity: 1;
+      transform: translateY(0);
+      animation: cookedTypewriterNewLine 0.22s ease-out both;
     }
 
     .cooked-prompt.is-scanning .cooked-scan-line::before {
@@ -1635,6 +1642,15 @@
       color: #facc15;
       font-family: "Courier New", "Courier Prime", Courier, "Nimbus Mono L", monospace;
       font-weight: 400;
+      opacity: 0;
+      transform: translateX(-6px);
+    }
+
+    .cooked-prompt.is-scanning .cooked-scan-line.is-active::before,
+    .cooked-prompt.is-scanning .cooked-scan-line.is-complete::before {
+      opacity: 1;
+      transform: translateX(0);
+      animation: cookedPromptMarkIn 0.18s ease-out both;
     }
 
     .cooked-prompt.is-scanning .cooked-scan-dot {
@@ -1647,6 +1663,17 @@
     }
 
     .cooked-scan-text.is-typing::after {
+      content: "";
+      display: inline-block;
+      width: 0.12em;
+      height: 1.12em;
+      margin-left: 4px;
+      background: #e5e7eb;
+      vertical-align: -0.18em;
+      animation: cookedCursorBlink 0.72s steps(1) infinite;
+    }
+
+    .cooked-prompt.is-scanning .cooked-scan-line.is-active .cooked-scan-text:not(.is-typing)::after {
       content: "";
       display: inline-block;
       width: 0.12em;
@@ -1843,6 +1870,30 @@
       to {
         opacity: 1;
         transform: translateY(0);
+      }
+    }
+
+    @keyframes cookedTypewriterNewLine {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes cookedPromptMarkIn {
+      from {
+        opacity: 0;
+        transform: translateX(-6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
       }
     }
 
@@ -7162,6 +7213,8 @@
 
       lineElements.forEach(function (element) {
         element.innerHTML = '<span class="cooked-scan-dot" aria-hidden="true"></span><span class="cooked-scan-text"></span>';
+        element.classList.remove("is-active");
+        element.classList.remove("is-complete");
       });
 
       await waitForCookedScan(520);
@@ -7173,8 +7226,11 @@
           continue;
         }
 
+        lineElements[lineIndex].classList.add("is-active");
         await typeCookedScanLine(textSpan, lines[lineIndex] || "");
         await waitForCookedScan(620);
+        lineElements[lineIndex].classList.remove("is-active");
+        lineElements[lineIndex].classList.add("is-complete");
       }
 
       await waitForCookedScan(1100);
@@ -7227,6 +7283,10 @@
       cookedPrompt.classList.remove("is-scanning");
       cookedPrompt.setAttribute("aria-hidden", "true");
       confettiStage.innerHTML = "";
+      [cookedScanLineOne, cookedScanLineTwo, cookedScanLineThree].forEach(function (element) {
+        element.classList.remove("is-active");
+        element.classList.remove("is-complete");
+      });
     }
 
     function getFakeProviderLogo(provider) {
