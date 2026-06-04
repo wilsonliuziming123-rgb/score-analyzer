@@ -4449,11 +4449,6 @@
       button.addEventListener("click", showCookedPrompt);
     });
     cookedCloseBtn.addEventListener("click", closeCookedPrompt);
-    cookedPrompt.addEventListener("click", function (event) {
-      if (event.target === cookedPrompt) {
-        closeCookedPrompt();
-      }
-    });
     recaptchaContinueBtn.addEventListener("click", completeRecaptchaChallenge);
     recaptchaCancelBtn.addEventListener("click", cancelRecaptchaChallenge);
     acceptCookiesBtn.addEventListener("click", acceptCookies);
