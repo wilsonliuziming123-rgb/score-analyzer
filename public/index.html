@@ -4249,6 +4249,7 @@
     countryPicker.addEventListener("click", handleCountryChoice);
     countryPicker.addEventListener("input", handleCountrySearch);
     document.addEventListener("click", closeCountryPanelOnOutsideClick);
+    document.addEventListener("click", closeAccountMenuOnOutsideClick);
     accountMenu.addEventListener("toggle", function () {
       if (accountMenu.open) {
         closeCountryPanel();
@@ -4751,6 +4752,14 @@
       closeCountryPanel();
     }
 
+    function closeAccountMenuOnOutsideClick(event) {
+      if (accountMenu.contains(event.target)) {
+        return;
+      }
+
+      accountMenu.open = false;
+    }
+
     function openCountryPanel() {
       accountMenu.open = false;
       countryPanel.classList.add("is-open");
@@ -4943,6 +4952,8 @@
           contactCaptchaKicker: "消息保护",
           contactCaptchaTitle: "发送前验证",
           contactCaptchaText: "发送消息前，请先完成一次人机验证。",
+          fakeCookedKicker: "{provider} 账号已封锁",
+          fakeCookedMessage: "{provider} 看了你 poor 的成绩分布后，决定封锁你的账号。想认真登录的话还是用 Google 或 X 吧。",
           authTitle: "登录账号",
           authText: "使用已验证的账号，让保存的分析记录真正绑定到用户。",
           welcomePrefix: "欢迎回来，",
@@ -5054,6 +5065,8 @@
           contactCaptchaKicker: "訊息保護",
           contactCaptchaTitle: "傳送前驗證",
           contactCaptchaText: "傳送訊息前，請先完成一次人機驗證。",
+          fakeCookedKicker: "{provider} 帳號已封鎖",
+          fakeCookedMessage: "{provider} 看了你 poor 的成績分布後，決定封鎖你的帳號。想認真登入的話還是用 Google 或 X 吧。",
           authTitle: "登入帳號",
           authText: "使用已驗證的帳號，讓儲存的分析紀錄真正綁定到使用者。",
           welcomePrefix: "歡迎回來，",
@@ -5363,6 +5376,8 @@
         contactCaptchaKicker: "Message protection",
         contactCaptchaTitle: "Verify before sending",
         contactCaptchaText: "Complete this quick human check before opening your message.",
+        fakeCookedKicker: "{provider} account locked",
+        fakeCookedMessage: "{provider} reviewed your poor score distribution and decided to lock your account. Try Google or X if you want a real login.",
         authTitle: "Sign in",
         authText: "Use a verified account so saved analyses stay connected to a real user.",
         welcomePrefix: "Welcome back, ",
@@ -6559,13 +6574,18 @@
         return;
       }
 
-      cookedProvider.textContent = provider + " login intercepted";
+      const text = getLocaleText(getActiveLocale());
+      cookedProvider.textContent = formatProviderText(text.fakeCookedKicker || "{provider} account locked", provider);
       cookedProviderLogo.innerHTML = getFakeProviderLogo(provider);
-      cookedText.textContent = provider + " looked at the score distribution and immediately filed an academic incident report. Try Google or X if you want a real login.";
+      cookedText.textContent = formatProviderText(text.fakeCookedMessage || "{provider} reviewed your poor score distribution and decided to lock your account. Try Google or X if you want a real login.", provider);
       cookedPrompt.classList.add("is-visible");
       cookedPrompt.setAttribute("aria-hidden", "false");
       launchCookedConfetti(provider);
       cookedCloseBtn.focus();
+    }
+
+    function formatProviderText(template, provider) {
+      return String(template).replace(/\{provider\}/g, provider);
     }
 
     function closeCookedPrompt() {
