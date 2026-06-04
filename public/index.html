@@ -273,16 +273,64 @@
     }
 
     .fake-auth {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       color: #111827;
       font-weight: 950;
     }
 
     .ph-auth {
-      background: linear-gradient(135deg, #ff9f1c, #facc15);
+      background: #050505;
+      color: #ffffff;
     }
 
     .of-auth {
-      background: linear-gradient(135deg, #00aeef, #7dd3fc);
+      background: #ffffff;
+      color: #00aeef;
+    }
+
+    .provider-logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .ph-logo {
+      color: #ffffff;
+      font-weight: 950;
+      letter-spacing: -0.02em;
+    }
+
+    .ph-logo .ph-hub {
+      margin-left: 2px;
+      padding: 3px 6px 4px;
+      border-radius: 5px;
+      background: #f59e0b;
+      color: #050505;
+    }
+
+    .of-logo {
+      color: #00aeef;
+      font-weight: 950;
+      letter-spacing: -0.03em;
+    }
+
+    .of-mark {
+      width: 24px;
+      height: 24px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #00aeef;
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing: -0.08em;
     }
 
     .account-link {
@@ -1378,29 +1426,39 @@
       inset: 0;
       z-index: 96;
       display: none;
-      place-items: center;
       padding: 22px;
       background:
-        radial-gradient(circle at 50% 38%, rgba(240, 190, 34, 0.16), transparent 28%),
-        rgba(3, 7, 18, 0.84);
+        radial-gradient(circle at 50% 28%, rgba(240, 190, 34, 0.22), transparent 28%),
+        radial-gradient(circle at 16% 78%, rgba(0, 174, 239, 0.22), transparent 26%),
+        radial-gradient(circle at 86% 72%, rgba(245, 158, 11, 0.18), transparent 24%),
+        #030712;
       backdrop-filter: blur(18px);
+      overflow: hidden;
     }
 
     .cooked-prompt.is-visible {
-      display: grid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .cooked-card {
-      width: min(720px, 100%);
-      padding: clamp(26px, 5vw, 54px);
-      border: 1px solid rgba(240, 190, 34, 0.46);
-      border-radius: 32px;
+      position: relative;
+      z-index: 2;
+      width: min(960px, 100%);
+      min-height: min(740px, calc(100vh - 44px));
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      padding: clamp(30px, 6vw, 72px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 40px;
       background:
-        linear-gradient(135deg, rgba(255, 159, 28, 0.18), transparent 28%),
-        linear-gradient(145deg, rgba(13, 17, 23, 0.98), rgba(17, 24, 39, 0.96));
+        linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 26%),
+        rgba(13, 17, 23, 0.72);
       color: white;
       text-align: center;
-      box-shadow: 0 40px 140px rgba(0, 0, 0, 0.52);
+      box-shadow: 0 44px 160px rgba(0, 0, 0, 0.56);
       animation: cookedPop 0.38s cubic-bezier(.2, 1.5, .3, 1) both;
     }
 
@@ -1421,8 +1479,8 @@
     .cooked-card h2 {
       margin: 0;
       color: #ffffff;
-      font-size: clamp(58px, 13vw, 132px);
-      line-height: 0.88;
+      font-size: clamp(72px, 17vw, 190px);
+      line-height: 0.82;
       text-transform: uppercase;
       text-shadow: 0 12px 40px rgba(240, 190, 34, 0.34);
     }
@@ -1435,6 +1493,11 @@
       line-height: 1.55;
     }
 
+    .cooked-provider-logo {
+      margin-bottom: 18px;
+      transform: scale(1.35);
+    }
+
     .cooked-close {
       min-height: 50px;
       padding: 0 28px;
@@ -1442,6 +1505,25 @@
       background: var(--gold);
       color: #111827;
       font-weight: 950;
+    }
+
+    .confetti-stage {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -28px;
+      width: 12px;
+      height: 22px;
+      border-radius: 3px;
+      opacity: 0.95;
+      animation: confettiFall var(--fall-duration, 2.8s) linear forwards;
+      transform: rotate(var(--start-rotation, 0deg));
     }
 
     @keyframes cookedPop {
@@ -1453,6 +1535,16 @@
       to {
         opacity: 1;
         transform: translateY(0) scale(1) rotate(0);
+      }
+    }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translate3d(0, -30px, 0) rotate(var(--start-rotation, 0deg));
+      }
+
+      100% {
+        transform: translate3d(var(--drift, 0px), calc(100vh + 80px), 0) rotate(var(--end-rotation, 360deg));
       }
     }
 
@@ -3447,8 +3539,12 @@
               <button id="accountRecordsBtn" class="account-link" type="button">Records</button>
               <button id="topGoogleSignInBtn" class="auth-toggle" type="button">Google sign in</button>
               <button id="topXSignInBtn" class="auth-toggle x-auth" type="button">Continue with X</button>
-              <button id="topFakePornhubBtn" class="auth-toggle fake-auth ph-auth" type="button" data-fake-provider="Pornhub">Continue with Pornhub</button>
-              <button id="topFakeOnlyFansBtn" class="auth-toggle fake-auth of-auth" type="button" data-fake-provider="OnlyFans">Continue with OnlyFans</button>
+              <button id="topFakePornhubBtn" class="auth-toggle fake-auth ph-auth" type="button" data-fake-provider="Pornhub" aria-label="Continue with Pornhub">
+                Continue with <span class="provider-logo ph-logo" aria-hidden="true">Porn<span class="ph-hub">hub</span></span>
+              </button>
+              <button id="topFakeOnlyFansBtn" class="auth-toggle fake-auth of-auth" type="button" data-fake-provider="OnlyFans" aria-label="Continue with OnlyFans">
+                Continue with <span class="provider-logo of-logo" aria-hidden="true"><span class="of-mark">OF</span><span>OnlyFans</span></span>
+              </button>
               <button id="signOutBtn" class="auth-toggle" type="button" style="display: none;">Sign out</button>
             </div>
           </details>
@@ -3620,8 +3716,12 @@
       <div class="oauth-row">
         <button id="googleSignInBtn" class="oauth-button" type="button" disabled>Continue with Google</button>
         <button id="xSignInBtn" class="oauth-button x-auth" type="button" disabled>Continue with X</button>
-        <button id="fakePornhubBtn" class="oauth-button fake-auth ph-auth" type="button" data-fake-provider="Pornhub">Continue with Pornhub</button>
-        <button id="fakeOnlyFansBtn" class="oauth-button fake-auth of-auth" type="button" data-fake-provider="OnlyFans">Continue with OnlyFans</button>
+        <button id="fakePornhubBtn" class="oauth-button fake-auth ph-auth" type="button" data-fake-provider="Pornhub" aria-label="Continue with Pornhub">
+          Continue with <span class="provider-logo ph-logo" aria-hidden="true">Porn<span class="ph-hub">hub</span></span>
+        </button>
+        <button id="fakeOnlyFansBtn" class="oauth-button fake-auth of-auth" type="button" data-fake-provider="OnlyFans" aria-label="Continue with OnlyFans">
+          Continue with <span class="provider-logo of-logo" aria-hidden="true"><span class="of-mark">OF</span><span>OnlyFans</span></span>
+        </button>
       </div>
       <div class="auth-note">Google sign-in uses a secure server cookie.</div>
     </section>
@@ -3930,16 +4030,22 @@
       <div class="auth-prompt-actions">
         <button id="authPromptGoogleBtn" class="auth-prompt-google" type="button">Continue with Google</button>
         <button id="authPromptXBtn" class="auth-prompt-x" type="button">Continue with X</button>
-        <button id="authPromptPornhubBtn" class="auth-prompt-fake ph-auth" type="button" data-fake-provider="Pornhub">Continue with Pornhub</button>
-        <button id="authPromptOnlyFansBtn" class="auth-prompt-fake of-auth" type="button" data-fake-provider="OnlyFans">Continue with OnlyFans</button>
+        <button id="authPromptPornhubBtn" class="auth-prompt-fake ph-auth" type="button" data-fake-provider="Pornhub" aria-label="Continue with Pornhub">
+          Continue with <span class="provider-logo ph-logo" aria-hidden="true">Porn<span class="ph-hub">hub</span></span>
+        </button>
+        <button id="authPromptOnlyFansBtn" class="auth-prompt-fake of-auth" type="button" data-fake-provider="OnlyFans" aria-label="Continue with OnlyFans">
+          Continue with <span class="provider-logo of-logo" aria-hidden="true"><span class="of-mark">OF</span><span>OnlyFans</span></span>
+        </button>
         <button id="authPromptSkipBtn" class="auth-prompt-skip" type="button">Explore first</button>
       </div>
     </div>
   </section>
 
   <section id="cookedPrompt" class="cooked-prompt" aria-hidden="true">
+    <div id="confettiStage" class="confetti-stage" aria-hidden="true"></div>
     <div class="cooked-card" role="dialog" aria-modal="true" aria-labelledby="cookedTitle">
       <div id="cookedProvider" class="cooked-kicker">Fake provider detected</div>
+      <div id="cookedProviderLogo" class="cooked-provider-logo"></div>
       <h2 id="cookedTitle">YOU COOKED</h2>
       <p id="cookedText">This login provider has rejected your GPA. Please return to Google or X like a responsible scholar.</p>
       <button id="cookedCloseBtn" class="cooked-close" type="button">Back to safety</button>
@@ -4078,8 +4184,10 @@
     const authPromptSkipBtn = document.getElementById("authPromptSkipBtn");
     const cookedPrompt = document.getElementById("cookedPrompt");
     const cookedProvider = document.getElementById("cookedProvider");
+    const cookedProviderLogo = document.getElementById("cookedProviderLogo");
     const cookedText = document.getElementById("cookedText");
     const cookedCloseBtn = document.getElementById("cookedCloseBtn");
+    const confettiStage = document.getElementById("confettiStage");
     const recaptchaPrompt = document.getElementById("recaptchaPrompt");
     const recaptchaKicker = document.getElementById("recaptchaKicker");
     const recaptchaTitle = document.getElementById("recaptchaTitle");
@@ -6452,15 +6560,61 @@
       }
 
       cookedProvider.textContent = provider + " login intercepted";
+      cookedProviderLogo.innerHTML = getFakeProviderLogo(provider);
       cookedText.textContent = provider + " looked at the score distribution and immediately filed an academic incident report. Try Google or X if you want a real login.";
       cookedPrompt.classList.add("is-visible");
       cookedPrompt.setAttribute("aria-hidden", "false");
+      launchCookedConfetti(provider);
       cookedCloseBtn.focus();
     }
 
     function closeCookedPrompt() {
       cookedPrompt.classList.remove("is-visible");
       cookedPrompt.setAttribute("aria-hidden", "true");
+      confettiStage.innerHTML = "";
+    }
+
+    function getFakeProviderLogo(provider) {
+      if (provider === "OnlyFans") {
+        return '<span class="provider-logo of-logo" aria-hidden="true"><span class="of-mark">OF</span><span>OnlyFans</span></span>';
+      }
+
+      return '<span class="provider-logo ph-logo" aria-hidden="true">Porn<span class="ph-hub">hub</span></span>';
+    }
+
+    function launchCookedConfetti(provider) {
+      const colors = provider === "OnlyFans"
+        ? ["#00aeef", "#7dd3fc", "#ffffff", "#111827", "#facc15"]
+        : ["#f59e0b", "#facc15", "#050505", "#ffffff", "#ef4444"];
+
+      confettiStage.innerHTML = "";
+
+      for (let i = 0; i < 92; i++) {
+        const piece = document.createElement("span");
+        const color = colors[i % colors.length];
+        const left = Math.random() * 100;
+        const drift = Math.round((Math.random() - 0.5) * 360);
+        const duration = (2.2 + Math.random() * 2.6).toFixed(2);
+        const delay = (Math.random() * 0.65).toFixed(2);
+        const startRotation = Math.round(Math.random() * 360);
+        const endRotation = startRotation + 360 + Math.round(Math.random() * 720);
+
+        piece.className = "confetti-piece";
+        piece.style.left = left + "%";
+        piece.style.background = color;
+        piece.style.animationDelay = delay + "s";
+        piece.style.setProperty("--fall-duration", duration + "s");
+        piece.style.setProperty("--drift", drift + "px");
+        piece.style.setProperty("--start-rotation", startRotation + "deg");
+        piece.style.setProperty("--end-rotation", endRotation + "deg");
+
+        if (i % 3 === 0) {
+          piece.style.width = "18px";
+          piece.style.height = "10px";
+        }
+
+        confettiStage.appendChild(piece);
+      }
     }
 
     function waitForRecaptchaApi() {
