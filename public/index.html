@@ -6430,9 +6430,27 @@
       window.location.href = options.authPath;
     }
 
-    function showCookedPrompt(event) {
+    async function showCookedPrompt(event) {
       const provider = event.currentTarget.dataset.fakeProvider || "Fake provider";
+
+      if (analyzerMode !== "home" && analyzerMode !== "mission") {
+        savePendingDraft();
+      }
+
       accountMenu.open = false;
+      authPrompt.classList.remove("is-visible");
+      authPrompt.setAttribute("aria-hidden", "true");
+
+      const verified = await requestRecaptchaChallenge({
+        kicker: "Fake login checkpoint",
+        title: "Verify before " + provider + " login",
+        text: "Complete this quick human check before the suspicious provider judges your score distribution."
+      });
+
+      if (!verified) {
+        return;
+      }
+
       cookedProvider.textContent = provider + " login intercepted";
       cookedText.textContent = provider + " looked at the score distribution and immediately filed an academic incident report. Try Google or X if you want a real login.";
       cookedPrompt.classList.add("is-visible");
