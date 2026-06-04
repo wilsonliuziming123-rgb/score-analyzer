@@ -295,42 +295,42 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 2px;
+      gap: 8px;
       line-height: 1;
       white-space: nowrap;
+    }
+
+    .provider-icon {
+      width: 24px;
+      height: 24px;
+      display: inline-block;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .provider-name {
+      font-weight: 950;
+      letter-spacing: -0.02em;
     }
 
     .ph-logo {
       color: #ffffff;
       font-weight: 950;
-      letter-spacing: -0.02em;
+      letter-spacing: 0;
     }
 
-    .ph-logo .ph-hub {
-      margin-left: 2px;
-      padding: 3px 6px 4px;
-      border-radius: 5px;
-      background: #f59e0b;
-      color: #050505;
+    .ph-logo .provider-icon {
+      filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.34));
     }
 
     .of-logo {
       color: #00aeef;
       font-weight: 950;
-      letter-spacing: -0.03em;
+      letter-spacing: 0;
     }
 
-    .of-mark {
-      width: 24px;
-      height: 24px;
-      display: inline-grid;
-      place-items: center;
-      border-radius: 50%;
-      background: #00aeef;
-      color: #ffffff;
-      font-size: 10px;
-      font-weight: 950;
-      letter-spacing: -0.08em;
+    .of-logo .provider-icon {
+      filter: drop-shadow(0 0 10px rgba(0, 174, 239, 0.34));
     }
 
     .account-link {
@@ -4023,10 +4023,10 @@
               <button id="topGoogleSignInBtn" class="auth-toggle" type="button">Google sign in</button>
               <button id="topXSignInBtn" class="auth-toggle x-auth" type="button">Continue with X</button>
               <button id="topFakePornhubBtn" class="auth-toggle fake-auth ph-auth" type="button" data-fake-provider="Pornhub" aria-label="Continue with Pornhub">
-                Continue with <span class="provider-logo ph-logo" aria-hidden="true">Porn<span class="ph-hub">hub</span></span>
+                Continue with <span class="provider-logo ph-logo" aria-hidden="true"><img class="provider-icon" src="https://cdn.simpleicons.org/pornhub/f59e0b" alt="" loading="lazy"><span class="provider-name">Pornhub</span></span>
               </button>
               <button id="topFakeOnlyFansBtn" class="auth-toggle fake-auth of-auth" type="button" data-fake-provider="OnlyFans" aria-label="Continue with OnlyFans">
-                Continue with <span class="provider-logo of-logo" aria-hidden="true"><span class="of-mark">OF</span><span>OnlyFans</span></span>
+                Continue with <span class="provider-logo of-logo" aria-hidden="true"><img class="provider-icon" src="https://cdn.simpleicons.org/onlyfans/00aeef" alt="" loading="lazy"><span class="provider-name">OnlyFans</span></span>
               </button>
               <button id="signOutBtn" class="auth-toggle" type="button" style="display: none;">Sign out</button>
             </div>
@@ -4200,10 +4200,10 @@
         <button id="googleSignInBtn" class="oauth-button" type="button" disabled>Continue with Google</button>
         <button id="xSignInBtn" class="oauth-button x-auth" type="button" disabled>Continue with X</button>
         <button id="fakePornhubBtn" class="oauth-button fake-auth ph-auth" type="button" data-fake-provider="Pornhub" aria-label="Continue with Pornhub">
-          Continue with <span class="provider-logo ph-logo" aria-hidden="true">Porn<span class="ph-hub">hub</span></span>
+          Continue with <span class="provider-logo ph-logo" aria-hidden="true"><img class="provider-icon" src="https://cdn.simpleicons.org/pornhub/f59e0b" alt="" loading="lazy"><span class="provider-name">Pornhub</span></span>
         </button>
         <button id="fakeOnlyFansBtn" class="oauth-button fake-auth of-auth" type="button" data-fake-provider="OnlyFans" aria-label="Continue with OnlyFans">
-          Continue with <span class="provider-logo of-logo" aria-hidden="true"><span class="of-mark">OF</span><span>OnlyFans</span></span>
+          Continue with <span class="provider-logo of-logo" aria-hidden="true"><img class="provider-icon" src="https://cdn.simpleicons.org/onlyfans/00aeef" alt="" loading="lazy"><span class="provider-name">OnlyFans</span></span>
         </button>
       </div>
       <div class="auth-note">Google sign-in uses a secure server cookie.</div>
@@ -4514,10 +4514,10 @@
         <button id="authPromptGoogleBtn" class="auth-prompt-google" type="button">Continue with Google</button>
         <button id="authPromptXBtn" class="auth-prompt-x" type="button">Continue with X</button>
         <button id="authPromptPornhubBtn" class="auth-prompt-fake ph-auth" type="button" data-fake-provider="Pornhub" aria-label="Continue with Pornhub">
-          Continue with <span class="provider-logo ph-logo" aria-hidden="true">Porn<span class="ph-hub">hub</span></span>
+          Continue with <span class="provider-logo ph-logo" aria-hidden="true"><img class="provider-icon" src="https://cdn.simpleicons.org/pornhub/f59e0b" alt="" loading="lazy"><span class="provider-name">Pornhub</span></span>
         </button>
         <button id="authPromptOnlyFansBtn" class="auth-prompt-fake of-auth" type="button" data-fake-provider="OnlyFans" aria-label="Continue with OnlyFans">
-          Continue with <span class="provider-logo of-logo" aria-hidden="true"><span class="of-mark">OF</span><span>OnlyFans</span></span>
+          Continue with <span class="provider-logo of-logo" aria-hidden="true"><img class="provider-icon" src="https://cdn.simpleicons.org/onlyfans/00aeef" alt="" loading="lazy"><span class="provider-name">OnlyFans</span></span>
         </button>
         <button id="authPromptSkipBtn" class="auth-prompt-skip" type="button">Explore first</button>
       </div>
@@ -7291,10 +7291,10 @@
 
     function getFakeProviderLogo(provider) {
       if (provider === "OnlyFans") {
-        return '<span class="provider-logo of-logo" aria-hidden="true"><span class="of-mark">OF</span><span>OnlyFans</span></span>';
+        return '<span class="provider-logo of-logo" aria-hidden="true"><img class="provider-icon" src="https://cdn.simpleicons.org/onlyfans/00aeef" alt="" loading="lazy"><span class="provider-name">OnlyFans</span></span>';
       }
 
-      return '<span class="provider-logo ph-logo" aria-hidden="true">Porn<span class="ph-hub">hub</span></span>';
+      return '<span class="provider-logo ph-logo" aria-hidden="true"><img class="provider-icon" src="https://cdn.simpleicons.org/pornhub/f59e0b" alt="" loading="lazy"><span class="provider-name">Pornhub</span></span>';
     }
 
     function launchCookedConfetti(provider) {
