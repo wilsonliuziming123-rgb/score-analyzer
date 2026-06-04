@@ -1617,21 +1617,24 @@
       border-radius: 0;
       background: transparent;
       color: #f8fafc;
-      font-family: "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
-      font-size: clamp(18px, 2.1vw, 32px);
-      font-weight: 800;
+      font-family: "Courier New", Courier, "Nimbus Mono L", monospace;
+      font-size: clamp(18px, 2vw, 30px);
+      font-weight: 700;
       line-height: 1.35;
-      letter-spacing: 0;
+      letter-spacing: 0.018em;
       opacity: 1;
       transform: none;
       animation: none;
-      text-shadow: 0 0 18px rgba(255, 255, 255, 0.18);
+      text-shadow: 0 0 7px rgba(255, 255, 255, 0.12);
+      font-variant-ligatures: none;
     }
 
     .cooked-prompt.is-scanning .cooked-scan-line::before {
       content: ">";
       margin-right: 14px;
       color: #facc15;
+      font-family: "Courier New", Courier, "Nimbus Mono L", monospace;
+      font-weight: 700;
     }
 
     .cooked-prompt.is-scanning .cooked-scan-dot {
@@ -1640,6 +1643,7 @@
 
     .cooked-scan-text {
       white-space: pre-wrap;
+      font-family: "Courier New", Courier, "Nimbus Mono L", monospace;
     }
 
     .cooked-scan-text.is-typing::after {
@@ -7160,7 +7164,7 @@
         element.innerHTML = '<span class="cooked-scan-dot" aria-hidden="true"></span><span class="cooked-scan-text"></span>';
       });
 
-      await waitForCookedScan(260);
+      await waitForCookedScan(520);
 
       for (let lineIndex = 0; lineIndex < lineElements.length; lineIndex++) {
         const textSpan = lineElements[lineIndex].querySelector(".cooked-scan-text");
@@ -7170,10 +7174,10 @@
         }
 
         await typeCookedScanLine(textSpan, lines[lineIndex] || "");
-        await waitForCookedScan(280);
+        await waitForCookedScan(620);
       }
 
-      await waitForCookedScan(520);
+      await waitForCookedScan(1100);
     }
 
     async function typeCookedScanLine(element, text) {
@@ -7190,14 +7194,14 @@
 
     function getCookedTypingDelay(character) {
       if (character === " " || character === "　") {
-        return 16;
+        return 42;
       }
 
       if (/[.,:;!?，。；：！？]/.test(character)) {
-        return 90;
+        return 190;
       }
 
-      return 34;
+      return 85;
     }
 
     function waitForCookedScan(delay) {
