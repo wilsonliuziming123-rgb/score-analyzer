@@ -305,6 +305,7 @@
       display: inline-flex;
       align-items: center;
       line-height: 1;
+      white-space: nowrap;
     }
 
     .provider-logo {
@@ -3921,6 +3922,64 @@
 
       .analysis-flow {
         grid-template-columns: 1fr;
+      }
+
+      .auth-prompt {
+        padding: 18px;
+      }
+
+      .auth-prompt-card {
+        width: min(100%, 420px);
+        padding: 28px 24px;
+        border-radius: 28px;
+      }
+
+      .auth-prompt-card h2 {
+        font-size: clamp(34px, 11vw, 50px);
+        line-height: 1.08;
+      }
+
+      .auth-prompt-actions button {
+        min-height: 58px;
+        padding: 0 18px;
+        gap: 8px;
+        font-size: 18px;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      .auth-prompt-actions .brand-action {
+        flex: 0 1 auto;
+        min-width: 0;
+      }
+
+      .auth-prompt-actions .provider-logo {
+        flex: 0 0 auto;
+      }
+
+      .auth-prompt-actions .provider-wordmark {
+        height: 17px;
+      }
+
+      .auth-prompt-actions .x-logo .provider-wordmark {
+        height: 22px;
+        width: 22px;
+      }
+
+      .auth-prompt-actions .ph-logo .provider-wordmark {
+        width: 86px;
+      }
+
+      .auth-prompt-actions .of-logo .provider-wordmark {
+        width: 96px;
+      }
+
+      .auth-prompt-fake.ph-auth {
+        color: #ffffff;
+      }
+
+      .auth-prompt-fake.ph-auth .brand-action {
+        color: #ffffff;
       }
     }
 
