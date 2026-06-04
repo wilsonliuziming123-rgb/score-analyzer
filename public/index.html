@@ -1442,6 +1442,22 @@
       justify-content: center;
     }
 
+    .cooked-bg-word {
+      position: absolute;
+      inset: auto -6vw 5vh auto;
+      z-index: 0;
+      color: rgba(255, 255, 255, 0.035);
+      font-size: clamp(96px, 18vw, 260px);
+      font-weight: 950;
+      line-height: 0.78;
+      pointer-events: none;
+      transform: rotate(-8deg);
+    }
+
+    .cooked-prompt.is-celebrating .cooked-bg-word {
+      animation: cookedBgDrift 7s ease-in-out infinite alternate;
+    }
+
     .cooked-prompt::before,
     .cooked-prompt::after {
       content: "";
@@ -1474,6 +1490,95 @@
       animation-delay: 0.2s;
     }
 
+    .cooked-scan {
+      position: relative;
+      z-index: 3;
+      width: min(680px, 100%);
+      padding: clamp(24px, 5vw, 48px);
+      border: 1px solid rgba(250, 204, 21, 0.32);
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(250, 204, 21, 0.12), transparent 34%),
+        rgba(8, 13, 23, 0.86);
+      color: white;
+      box-shadow: 0 36px 130px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+      display: none;
+    }
+
+    .cooked-prompt.is-scanning .cooked-scan {
+      display: grid;
+      gap: 16px;
+      animation: cookedScanIn 0.35s ease-out both;
+    }
+
+    .cooked-scan::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent, rgba(250, 204, 21, 0.16), transparent);
+      transform: translateY(-100%);
+      animation: cookedScanBeam 1.15s linear infinite;
+      pointer-events: none;
+    }
+
+    .cooked-scan-kicker {
+      position: relative;
+      display: inline-flex;
+      width: fit-content;
+      padding: 7px 12px;
+      border: 1px solid rgba(250, 204, 21, 0.34);
+      border-radius: 999px;
+      color: #fde68a;
+      font-size: 13px;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .cooked-scan h3 {
+      position: relative;
+      margin: 0;
+      font-size: clamp(30px, 5vw, 56px);
+      line-height: 1;
+    }
+
+    .cooked-scan-line {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 42px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 850;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: cookedScanLine 0.38s ease-out both;
+    }
+
+    .cooked-scan-line:nth-of-type(2) {
+      animation-delay: 0.28s;
+    }
+
+    .cooked-scan-line:nth-of-type(3) {
+      animation-delay: 0.68s;
+    }
+
+    .cooked-scan-line:nth-of-type(4) {
+      animation-delay: 1.08s;
+    }
+
+    .cooked-scan-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #facc15;
+      box-shadow: 0 0 18px rgba(250, 204, 21, 0.7);
+    }
+
     .cooked-card {
       position: relative;
       z-index: 2;
@@ -1493,6 +1598,12 @@
       box-shadow: 0 44px 160px rgba(0, 0, 0, 0.56);
       overflow: hidden;
       animation: cookedPop 0.5s cubic-bezier(.2, 1.5, .3, 1) both;
+    }
+
+    .cooked-prompt.is-scanning .cooked-card {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(24px) scale(0.92);
     }
 
     .cooked-card::before {
@@ -1558,6 +1669,21 @@
       animation: cookedLogoPop 0.55s cubic-bezier(.2, 1.6, .3, 1) 0.18s both;
     }
 
+    .cooked-status-badge {
+      position: relative;
+      z-index: 2;
+      margin: 2px 0 8px;
+      padding: 12px 18px;
+      border: 1px solid rgba(250, 204, 21, 0.52);
+      border-radius: 999px;
+      background: rgba(250, 204, 21, 0.13);
+      color: #fef3c7;
+      font-weight: 950;
+      text-transform: uppercase;
+      box-shadow: 0 0 34px rgba(250, 204, 21, 0.16);
+      animation: cookedBadgeIn 0.5s ease-out 0.28s both;
+    }
+
     .cooked-close {
       position: relative;
       z-index: 2;
@@ -1567,7 +1693,13 @@
       background: var(--gold);
       color: #111827;
       font-weight: 950;
+      box-shadow: 0 18px 50px rgba(250, 204, 21, 0.24);
       animation: cookedButtonIn 0.55s ease-out 0.46s both;
+    }
+
+    .cooked-close:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 24px 64px rgba(250, 204, 21, 0.34);
     }
 
     .confetti-stage {
@@ -1616,6 +1748,45 @@
       }
     }
 
+    @keyframes cookedScanIn {
+      from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.96);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes cookedScanBeam {
+      from {
+        transform: translateY(-100%);
+      }
+
+      to {
+        transform: translateY(100%);
+      }
+    }
+
+    @keyframes cookedScanLine {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes cookedBgDrift {
+      from {
+        transform: translate3d(0, 0, 0) rotate(-8deg) scale(1);
+      }
+
+      to {
+        transform: translate3d(-4vw, -2vh, 0) rotate(-5deg) scale(1.05);
+      }
+    }
+
     @keyframes cookedTitlePulse {
       0% {
         transform: scale(0.86) rotate(-1deg);
@@ -1633,6 +1804,18 @@
 
       100% {
         transform: scale(1);
+      }
+    }
+
+    @keyframes cookedBadgeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.94);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
       }
     }
 
@@ -4211,12 +4394,21 @@
 
   <section id="cookedPrompt" class="cooked-prompt" aria-hidden="true">
     <div id="confettiStage" class="confetti-stage" aria-hidden="true"></div>
+    <div class="cooked-bg-word" aria-hidden="true">COOKED</div>
+    <div class="cooked-scan" aria-hidden="true">
+      <div class="cooked-scan-kicker">Secure sign-in review</div>
+      <h3>Checking score distribution...</h3>
+      <div class="cooked-scan-line"><span class="cooked-scan-dot" aria-hidden="true"></span>Reviewing academic risk profile</div>
+      <div class="cooked-scan-line"><span class="cooked-scan-dot" aria-hidden="true"></span>Contacting suspicious provider council</div>
+      <div class="cooked-scan-line"><span class="cooked-scan-dot" aria-hidden="true"></span>Final decision: account cooked</div>
+    </div>
     <div class="cooked-card" role="dialog" aria-modal="true" aria-labelledby="cookedTitle">
       <div id="cookedProvider" class="cooked-kicker">Fake provider detected</div>
       <div id="cookedProviderLogo" class="cooked-provider-logo"></div>
       <h2 id="cookedTitle">YOU COOKED</h2>
+      <div class="cooked-status-badge">Account status: cooked</div>
       <p id="cookedText">This login provider has rejected your GPA. Please return to Google or X like a responsible scholar.</p>
-      <button id="cookedCloseBtn" class="cooked-close" type="button">Back to safety</button>
+      <button id="cookedCloseBtn" class="cooked-close" type="button">Return to reality</button>
     </div>
   </section>
 
@@ -4385,6 +4577,7 @@
     let recaptchaSiteKey = "";
     let recaptchaWidgetId = null;
     let recaptchaResolver = null;
+    let cookedRevealTimer = null;
     let revealObserver;
     let selectedCountry = "US";
     let countrySearchTerm = "";
@@ -6741,13 +6934,20 @@
       cookedProvider.textContent = formatProviderText(text.fakeCookedKicker || "{provider} account locked", provider);
       cookedProviderLogo.innerHTML = getFakeProviderLogo(provider);
       cookedText.textContent = formatProviderText(text.fakeCookedMessage || "{provider} reviewed your poor score distribution and decided to lock your account. Try Google or X if you want a real login.", provider);
+      clearTimeout(cookedRevealTimer);
+      confettiStage.innerHTML = "";
       cookedPrompt.classList.add("is-visible");
       cookedPrompt.setAttribute("aria-hidden", "false");
+      cookedPrompt.classList.add("is-scanning");
       cookedPrompt.classList.remove("is-celebrating");
-      void cookedPrompt.offsetWidth;
-      cookedPrompt.classList.add("is-celebrating");
-      launchCookedConfetti(provider);
-      cookedCloseBtn.focus();
+
+      cookedRevealTimer = setTimeout(function () {
+        cookedPrompt.classList.remove("is-scanning");
+        void cookedPrompt.offsetWidth;
+        cookedPrompt.classList.add("is-celebrating");
+        launchCookedConfetti(provider);
+        cookedCloseBtn.focus();
+      }, 1850);
     }
 
     function formatProviderText(template, provider) {
@@ -6755,8 +6955,11 @@
     }
 
     function closeCookedPrompt() {
+      clearTimeout(cookedRevealTimer);
+      cookedRevealTimer = null;
       cookedPrompt.classList.remove("is-visible");
       cookedPrompt.classList.remove("is-celebrating");
+      cookedPrompt.classList.remove("is-scanning");
       cookedPrompt.setAttribute("aria-hidden", "true");
       confettiStage.innerHTML = "";
     }
