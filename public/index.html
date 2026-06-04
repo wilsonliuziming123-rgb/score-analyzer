@@ -1616,25 +1616,25 @@
       border: 0;
       border-radius: 0;
       background: transparent;
-      color: #f8fafc;
-      font-family: "Courier New", Courier, "Nimbus Mono L", monospace;
-      font-size: clamp(18px, 2vw, 30px);
-      font-weight: 700;
-      line-height: 1.35;
-      letter-spacing: 0.018em;
+      color: #e5e7eb;
+      font-family: "Courier New", "Courier Prime", Courier, "Nimbus Mono L", monospace;
+      font-size: clamp(17px, 1.35vw, 22px);
+      font-weight: 400;
+      line-height: 1.75;
+      letter-spacing: 0.012em;
       opacity: 1;
       transform: none;
       animation: none;
-      text-shadow: 0 0 7px rgba(255, 255, 255, 0.12);
+      text-shadow: none;
       font-variant-ligatures: none;
     }
 
     .cooked-prompt.is-scanning .cooked-scan-line::before {
       content: ">";
-      margin-right: 14px;
+      margin-right: 12px;
       color: #facc15;
-      font-family: "Courier New", Courier, "Nimbus Mono L", monospace;
-      font-weight: 700;
+      font-family: "Courier New", "Courier Prime", Courier, "Nimbus Mono L", monospace;
+      font-weight: 400;
     }
 
     .cooked-prompt.is-scanning .cooked-scan-dot {
@@ -1643,17 +1643,17 @@
 
     .cooked-scan-text {
       white-space: pre-wrap;
-      font-family: "Courier New", Courier, "Nimbus Mono L", monospace;
+      font-family: "Courier New", "Courier Prime", Courier, "Nimbus Mono L", monospace;
     }
 
     .cooked-scan-text.is-typing::after {
       content: "";
       display: inline-block;
-      width: 0.58em;
-      height: 1em;
+      width: 0.12em;
+      height: 1.12em;
       margin-left: 4px;
-      background: #f8fafc;
-      vertical-align: -0.12em;
+      background: #e5e7eb;
+      vertical-align: -0.18em;
       animation: cookedCursorBlink 0.72s steps(1) infinite;
     }
 
