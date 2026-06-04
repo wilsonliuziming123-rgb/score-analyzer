@@ -279,6 +279,16 @@
       gap: 8px;
       color: #111827;
       font-weight: 950;
+      line-height: 1;
+    }
+
+    .x-auth,
+    .auth-prompt-x {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      line-height: 1;
     }
 
     .ph-auth {
@@ -291,19 +301,31 @@
       color: #00aeef;
     }
 
+    .brand-action {
+      display: inline-flex;
+      align-items: center;
+      line-height: 1;
+    }
+
     .provider-logo {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      flex: 0 0 auto;
       line-height: 1;
       white-space: nowrap;
+      vertical-align: middle;
     }
 
     .provider-wordmark {
       display: block;
-      height: 25px;
+      height: 19px;
       width: auto;
+    }
+
+    .x-logo .provider-wordmark {
+      height: 18px;
+      color: #ffffff;
     }
 
     .ph-logo {
@@ -313,6 +335,7 @@
     }
 
     .ph-logo .provider-wordmark {
+      width: 92px;
       filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.34));
     }
 
@@ -323,6 +346,7 @@
     }
 
     .of-logo .provider-wordmark {
+      width: 106px;
       filter: drop-shadow(0 0 10px rgba(0, 174, 239, 0.34));
     }
 
@@ -4014,12 +4038,12 @@
               <div id="authStatus" class="auth-status" style="display: none;"></div>
               <button id="accountRecordsBtn" class="account-link" type="button">Records</button>
               <button id="topGoogleSignInBtn" class="auth-toggle" type="button">Google sign in</button>
-              <button id="topXSignInBtn" class="auth-toggle x-auth" type="button">Continue with X</button>
+              <button id="topXSignInBtn" class="auth-toggle x-auth" type="button"><span class="brand-action">Continue with</span><span class="provider-logo x-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 44 44"><path fill="currentColor" d="M26.2 19.1 41 2h-5.4L23.8 15.8 14.4 2H2l15.5 22.7L2.7 42h5.4l12-14 9.7 14H42L26.2 19.1Zm-4.3 5-2.2-3.2L8.7 5.8h4.1l9 12.7 2.2 3.2 11.8 16.5h-4.1L21.9 24.1Z"></path></svg></span></button>
               <button id="topFakePornhubBtn" class="auth-toggle fake-auth ph-auth" type="button" data-fake-provider="Pornhub" aria-label="Continue with Pornhub">
-                Continue with <span class="provider-logo ph-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 188 44"><rect x="82" y="4" width="102" height="36" rx="7" fill="#f59e0b"></rect><text x="0" y="32" fill="#ffffff" font-family="Arial Black, Impact, sans-serif" font-size="31" font-weight="900">Porn</text><text x="94" y="32" fill="#050505" font-family="Arial Black, Impact, sans-serif" font-size="31" font-weight="900">hub</text></svg></span>
+                <span class="brand-action">Continue with</span><span class="provider-logo ph-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 188 44"><rect x="82" y="4" width="102" height="36" rx="7" fill="#f59e0b"></rect><text x="0" y="32" fill="#ffffff" font-family="Arial Black, Impact, sans-serif" font-size="31" font-weight="900">Porn</text><text x="94" y="32" fill="#050505" font-family="Arial Black, Impact, sans-serif" font-size="31" font-weight="900">hub</text></svg></span>
               </button>
               <button id="topFakeOnlyFansBtn" class="auth-toggle fake-auth of-auth" type="button" data-fake-provider="OnlyFans" aria-label="Continue with OnlyFans">
-                Continue with <span class="provider-logo of-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 214 44"><circle cx="22" cy="22" r="15" fill="#00aeef"></circle><circle cx="18" cy="22" r="5" fill="#ffffff"></circle><path d="M28 13h16l-9 8h-8z" fill="#00aeef"></path><text x="52" y="31" fill="#00aeef" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="900">OnlyFans</text></svg></span>
+                <span class="brand-action">Continue with</span><span class="provider-logo of-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 214 44"><circle cx="22" cy="22" r="15" fill="#00aeef"></circle><circle cx="18" cy="22" r="5" fill="#ffffff"></circle><path d="M28 13h16l-9 8h-8z" fill="#00aeef"></path><text x="52" y="31" fill="#00aeef" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="900">OnlyFans</text></svg></span>
               </button>
               <button id="signOutBtn" class="auth-toggle" type="button" style="display: none;">Sign out</button>
             </div>
@@ -4191,12 +4215,12 @@
       <p id="authPanelText">Use a verified Google account so saved analyses stay connected to a real user.</p>
       <div class="oauth-row">
         <button id="googleSignInBtn" class="oauth-button" type="button" disabled>Continue with Google</button>
-        <button id="xSignInBtn" class="oauth-button x-auth" type="button" disabled>Continue with X</button>
+        <button id="xSignInBtn" class="oauth-button x-auth" type="button" disabled><span class="brand-action">Continue with</span><span class="provider-logo x-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 44 44"><path fill="currentColor" d="M26.2 19.1 41 2h-5.4L23.8 15.8 14.4 2H2l15.5 22.7L2.7 42h5.4l12-14 9.7 14H42L26.2 19.1Zm-4.3 5-2.2-3.2L8.7 5.8h4.1l9 12.7 2.2 3.2 11.8 16.5h-4.1L21.9 24.1Z"></path></svg></span></button>
         <button id="fakePornhubBtn" class="oauth-button fake-auth ph-auth" type="button" data-fake-provider="Pornhub" aria-label="Continue with Pornhub">
-          Continue with <span class="provider-logo ph-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 188 44"><rect x="82" y="4" width="102" height="36" rx="7" fill="#f59e0b"></rect><text x="0" y="32" fill="#ffffff" font-family="Arial Black, Impact, sans-serif" font-size="31" font-weight="900">Porn</text><text x="94" y="32" fill="#050505" font-family="Arial Black, Impact, sans-serif" font-size="31" font-weight="900">hub</text></svg></span>
+          <span class="brand-action">Continue with</span><span class="provider-logo ph-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 188 44"><rect x="82" y="4" width="102" height="36" rx="7" fill="#f59e0b"></rect><text x="0" y="32" fill="#ffffff" font-family="Arial Black, Impact, sans-serif" font-size="31" font-weight="900">Porn</text><text x="94" y="32" fill="#050505" font-family="Arial Black, Impact, sans-serif" font-size="31" font-weight="900">hub</text></svg></span>
         </button>
         <button id="fakeOnlyFansBtn" class="oauth-button fake-auth of-auth" type="button" data-fake-provider="OnlyFans" aria-label="Continue with OnlyFans">
-          Continue with <span class="provider-logo of-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 214 44"><circle cx="22" cy="22" r="15" fill="#00aeef"></circle><circle cx="18" cy="22" r="5" fill="#ffffff"></circle><path d="M28 13h16l-9 8h-8z" fill="#00aeef"></path><text x="52" y="31" fill="#00aeef" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="900">OnlyFans</text></svg></span>
+          <span class="brand-action">Continue with</span><span class="provider-logo of-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 214 44"><circle cx="22" cy="22" r="15" fill="#00aeef"></circle><circle cx="18" cy="22" r="5" fill="#ffffff"></circle><path d="M28 13h16l-9 8h-8z" fill="#00aeef"></path><text x="52" y="31" fill="#00aeef" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="900">OnlyFans</text></svg></span>
         </button>
       </div>
       <div class="auth-note">Google sign-in uses a secure server cookie.</div>
@@ -4505,12 +4529,12 @@
       </p>
       <div class="auth-prompt-actions">
         <button id="authPromptGoogleBtn" class="auth-prompt-google" type="button">Continue with Google</button>
-        <button id="authPromptXBtn" class="auth-prompt-x" type="button">Continue with X</button>
+        <button id="authPromptXBtn" class="auth-prompt-x" type="button"><span class="brand-action">Continue with</span><span class="provider-logo x-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 44 44"><path fill="currentColor" d="M26.2 19.1 41 2h-5.4L23.8 15.8 14.4 2H2l15.5 22.7L2.7 42h5.4l12-14 9.7 14H42L26.2 19.1Zm-4.3 5-2.2-3.2L8.7 5.8h4.1l9 12.7 2.2 3.2 11.8 16.5h-4.1L21.9 24.1Z"></path></svg></span></button>
         <button id="authPromptPornhubBtn" class="auth-prompt-fake ph-auth" type="button" data-fake-provider="Pornhub" aria-label="Continue with Pornhub">
-          Continue with <span class="provider-logo ph-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 188 44"><rect x="82" y="4" width="102" height="36" rx="7" fill="#f59e0b"></rect><text x="0" y="32" fill="#ffffff" font-family="Arial Black, Impact, sans-serif" font-size="31" font-weight="900">Porn</text><text x="94" y="32" fill="#050505" font-family="Arial Black, Impact, sans-serif" font-size="31" font-weight="900">hub</text></svg></span>
+          <span class="brand-action">Continue with</span><span class="provider-logo ph-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 188 44"><rect x="82" y="4" width="102" height="36" rx="7" fill="#f59e0b"></rect><text x="0" y="32" fill="#ffffff" font-family="Arial Black, Impact, sans-serif" font-size="31" font-weight="900">Porn</text><text x="94" y="32" fill="#050505" font-family="Arial Black, Impact, sans-serif" font-size="31" font-weight="900">hub</text></svg></span>
         </button>
         <button id="authPromptOnlyFansBtn" class="auth-prompt-fake of-auth" type="button" data-fake-provider="OnlyFans" aria-label="Continue with OnlyFans">
-          Continue with <span class="provider-logo of-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 214 44"><circle cx="22" cy="22" r="15" fill="#00aeef"></circle><circle cx="18" cy="22" r="5" fill="#ffffff"></circle><path d="M28 13h16l-9 8h-8z" fill="#00aeef"></path><text x="52" y="31" fill="#00aeef" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="900">OnlyFans</text></svg></span>
+          <span class="brand-action">Continue with</span><span class="provider-logo of-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 214 44"><circle cx="22" cy="22" r="15" fill="#00aeef"></circle><circle cx="18" cy="22" r="5" fill="#ffffff"></circle><path d="M28 13h16l-9 8h-8z" fill="#00aeef"></path><text x="52" y="31" fill="#00aeef" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="900">OnlyFans</text></svg></span>
         </button>
         <button id="authPromptSkipBtn" class="auth-prompt-skip" type="button">Explore first</button>
       </div>
@@ -5305,7 +5329,7 @@
       document.getElementById("authPromptTitle").textContent = text.authPromptTitle || "Sign in to keep your analysis personal.";
       authPromptText.textContent = text.authPromptText || "Use Google sign-in to save records, reopen previous reports, and keep each analysis connected to a real account.";
       authPromptGoogleBtn.textContent = googleConfigured ? (text.continueWithGoogle || "Continue with Google") : (text.googleSetupRequired || "Google setup required");
-      authPromptXBtn.textContent = xConfigured ? (text.continueWithX || "Continue with X") : (text.xSetupRequired || "X setup required");
+      setXButtonContent(authPromptXBtn, xConfigured ? (text.continueWithX || "Continue with X") : (text.xSetupRequired || "X setup required"), xConfigured);
       authPromptSkipBtn.textContent = text.exploreFirst || "Explore first";
       updateProductCopy(text);
       updateInputFlow();
@@ -6265,9 +6289,35 @@
       authPromptGoogleBtn.disabled = !googleConfigured;
       authPromptGoogleBtn.textContent = googleConfigured ? (text.continueWithGoogle || "Continue with Google") : (text.googleSetupRequired || "Google sign-in needs setup");
       authPromptXBtn.disabled = !xConfigured;
-      authPromptXBtn.textContent = xConfigured ? (text.continueWithX || "Continue with X") : (text.xSetupRequired || "X setup required");
+      setXButtonContent(authPromptXBtn, xConfigured ? (text.continueWithX || "Continue with X") : (text.xSetupRequired || "X setup required"), xConfigured);
       authPrompt.classList.add("is-visible");
       authPrompt.setAttribute("aria-hidden", "false");
+    }
+
+    function setXButtonContent(button, label, showLogo) {
+      if (!showLogo) {
+        button.textContent = label;
+        return;
+      }
+
+      button.innerHTML = formatBrandLabel(label, "X", getXLogoSvg());
+    }
+
+    function formatBrandLabel(label, brandName, logoMarkup) {
+      const parts = String(label || "").split(brandName);
+
+      if (parts.length < 2) {
+        return '<span class="brand-action">' + escapeHtml(label) + '</span>' + logoMarkup;
+      }
+
+      return parts.map(function (part, index) {
+        const escapedPart = part.trim() ? '<span class="brand-action">' + escapeHtml(part.trim()) + '</span>' : "";
+        return escapedPart + (index < parts.length - 1 ? logoMarkup : "");
+      }).join("");
+    }
+
+    function getXLogoSvg() {
+      return '<span class="provider-logo x-logo" aria-hidden="true"><svg class="provider-wordmark" viewBox="0 0 44 44"><path fill="currentColor" d="M26.2 19.1 41 2h-5.4L23.8 15.8 14.4 2H2l15.5 22.7L2.7 42h5.4l12-14 9.7 14H42L26.2 19.1Zm-4.3 5-2.2-3.2L8.7 5.8h4.1l9 12.7 2.2 3.2 11.8 16.5h-4.1L21.9 24.1Z"></path></svg></span>';
     }
 
     function dismissAuthPrompt() {
@@ -7517,7 +7567,7 @@
       topGoogleSignInBtn.textContent = googleConfigured ? (text.googleSignIn || "Google sign in") : (text.googleSetupRequired || "Google setup required");
       topXSignInBtn.style.display = "inline-block";
       topXSignInBtn.disabled = !xConfigured;
-      topXSignInBtn.textContent = xConfigured ? (text.continueWithX || "Continue with X") : (text.xSetupRequired || "X setup required");
+      setXButtonContent(topXSignInBtn, xConfigured ? (text.continueWithX || "Continue with X") : (text.xSetupRequired || "X setup required"), xConfigured);
       topFakePornhubBtn.style.display = "inline-block";
       topFakeOnlyFansBtn.style.display = "inline-block";
       accountAvatar.textContent = "A";
@@ -7530,7 +7580,7 @@
       googleSignInBtn.textContent = googleConfigured ? (text.continueWithGoogle || "Continue with Google") : (text.googleSetupRequired || "Google setup required");
       xSignInBtn.style.display = "flex";
       xSignInBtn.disabled = !xConfigured;
-      xSignInBtn.textContent = xConfigured ? (text.continueWithX || "Continue with X") : (text.xSetupRequired || "X setup required");
+      setXButtonContent(xSignInBtn, xConfigured ? (text.continueWithX || "Continue with X") : (text.xSetupRequired || "X setup required"), xConfigured);
       fakePornhubBtn.style.display = "flex";
       fakeOnlyFansBtn.style.display = "flex";
     }
