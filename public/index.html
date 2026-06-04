@@ -165,6 +165,7 @@
 
     .account-menu {
       position: relative;
+      z-index: 22;
     }
 
     .account-menu summary {
@@ -346,7 +347,7 @@
 
     .country-panel {
       position: absolute;
-      z-index: 20;
+      z-index: 34;
       top: calc(100% + 10px);
       right: 0;
       width: min(360px, calc(100vw - 28px));
@@ -4010,6 +4011,11 @@
     countryPicker.addEventListener("click", handleCountryChoice);
     countryPicker.addEventListener("input", handleCountrySearch);
     document.addEventListener("click", closeCountryPanelOnOutsideClick);
+    accountMenu.addEventListener("toggle", function () {
+      if (accountMenu.open) {
+        closeCountryPanel();
+      }
+    });
     statisticsChart.addEventListener("click", handleChartSelection);
     statisticsChart.addEventListener("keydown", handleChartKeyboardSelection);
     distributionCurve.addEventListener("mouseover", showDistributionDetail);
@@ -4462,8 +4468,12 @@
       const option = event.target.closest(".country-option");
 
       if (menuButton) {
-        countryPanel.classList.toggle("is-open");
-        activeCountryButton.setAttribute("aria-expanded", countryPanel.classList.contains("is-open") ? "true" : "false");
+        if (countryPanel.classList.contains("is-open")) {
+          closeCountryPanel();
+        } else {
+          openCountryPanel();
+        }
+
         return;
       }
 
@@ -4473,8 +4483,7 @@
 
       selectedCountry = option.dataset.country;
       countrySearchTerm = "";
-      countryPanel.classList.remove("is-open");
-      activeCountryButton.setAttribute("aria-expanded", "false");
+      closeCountryPanel();
       applyCountryPreference();
     }
 
@@ -4492,6 +4501,16 @@
         return;
       }
 
+      closeCountryPanel();
+    }
+
+    function openCountryPanel() {
+      accountMenu.open = false;
+      countryPanel.classList.add("is-open");
+      activeCountryButton.setAttribute("aria-expanded", "true");
+    }
+
+    function closeCountryPanel() {
       countryPanel.classList.remove("is-open");
       activeCountryButton.setAttribute("aria-expanded", "false");
     }
